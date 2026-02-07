@@ -151,41 +151,122 @@ supabase db push     # Aplicar migrations
 supabase gen types   # Gerar tipos TypeScript
 ```
 
+## REGRAS DE EXECUÇÃO AUTOMÁTICA (OBRIGATÓRIO)
+
+**IMPORTANTE:** Estas regras devem ser seguidas AUTOMATICAMENTE, sem o usuário precisar pedir.
+
+### Triggers Automáticos de Subagentes
+
+| Situação Detectada | Ação OBRIGATÓRIA |
+|-------------------|------------------|
+| Usuário pede nova feature/funcionalidade | 1. `feature-planner` ANTES de codar |
+| Criar componente UI > 50 linhas | Usar `component-builder` |
+| Qualquer texto user-facing (labels, erros, mensagens) | Usar `copy-writer` |
+| Criar/modificar tabela no banco | Usar `db-architect` |
+| APÓS implementar qualquer feature | Rodar `code-reviewer` + `ux-reviewer` |
+| Feature envolve dados de usuário | Rodar `saas-security-auditor` |
+| Criar rota /admin ou área restrita | Verificar autenticação + `saas-security-auditor` |
+| Antes de fazer push/deploy | Rodar `test-runner` |
+| Feature complexa (>3 arquivos) | Começar com `pm-orchestrator` |
+
+### Checklist Obrigatório ANTES de Implementar
+
+- [ ] Pesquisei o codebase com `feature-planner`?
+- [ ] Entendi os padrões existentes?
+- [ ] Defini user story clara?
+- [ ] Identifiquei componentes reutilizáveis do design-system?
+
+### Checklist Obrigatório DEPOIS de Implementar
+
+- [ ] Rodei `code-reviewer`?
+- [ ] Rodei `ux-reviewer`?
+- [ ] Componentes têm < 200 linhas?
+- [ ] Usei React Query (não useState+useEffect para fetch)?
+- [ ] Tratei estados: loading, error, empty?
+- [ ] Adicionei aria-labels em botões de ícone?
+- [ ] Textos passaram pelo `copy-writer`?
+
+### Regras de Código OBRIGATÓRIAS
+
+1. **NUNCA usar useState+useEffect para fetch de dados** → Usar React Query
+2. **NUNCA criar componente > 200 linhas** → Quebrar em componentes menores
+3. **NUNCA criar rota admin sem auth** → Verificar autenticação primeiro
+4. **NUNCA ignorar erros de API** → Sempre tratar e mostrar feedback
+5. **NUNCA botão só com ícone sem aria-label** → Acessibilidade obrigatória
+6. **NUNCA duplicar código** → Extrair para utils/hooks compartilhados
+
+### Padrões de Implementação
+
+```tsx
+// ERRADO - Nunca fazer isso
+const [data, setData] = useState([]);
+const [loading, setLoading] = useState(true);
+useEffect(() => {
+  fetch().then(setData).finally(() => setLoading(false));
+}, []);
+
+// CERTO - Sempre usar React Query
+const { data, isLoading, error } = useQuery({
+  queryKey: ['key'],
+  queryFn: fetchFunction,
+});
+```
+
+```tsx
+// ERRADO - Componente muito grande
+export function BigComponent() {
+  // 500 linhas de código...
+}
+
+// CERTO - Quebrar em partes
+export function BigComponent() {
+  return (
+    <>
+      <Header />
+      <MainContent />
+      <Footer />
+    </>
+  );
+}
+```
+
 ## Subagentes Disponíveis
 
-Use `subagente X para [tarefa]` no seu prompt:
-
-| Agente | Quando Usar |
-|--------|-------------|
-| `pm-orchestrator` | Planejar features complexas, coordenar trabalho paralelo |
-| `feature-planner` | Pesquisar e planejar antes de implementar |
-| `db-architect` | Criar/modificar schema do banco |
-| `component-builder` | Criar componentes UI |
-| `code-reviewer` | Revisar código após implementar |
-| `test-runner` | Rodar e analisar testes |
-| `e2e-tester` | Criar testes E2E |
-| `saas-security-auditor` | Auditoria de segurança multi-tenant |
-| `rls-validator` | Validar políticas RLS |
-| `ux-reviewer` | Revisar UX e acessibilidade |
-| `copy-writer` | Escrever microcopy |
-| `performance-analyzer` | Analisar performance |
-| `accessibility-auditor` | Auditoria WCAG |
+| Agente | Trigger Automático |
+|--------|-------------------|
+| `pm-orchestrator` | Feature complexa, múltiplos arquivos |
+| `feature-planner` | **SEMPRE** antes de implementar feature |
+| `db-architect` | Qualquer mudança de schema |
+| `component-builder` | Componente UI novo > 50 linhas |
+| `code-reviewer` | **SEMPRE** após implementar |
+| `test-runner` | Antes de push, após mudanças significativas |
+| `e2e-tester` | Fluxos críticos (auth, checkout, onboarding) |
+| `saas-security-auditor` | Rotas admin, dados sensíveis, RLS |
+| `rls-validator` | Qualquer policy RLS nova |
+| `ux-reviewer` | **SEMPRE** após implementar UI |
+| `copy-writer` | Textos user-facing, mensagens de erro |
+| `performance-analyzer` | Antes de release, componentes pesados |
+| `accessibility-auditor` | Componentes interativos, formulários |
 
 ## Workflow Padrão para Features
 
 ```
-1. pm-orchestrator → Planejar e quebrar em tarefas
-2. feature-planner → Pesquisar codebase
-3. [paralelo]
-   - db-architect → Migrations
-   - component-builder → UI
-4. Implementar lógica
-5. [paralelo]
-   - code-reviewer → Review
-   - test-runner → Testes
-   - ux-reviewer → UX
-6. saas-security-auditor → Segurança
-7. Merge
+ANTES:
+1. feature-planner → Pesquisar codebase e criar plano
+2. pm-orchestrator → Se complexo, quebrar em tarefas
+
+DURANTE:
+3. db-architect → Se precisar de banco
+4. component-builder → Para UI significativa
+5. copy-writer → Para textos user-facing
+6. Implementar seguindo padrões acima
+
+DEPOIS:
+7. code-reviewer → Review obrigatório
+8. ux-reviewer → UX review obrigatório
+9. test-runner → Rodar testes
+10. saas-security-auditor → Se envolver dados/auth
+11. Push/Deploy
 ```
 
 ## Regras Importantes
