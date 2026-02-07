@@ -1,0 +1,93 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": ".claude/statusline.sh"
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'display notification \"Claude Code needs your attention\" with title \"KOSMOS Toolkit\"'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'FILE=$(echo $CLAUDE_TOOL_INPUT | jq -r \".file_path // empty\"); if [[ \"$FILE\" == *.env* ]] || [[ \"$FILE\" == *credentials* ]] || [[ \"$FILE\" == *secret* ]]; then echo \"BLOCKED: Cannot edit sensitive file: $FILE\" >&2; exit 2; fi'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'FILE=$(echo $CLAUDE_TOOL_INPUT | jq -r \".file_path // empty\"); if [[ \"$FILE\" == *.ts ]] || [[ \"$FILE\" == *.tsx ]]; then npx eslint --fix \"$FILE\" 2>/dev/null || true; fi'"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Você é um security reviewer para o KOSMOS Toolkit (SaaS multi-tenant). Analise este comando bash e decida se é seguro executar.\n\nContexto do projeto:\n- React + TypeScript + Supabase\n- Multi-tenant com RLS\n- Ambiente de desenvolvimento\n\nComando para análise: $TOOL_INPUT\n\nRegras:\n1. Comandos de leitura (ls, cat, grep) são seguros\n2. npm scripts definidos no package.json são seguros\n3. git commands não-destrutivos são seguros\n4. Instalação de pacotes npm requer cuidado\n5. Comandos que deletam arquivos requerem análise\n6. Comandos que acessam rede externa requerem análise\n\nResponda APENAS com JSON válido:\n{\"decision\": \"allow\" | \"deny\", \"reason\": \"explicação breve\"}",
+            "model": "haiku"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev)",
+      "Bash(npm run build)",
+      "Bash(npm run build:dev)",
+      "Bash(npm test)",
+      "Bash(npm run test:watch)",
+      "Bash(npm run lint)",
+      "Bash(npm install*)",
+      "Bash(npx vitest*)",
+      "Bash(npx eslint*)",
+      "Bash(npx prettier*)",
+      "Bash(npx tsc*)",
+      "Bash(npx playwright*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git branch*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git push*)",
+      "Bash(git pull*)",
+      "Bash(git checkout*)",
+      "Bash(git stash*)",
+      "Bash(mkdir*)",
+      "Bash(mv *)",
+      "Bash(cp *)",
+      "Bash(chmod*)",
+      "Bash(ls*)",
+      "Bash(du *)",
+      "Bash(which*)",
+      "Bash(supabase*)"
+    ],
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(sudo *)",
+      "Bash(curl * | bash)",
+      "Bash(wget * | bash)"
+    ]
+  }
+}

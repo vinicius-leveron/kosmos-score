@@ -1,4 +1,4 @@
-import { AuditFlow } from '@/components/audit/AuditFlow';
+import { AuditFlow } from '@/modules/kosmos-score/components/AuditFlow';
 
 const Index = () => {
   return <AuditFlow />;
