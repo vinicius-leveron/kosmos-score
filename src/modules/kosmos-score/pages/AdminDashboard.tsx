@@ -13,11 +13,21 @@ import {
   PieChart,
   Lightbulb,
   RefreshCw,
-  List
+  List,
+  Activity
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/design-system/lib/utils';
 import type { Tables } from '@/integrations/supabase/types';
+import { useChartData } from '@/modules/kosmos-score/hooks/useChartData';
+import {
+  LeadTypePieChart,
+  PillarRadarChart,
+  ScoreDistributionBarChart,
+  LeadsTimelineChart,
+  BaseSizeRankingChart,
+  AverageScoreGauge,
+} from '@/modules/kosmos-score/components/charts';
 
 type AuditResult = Tables<'audit_results'>;
 
@@ -113,6 +123,9 @@ export function AdminDashboard() {
       minimumFractionDigits: 0,
     }).format(value);
   };
+
+  // Chart data hook
+  const chartData = useChartData(results);
 
   const insights = useMemo(() => {
     if (!analytics) return [];
@@ -304,198 +317,90 @@ export function AdminDashboard() {
           </div>
         </div>
 
-        <Tabs defaultValue="distribution" className="space-y-4">
+        <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="bg-kosmos-black-soft border border-border">
-            <TabsTrigger value="distribution" className="font-display text-xs data-[state=active]:bg-kosmos-orange data-[state=active]:text-white">
+            <TabsTrigger value="overview" className="font-display text-xs data-[state=active]:bg-kosmos-orange data-[state=active]:text-white">
+              <Activity className="h-4 w-4 mr-2" />
+              Visão Geral
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="font-display text-xs data-[state=active]:bg-kosmos-orange data-[state=active]:text-white">
               <BarChart3 className="h-4 w-4 mr-2" />
-              Distribuição
+              Análises
             </TabsTrigger>
-            <TabsTrigger value="pillars" className="font-display text-xs data-[state=active]:bg-kosmos-orange data-[state=active]:text-white">
-              <PieChart className="h-4 w-4 mr-2" />
-              Pilares
-            </TabsTrigger>
-            <TabsTrigger value="profile" className="font-display text-xs data-[state=active]:bg-kosmos-orange data-[state=active]:text-white">
+            <TabsTrigger value="leads" className="font-display text-xs data-[state=active]:bg-kosmos-orange data-[state=active]:text-white">
               <Users className="h-4 w-4 mr-2" />
-              Perfil
+              Leads
             </TabsTrigger>
           </TabsList>
 
-          {/* Score Distribution */}
-          <TabsContent value="distribution">
-            <div className="card-structural p-6">
+          {/* Overview - Main Charts */}
+          <TabsContent value="overview">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <LeadTypePieChart data={chartData.leadTypeData} />
+              <AverageScoreGauge score={chartData.averageScore} />
+              <PillarRadarChart data={chartData.pillarAverages} />
+            </div>
+          </TabsContent>
+
+          {/* Analytics - Distribution & Timeline */}
+          <TabsContent value="analytics">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <ScoreDistributionBarChart data={chartData.scoreDistribution} />
+              <LeadsTimelineChart data={chartData.timelineData} />
+            </div>
+
+            {/* Lucro Oculto Summary */}
+            <div className="card-structural p-6 mt-4">
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-1 h-5 bg-kosmos-orange rounded-r" />
-                <h3 className="font-display text-sm font-semibold text-kosmos-white tracking-wider">DISTRIBUIÇÃO DE SCORES</h3>
+                <DollarSign className="h-5 w-5 text-kosmos-orange" />
+                <h3 className="font-display text-sm font-semibold text-kosmos-white tracking-wider">LUCRO OCULTO</h3>
               </div>
-              <div className="space-y-4">
-                {analytics.scoreDistribution.map((range) => (
-                  <div key={range.label} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className={cn("w-3 h-3 rounded-full", range.color)} />
-                        <span className="font-display font-medium text-kosmos-white">{range.label}</span>
-                        <span className="text-kosmos-gray text-sm">({range.min}-{range.max})</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-display font-bold text-kosmos-white">{range.count}</span>
-                        <span className="text-kosmos-gray text-sm">({Math.round(range.percentage)}%)</span>
-                      </div>
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="p-4 bg-kosmos-black-light rounded-lg">
+                  <div className="font-display text-2xl font-bold text-kosmos-orange">
+                    {formatCurrency(analytics.totalLucroOculto)}
+                  </div>
+                  <div className="text-sm text-kosmos-gray">Total</div>
+                </div>
+                <div className="p-4 bg-kosmos-black-light rounded-lg">
+                  <div className="font-display text-2xl font-bold text-kosmos-orange">
+                    {formatCurrency(analytics.avgLucroOculto)}
+                  </div>
+                  <div className="text-sm text-kosmos-gray">Média por Lead</div>
+                </div>
+                <div className="p-4 bg-kosmos-black-light rounded-lg">
+                  <div className="font-display text-2xl font-bold text-kosmos-orange">
+                    {formatCurrency(Math.max(...results.map(r => r.lucro_oculto)))}
+                  </div>
+                  <div className="text-sm text-kosmos-gray">Maior Potencial</div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Leads - Ranking & Profile */}
+          <TabsContent value="leads">
+            <BaseSizeRankingChart data={chartData.topBases} />
+
+            {/* Tamanho de Base by Category */}
+            <div className="card-structural p-6 mt-4">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-1 h-5 bg-kosmos-orange rounded-r" />
+                <h3 className="font-display text-sm font-semibold text-kosmos-white tracking-wider">DISTRIBUIÇÃO POR BASE</h3>
+              </div>
+              <div className="space-y-3">
+                {analytics.topBaseSizes.map(([size, count], i) => (
+                  <div key={size} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Badge variant={i === 0 ? 'default' : 'secondary'} className={i === 0 ? 'bg-kosmos-orange text-white' : 'bg-kosmos-black-light text-kosmos-gray'}>
+                        #{i + 1}
+                      </Badge>
+                      <span className="text-sm text-kosmos-gray-light">{size}</span>
                     </div>
-                    <div className="h-3 bg-kosmos-black-light rounded-full overflow-hidden">
-                      <div
-                        className={cn("h-full rounded-full transition-all duration-500", range.color)}
-                        style={{ width: `${range.percentage}%` }}
-                      />
-                    </div>
+                    <span className="font-display font-medium text-kosmos-white">{count} leads</span>
                   </div>
                 ))}
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Pillars Analysis */}
-          <TabsContent value="pillars">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="card-structural p-6">
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-1 h-5 bg-kosmos-orange rounded-r" />
-                  <h3 className="font-display text-sm font-semibold text-kosmos-white tracking-wider">SCORES POR PILAR</h3>
-                </div>
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-display text-kosmos-gray-light">Causa (Identidade)</span>
-                      <span className="font-display font-bold text-kosmos-orange">{Math.round(analytics.avgCausa)}/100</span>
-                    </div>
-                    <div className="h-2 bg-kosmos-black-light rounded-full overflow-hidden">
-                      <div className="h-full bg-blue-500 rounded-full" style={{ width: `${analytics.avgCausa}%` }} />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-display text-kosmos-gray-light">Cultura (Retenção)</span>
-                      <span className="font-display font-bold text-kosmos-orange">{Math.round(analytics.avgCultura)}/100</span>
-                    </div>
-                    <div className="h-2 bg-kosmos-black-light rounded-full overflow-hidden">
-                      <div className="h-full bg-purple-500 rounded-full" style={{ width: `${analytics.avgCultura}%` }} />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-display text-kosmos-gray-light">Economia (Lucro)</span>
-                      <span className="font-display font-bold text-kosmos-orange">{Math.round(analytics.avgEconomia)}/100</span>
-                    </div>
-                    <div className="h-2 bg-kosmos-black-light rounded-full overflow-hidden">
-                      <div className="h-full bg-green-500 rounded-full" style={{ width: `${analytics.avgEconomia}%` }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="card-structural p-6">
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-1 h-5 bg-kosmos-orange rounded-r" />
-                  <h3 className="font-display text-sm font-semibold text-kosmos-white tracking-wider">PILAR MAIS FRACO</h3>
-                </div>
-                <div className="space-y-4">
-                  {Object.entries(analytics.weakestPillars)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([pillar, count]) => {
-                      const percentage = (count / analytics.total) * 100;
-                      const names = { causa: 'Causa', cultura: 'Cultura', economia: 'Economia' };
-                      const colors = { causa: 'bg-blue-500', cultura: 'bg-purple-500', economia: 'bg-green-500' };
-                      return (
-                        <div key={pillar} className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="font-display text-kosmos-gray-light">{names[pillar as keyof typeof names]}</span>
-                            <span className="text-kosmos-gray text-sm">
-                              {count} leads ({Math.round(percentage)}%)
-                            </span>
-                          </div>
-                          <div className="h-2 bg-kosmos-black-light rounded-full overflow-hidden">
-                            <div
-                              className={cn("h-full rounded-full", colors[pillar as keyof typeof colors])}
-                              style={{ width: `${percentage}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Lead Profile */}
-          <TabsContent value="profile">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="card-structural p-6">
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-1 h-5 bg-kosmos-orange rounded-r" />
-                  <h3 className="font-display text-sm font-semibold text-kosmos-white tracking-wider">TIPO DE LEAD</h3>
-                </div>
-                <div className="flex items-center justify-center gap-8 py-4">
-                  <div className="text-center">
-                    <div className="font-display text-4xl font-bold text-blue-500">{analytics.beginners}</div>
-                    <div className="text-sm text-kosmos-gray">Iniciantes</div>
-                    <div className="text-xs text-kosmos-gray/60">({Math.round(analytics.beginnerPercentage)}%)</div>
-                  </div>
-                  <div className="h-16 w-px bg-border" />
-                  <div className="text-center">
-                    <div className="font-display text-4xl font-bold text-green-500">{analytics.experienced}</div>
-                    <div className="text-sm text-kosmos-gray">Experientes</div>
-                    <div className="text-xs text-kosmos-gray/60">({Math.round(100 - analytics.beginnerPercentage)}%)</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="card-structural p-6">
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-1 h-5 bg-kosmos-orange rounded-r" />
-                  <h3 className="font-display text-sm font-semibold text-kosmos-white tracking-wider">TAMANHO DE BASE</h3>
-                </div>
-                <div className="space-y-3">
-                  {analytics.topBaseSizes.map(([size, count], i) => (
-                    <div key={size} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Badge variant={i === 0 ? 'default' : 'secondary'} className={i === 0 ? 'bg-kosmos-orange text-white' : 'bg-kosmos-black-light text-kosmos-gray'}>
-                          #{i + 1}
-                        </Badge>
-                        <span className="text-sm text-kosmos-gray-light">{size}</span>
-                      </div>
-                      <span className="font-display font-medium text-kosmos-white">{count} leads</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="card-structural p-6 md:col-span-2">
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-1 h-5 bg-kosmos-orange rounded-r" />
-                  <h3 className="font-display text-sm font-semibold text-kosmos-white tracking-wider">LUCRO OCULTO</h3>
-                </div>
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div className="p-4 bg-kosmos-black-light rounded-lg">
-                    <div className="font-display text-2xl font-bold text-kosmos-orange">
-                      {formatCurrency(analytics.totalLucroOculto)}
-                    </div>
-                    <div className="text-sm text-kosmos-gray">Total</div>
-                  </div>
-                  <div className="p-4 bg-kosmos-black-light rounded-lg">
-                    <div className="font-display text-2xl font-bold text-kosmos-orange">
-                      {formatCurrency(analytics.avgLucroOculto)}
-                    </div>
-                    <div className="text-sm text-kosmos-gray">Média por Lead</div>
-                  </div>
-                  <div className="p-4 bg-kosmos-black-light rounded-lg">
-                    <div className="font-display text-2xl font-bold text-kosmos-orange">
-                      {formatCurrency(Math.max(...results.map(r => r.lucro_oculto)))}
-                    </div>
-                    <div className="text-sm text-kosmos-gray">Maior Potencial</div>
-                  </div>
-                </div>
               </div>
             </div>
           </TabsContent>
