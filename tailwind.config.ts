@@ -59,11 +59,14 @@ export default {
         },
         kosmos: {
           black: "hsl(var(--kosmos-black))",
+          "black-soft": "hsl(var(--kosmos-black-soft))",
           "black-light": "hsl(var(--kosmos-black-light))",
           "black-lighter": "hsl(var(--kosmos-black-lighter))",
           orange: "hsl(var(--kosmos-orange))",
+          "orange-muted": "hsl(var(--kosmos-orange-muted))",
           "orange-glow": "hsl(var(--kosmos-orange-glow))",
           gray: "hsl(var(--kosmos-gray))",
+          "gray-light": "hsl(var(--kosmos-gray-light))",
           white: "hsl(var(--kosmos-white))",
         },
         score: {
@@ -80,6 +83,7 @@ export default {
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["Space Grotesk", "system-ui", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {

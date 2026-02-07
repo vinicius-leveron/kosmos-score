@@ -1,11 +1,9 @@
-import { useState } from 'react';
 import { Button } from '@/design-system/primitives/button';
-import { Card, CardContent } from '@/design-system/primitives/card';
 import { Progress } from '@/design-system/primitives/progress';
 import { RadioGroup, RadioGroupItem } from '@/design-system/primitives/radio-group';
 import { Label } from '@/design-system/primitives/label';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { Question, AuditAnswers } from '@/modules/kosmos-score/lib/auditQuestions';
+import { Question } from '@/modules/kosmos-score/lib/auditQuestions';
 import { cn } from '@/design-system/lib/utils';
 
 interface QuestionScreenProps {
@@ -35,9 +33,9 @@ export function QuestionScreen({
   const getPillarLabel = (pillar?: string) => {
     if (!pillar) return null;
     const labels = {
-      causa: 'PILAR CAUSA',
-      cultura: 'PILAR CULTURA',
-      economia: 'PILAR ECONOMIA',
+      causa: 'CAUSA',
+      cultura: 'CULTURA',
+      economia: 'ECONOMIA',
     };
     return labels[pillar as keyof typeof labels];
   };
@@ -47,33 +45,46 @@ export function QuestionScreen({
   };
 
   return (
-    <div className="min-h-screen gradient-kosmos flex flex-col px-4 py-6 md:py-12">
-      <div className="w-full max-w-2xl mx-auto flex-1 flex flex-col">
+    <div className="min-h-screen bg-kosmos-black blueprint-grid flex flex-col px-4 py-6 md:py-12 relative">
+      {/* Structural Lines */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/20 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/20 to-transparent" />
+
+      <div className="w-full max-w-2xl mx-auto flex-1 flex flex-col relative z-10">
         {/* Header with Progress */}
         <div className="mb-8 animate-fade-in">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-primary font-semibold tracking-widest text-xs">
-              KOSMOS
-            </span>
-            <span className="text-muted-foreground text-sm">
-              {currentIndex + 1} de {totalQuestions}
-            </span>
+          <div className="flex items-center justify-between mb-4">
+            <div className="inline-flex items-center gap-2">
+              <div className="w-4 h-px bg-kosmos-orange" />
+              <span className="text-kosmos-orange font-display font-semibold tracking-[0.2em] text-xs">
+                KOSMOS
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-kosmos-gray text-sm font-display">
+                {String(currentIndex + 1).padStart(2, '0')}
+              </span>
+              <span className="text-kosmos-gray/50">/</span>
+              <span className="text-kosmos-gray/50 text-sm">
+                {String(totalQuestions).padStart(2, '0')}
+              </span>
+            </div>
           </div>
-          <Progress value={progress} className="h-1.5 bg-secondary" />
+          <Progress value={progress} className="h-1 bg-kosmos-black-light" />
         </div>
 
         {/* Question Card */}
-        <Card className="card-premium border-0 bg-card/50 flex-1 flex flex-col animate-slide-in">
-          <CardContent className="p-6 md:p-10 flex-1 flex flex-col">
+        <div className="card-structural flex-1 flex flex-col animate-slide-in">
+          <div className="p-6 md:p-10 flex-1 flex flex-col">
             {/* Block/Pillar Label */}
-            <div className="flex items-center gap-2 mb-6">
-              <span className="text-muted-foreground text-xs font-medium tracking-wider">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="text-kosmos-gray text-xs font-display tracking-wider">
                 {getBlockLabel(question.block)}
               </span>
               {question.pillar && (
                 <>
-                  <span className="text-muted-foreground/50">•</span>
-                  <span className="text-primary text-xs font-medium tracking-wider">
+                  <div className="w-px h-3 bg-border" />
+                  <span className="text-kosmos-orange text-xs font-display tracking-wider">
                     {getPillarLabel(question.pillar)}
                   </span>
                 </>
@@ -81,11 +92,11 @@ export function QuestionScreen({
             </div>
 
             {/* Question */}
-            <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-2 leading-tight">
+            <h2 className="font-display text-xl md:text-2xl font-semibold text-kosmos-white mb-2 leading-tight">
               {question.title}
             </h2>
             {question.subtitle && (
-              <p className="text-muted-foreground text-sm mb-6">
+              <p className="text-kosmos-gray text-sm mb-6">
                 {question.subtitle}
               </p>
             )}
@@ -107,19 +118,19 @@ export function QuestionScreen({
                   className={cn(
                     'relative flex items-center space-x-4 rounded-lg border p-4 cursor-pointer transition-all duration-200',
                     selectedAnswer?.value === option.value
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border/50 bg-secondary/30 hover:border-border hover:bg-secondary/50'
+                      ? 'border-kosmos-orange bg-kosmos-orange/10'
+                      : 'border-border bg-kosmos-black-soft hover:border-kosmos-gray/30 hover:bg-kosmos-black-light'
                   )}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   <RadioGroupItem
                     value={option.value}
                     id={option.value}
-                    className="border-muted-foreground/50 data-[state=checked]:border-primary data-[state=checked]:text-primary"
+                    className="border-kosmos-gray/50 data-[state=checked]:border-kosmos-orange data-[state=checked]:text-kosmos-orange"
                   />
                   <Label
                     htmlFor={option.value}
-                    className="flex-1 cursor-pointer text-foreground font-medium"
+                    className="flex-1 cursor-pointer text-kosmos-white font-medium"
                   >
                     {option.label}
                   </Label>
@@ -133,7 +144,7 @@ export function QuestionScreen({
                 variant="ghost"
                 onClick={onPrevious}
                 disabled={!canGoBack}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-kosmos-gray hover:text-kosmos-white hover:bg-kosmos-black-light"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Voltar
@@ -143,16 +154,16 @@ export function QuestionScreen({
                 onClick={onNext}
                 disabled={!selectedAnswer}
                 className={cn(
-                  'min-w-[140px]',
-                  selectedAnswer && 'glow-orange'
+                  'min-w-[140px] font-display bg-kosmos-orange hover:bg-kosmos-orange-glow text-white transition-all duration-300',
+                  selectedAnswer && 'glow-orange-subtle'
                 )}
               >
                 {isLastQuestion ? 'Ver Resultado' : 'Próxima'}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

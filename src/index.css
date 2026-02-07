@@ -2,49 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
-/* KOSMOS Design System - Premium Consultoria Visual */
+/*
+ * KOSMOS Design System
+ * Cânone de Fundação - "Arquitetura que abriga"
+ *
+ * Cores: Preto (#000000), Branco (#FFFFFF), Laranja Queimado (#FF4500)
+ * Tipografia: Space Grotesk (display), Inter (body)
+ */
 
 @layer base {
   :root {
-    /* Light mode - usando dark como default para KOSMOS */
-    --background: 0 0% 4%;
+    /* KOSMOS Dark Theme - Default */
+    --background: 0 0% 0%;
     --foreground: 0 0% 100%;
 
-    --card: 0 0% 7%;
+    --card: 0 0% 5%;
     --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 7%;
+    --popover: 0 0% 5%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 24 78% 47%;
+    /* Laranja Queimado #FF4500 = hsl(16, 100%, 50%) */
+    --primary: 16 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 11%;
+    --secondary: 0 0% 10%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 16%;
-    --muted-foreground: 0 0% 63%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 24 78% 47%;
+    --accent: 16 100% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 24 78% 47%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 16 100% 50%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    /* KOSMOS Custom Colors */
-    --kosmos-black: 0 0% 4%;
+    /* KOSMOS Brand Colors */
+    --kosmos-black: 0 0% 0%;
+    --kosmos-black-soft: 0 0% 5%;
     --kosmos-black-light: 0 0% 10%;
-    --kosmos-black-lighter: 0 0% 16%;
-    --kosmos-orange: 24 78% 47%;
-    --kosmos-orange-glow: 24 78% 55%;
-    --kosmos-gray: 0 0% 63%;
+    --kosmos-black-lighter: 0 0% 15%;
+    --kosmos-orange: 16 100% 50%;
+    --kosmos-orange-muted: 16 80% 45%;
+    --kosmos-orange-glow: 16 100% 55%;
+    --kosmos-gray: 0 0% 65%;
+    --kosmos-gray-light: 0 0% 85%;
     --kosmos-white: 0 0% 100%;
+
+    /* Blueprint Grid Color */
+    --blueprint-line: 0 0% 15%;
 
     /* Score Colors */
     --score-red: 0 72% 51%;
@@ -52,53 +65,53 @@
     --score-yellow: 48 96% 53%;
     --score-green: 142 71% 45%;
 
-    --sidebar-background: 0 0% 4%;
+    --sidebar-background: 0 0% 0%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 24 78% 47%;
+    --sidebar-primary: 16 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 11%;
+    --sidebar-accent: 0 0% 10%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 24 78% 47%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 16 100% 50%;
   }
 
   .dark {
-    --background: 0 0% 4%;
+    --background: 0 0% 0%;
     --foreground: 0 0% 100%;
 
-    --card: 0 0% 7%;
+    --card: 0 0% 5%;
     --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 7%;
+    --popover: 0 0% 5%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 24 78% 47%;
+    --primary: 16 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 11%;
+    --secondary: 0 0% 10%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 16%;
-    --muted-foreground: 0 0% 63%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 24 78% 47%;
+    --accent: 16 100% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 31%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 24 78% 47%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 16 100% 50%;
 
-    --sidebar-background: 0 0% 4%;
+    --sidebar-background: 0 0% 0%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 24 78% 47%;
+    --sidebar-primary: 16 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 11%;
+    --sidebar-accent: 0 0% 10%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 24 78% 47%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 16 100% 50%;
   }
 }
 
@@ -114,14 +127,21 @@
 }
 
 @layer utilities {
+  /* ==========================================
+   * KOSMOS Design System Utilities
+   * "Arquitetura que abriga" - Blueprint Aesthetic
+   * ========================================== */
+
+  /* Gradient Backgrounds */
   .gradient-kosmos {
     background: linear-gradient(180deg, hsl(var(--kosmos-black)) 0%, hsl(var(--kosmos-black-light)) 100%);
   }
 
   .gradient-card {
-    background: linear-gradient(135deg, hsl(var(--kosmos-black-light)) 0%, hsl(var(--kosmos-black-lighter)) 100%);
+    background: linear-gradient(135deg, hsl(var(--kosmos-black-soft)) 0%, hsl(var(--kosmos-black-light)) 100%);
   }
 
+  /* Text Gradients */
   .text-gradient-orange {
     background: linear-gradient(135deg, hsl(var(--kosmos-orange)) 0%, hsl(var(--kosmos-orange-glow)) 100%);
     -webkit-background-clip: text;
@@ -129,15 +149,151 @@
     background-clip: text;
   }
 
+  /* Glow Effects */
   .glow-orange {
     box-shadow: 0 0 40px -10px hsl(var(--kosmos-orange) / 0.4);
   }
 
+  .glow-orange-subtle {
+    box-shadow: 0 0 20px -5px hsl(var(--kosmos-orange) / 0.25);
+  }
+
+  /* Blueprint Grid Pattern */
+  .blueprint-grid {
+    background-image:
+      linear-gradient(hsl(var(--blueprint-line)) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--blueprint-line)) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .blueprint-grid-dense {
+    background-image:
+      linear-gradient(hsl(var(--blueprint-line)) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--blueprint-line)) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Blueprint Corner Marks */
+  .blueprint-corner::before,
+  .blueprint-corner::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-color: hsl(var(--kosmos-orange) / 0.5);
+    border-style: solid;
+    border-width: 0;
+  }
+
+  .blueprint-corner::before {
+    top: -1px;
+    left: -1px;
+    border-top-width: 2px;
+    border-left-width: 2px;
+  }
+
+  .blueprint-corner::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom-width: 2px;
+    border-right-width: 2px;
+  }
+
+  /* Structural Lines */
+  .line-horizontal {
+    position: relative;
+  }
+
+  .line-horizontal::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      hsl(var(--border)) 10%,
+      hsl(var(--border)) 90%,
+      transparent 100%
+    );
+  }
+
+  /* Card Styles */
   .card-premium {
-    @apply rounded-xl border border-border/50 bg-card/80 backdrop-blur-sm;
-    box-shadow: 
-      0 4px 6px -1px hsl(0 0% 0% / 0.2),
-      0 2px 4px -2px hsl(0 0% 0% / 0.1),
-      inset 0 1px 0 0 hsl(0 0% 100% / 0.05);
+    @apply rounded-lg border border-border/50 bg-card/80 backdrop-blur-sm;
+    box-shadow:
+      0 4px 6px -1px hsl(0 0% 0% / 0.3),
+      0 2px 4px -2px hsl(0 0% 0% / 0.2),
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.03);
+  }
+
+  .card-structural {
+    @apply relative rounded-lg border border-border bg-kosmos-black-soft;
+  }
+
+  .card-structural::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg,
+      hsl(var(--kosmos-orange) / 0.03) 0%,
+      transparent 50%
+    );
+    pointer-events: none;
+  }
+
+  /* Typography Display */
+  .font-display {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  /* Accent Bar */
+  .accent-bar {
+    position: relative;
+  }
+
+  .accent-bar::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: hsl(var(--kosmos-orange));
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* Focus States - KOSMOS Style */
+  .focus-kosmos:focus-visible {
+    outline: 2px solid hsl(var(--kosmos-orange));
+    outline-offset: 2px;
+  }
+
+  /* Selection Colors */
+  ::selection {
+    background: hsl(var(--kosmos-orange) / 0.3);
+    color: hsl(var(--kosmos-white));
+  }
+
+  /* Scrollbar Styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--kosmos-black));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--kosmos-black-lighter));
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--kosmos-orange) / 0.5);
   }
 }
