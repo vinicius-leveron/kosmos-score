@@ -1,7 +1,6 @@
 import { Button } from '@/design-system/primitives/button';
 import { Progress } from '@/design-system/primitives/progress';
 import { RadioGroup, RadioGroupItem } from '@/design-system/primitives/radio-group';
-import { Label } from '@/design-system/primitives/label';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Question } from '@/modules/kosmos-score/lib/auditQuestions';
 import { cn } from '@/design-system/lib/utils';
@@ -113,8 +112,9 @@ export function QuestionScreen({
               className="space-y-3 mt-4 flex-1"
             >
               {question.options.map((option, index) => (
-                <div
+                <label
                   key={option.value}
+                  htmlFor={option.value}
                   className={cn(
                     'relative flex items-center space-x-4 rounded-lg border p-4 cursor-pointer transition-all duration-200',
                     selectedAnswer?.value === option.value
@@ -128,13 +128,10 @@ export function QuestionScreen({
                     id={option.value}
                     className="border-kosmos-gray/50 data-[state=checked]:border-kosmos-orange data-[state=checked]:text-kosmos-orange"
                   />
-                  <Label
-                    htmlFor={option.value}
-                    className="flex-1 cursor-pointer text-kosmos-white font-medium"
-                  >
+                  <span className="flex-1 text-kosmos-white font-medium">
                     {option.label}
-                  </Label>
-                </div>
+                  </span>
+                </label>
               ))}
             </RadioGroup>
 
