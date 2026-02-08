@@ -8,15 +8,20 @@
 import { RouteObject } from 'react-router-dom';
 import { StakeholdersListPage } from './pages/StakeholdersListPage';
 import { StakeholderDetailPage } from './pages/StakeholderDetailPage';
+import { StakeholderDashboardPage } from './pages/StakeholderDashboardPage';
 
-export const stakeholderRoutes = (organizationId: string): RouteObject[] => [
+export const stakeholderRoutes = (): RouteObject[] => [
   {
     path: '/stakeholders',
-    element: <StakeholdersListPage organizationId={organizationId} />,
+    element: <StakeholdersListPage />,
+  },
+  {
+    path: '/stakeholders/dashboard',
+    element: <StakeholderDashboardPage />,
   },
   {
     path: '/stakeholders/:id',
-    element: <StakeholderDetailPage organizationId={organizationId} />,
+    element: <StakeholderDetailPage />,
   },
 ];
 

@@ -2,6 +2,7 @@
  * useStakeholders - Hooks for stakeholder CRUD operations
  */
 
+import { useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type {
@@ -16,6 +17,7 @@ import type {
   CreateInteractionInput,
   StakeholderRelationship,
   StakeholderInteraction,
+  ScoreHistoryPoint,
 } from '../types/stakeholder.types';
 
 // ============================================================================
@@ -49,6 +51,7 @@ export const stakeholderKeys = {
   detail: (id: string) => [...stakeholderKeys.details(), id] as const,
   relationships: (id: string) => [...stakeholderKeys.all, 'relationships', id] as const,
   interactions: (id: string) => [...stakeholderKeys.all, 'interactions', id] as const,
+  scoreTrend: (id: string) => [...stakeholderKeys.all, 'score-trend', id] as const,
   stats: (orgId: string) => [...stakeholderKeys.all, 'stats', orgId] as const,
   statsAll: () => [...stakeholderKeys.all, 'stats', 'all'] as const,
   clients: () => ['client-organizations'] as const,
@@ -513,4 +516,168 @@ export function useDeleteInteraction() {
       queryClient.invalidateQueries({ queryKey: stakeholderKeys.detail(stakeholderId) });
     },
   });
+}
+
+// ============================================================================
+// FETCH STAKEHOLDER SCORE TREND
+// ============================================================================
+
+export function useStakeholderScoreTrend(stakeholderId: string, months: number = 6) {
+  return useQuery({
+    queryKey: [...stakeholderKeys.scoreTrend(stakeholderId), months],
+    queryFn: async () => {
+      // Note: Function added in migration 20260209120000_stakeholder_score_calculation.sql
+      // Regenerate types with `supabase gen types` after applying migration
+      const { data, error } = await supabase.rpc(
+        'get_stakeholder_score_trend' as 'get_org_stakeholder_overview',
+        {
+          p_stakeholder_id: stakeholderId,
+          p_months: months,
+        } as unknown as { p_organization_id: string }
+      );
+
+      if (error) throw error;
+      return (data || []) as unknown as ScoreHistoryPoint[];
+    },
+    enabled: !!stakeholderId,
+  });
+}
+
+// ============================================================================
+// RECALCULATE STAKEHOLDER SCORE
+// ============================================================================
+
+export function useRecalculateScore() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (stakeholderId: string) => {
+      // Note: Function added in migration 20260209120000_stakeholder_score_calculation.sql
+      // Regenerate types with `supabase gen types` after applying migration
+      const { error } = await supabase.rpc(
+        'update_stakeholder_score' as 'get_org_stakeholder_overview',
+        {
+          p_stakeholder_id: stakeholderId,
+        } as unknown as { p_organization_id: string }
+      );
+
+      if (error) throw error;
+      return stakeholderId;
+    },
+    onSuccess: (stakeholderId) => {
+      queryClient.invalidateQueries({ queryKey: stakeholderKeys.detail(stakeholderId) });
+      queryClient.invalidateQueries({ queryKey: stakeholderKeys.scoreTrend(stakeholderId) });
+    },
+  });
+}
+
+// ============================================================================
+// DASHBOARD DATA HOOKS
+// ============================================================================
+
+export interface DashboardStats {
+  totalStakeholders: number;
+  activeStakeholders: number;
+  avgScore: number;
+  totalInvestment: number;
+  byType: { type: string; count: number; label: string }[];
+  byClient: { clientId: string; clientName: string; count: number; avgScore: number }[];
+  topContributors: { id: string; name: string; score: number; type: string; clientName?: string }[];
+  inactiveAlerts: { id: string; name: string; daysSinceInteraction: number; clientName?: string }[];
+}
+
+export function useStakeholderDashboard() {
+  const { data: allStakeholders, isLoading: stakeholdersLoading } = useAllStakeholders();
+  const { data: clientOrgs, isLoading: clientsLoading } = useClientOrganizations();
+
+  const isLoading = stakeholdersLoading || clientsLoading;
+
+  const dashboardData = useMemo((): DashboardStats | null => {
+    if (!allStakeholders) return null;
+
+    const active = allStakeholders.filter(s => s.status === 'active');
+    const totalInvestment = allStakeholders.reduce((sum, s) => sum + (s.investment_amount || 0), 0);
+    const avgScore = active.length > 0
+      ? active.reduce((sum, s) => sum + s.contribution_score, 0) / active.length
+      : 0;
+
+    // Group by type
+    const typeLabels: Record<string, string> = {
+      investor: 'Investidor',
+      partner: 'Parceiro',
+      co_founder: 'Co-fundador',
+      advisor: 'Advisor',
+    };
+
+    const typeCounts: Record<string, number> = {};
+    allStakeholders.forEach(s => {
+      typeCounts[s.stakeholder_type] = (typeCounts[s.stakeholder_type] || 0) + 1;
+    });
+
+    const byType = Object.entries(typeCounts).map(([type, count]) => ({
+      type,
+      count,
+      label: typeLabels[type] || type,
+    }));
+
+    // Group by client organization
+    const clientMap = new Map(clientOrgs?.map(c => [c.id, c.name]) || []);
+    const clientGroups: Record<string, { count: number; totalScore: number; name: string }> = {};
+
+    allStakeholders.forEach(s => {
+      const clientName = s.organization?.name || clientMap.get(s.organization_id) || 'Desconhecido';
+      if (!clientGroups[s.organization_id]) {
+        clientGroups[s.organization_id] = { count: 0, totalScore: 0, name: clientName };
+      }
+      clientGroups[s.organization_id].count += 1;
+      clientGroups[s.organization_id].totalScore += s.contribution_score;
+    });
+
+    const byClient = Object.entries(clientGroups).map(([clientId, data]) => ({
+      clientId,
+      clientName: data.name,
+      count: data.count,
+      avgScore: data.count > 0 ? data.totalScore / data.count : 0,
+    })).sort((a, b) => b.avgScore - a.avgScore);
+
+    // Top 10 contributors
+    const topContributors = [...allStakeholders]
+      .sort((a, b) => b.contribution_score - a.contribution_score)
+      .slice(0, 10)
+      .map(s => ({
+        id: s.id,
+        name: s.full_name,
+        score: s.contribution_score,
+        type: s.stakeholder_type,
+        clientName: s.organization?.name || clientMap.get(s.organization_id),
+      }));
+
+    // Inactive alerts (no interaction in 60+ days)
+    const inactiveAlerts = allStakeholders
+      .filter(s => {
+        const decay = s.score_breakdown?.decay;
+        return decay && typeof decay === 'object' && 'days_since_interaction' in decay &&
+               (decay as { days_since_interaction: number }).days_since_interaction > 60;
+      })
+      .slice(0, 5)
+      .map(s => ({
+        id: s.id,
+        name: s.full_name,
+        daysSinceInteraction: ((s.score_breakdown?.decay as { days_since_interaction?: number })?.days_since_interaction) || 0,
+        clientName: s.organization?.name || clientMap.get(s.organization_id),
+      }));
+
+    return {
+      totalStakeholders: allStakeholders.length,
+      activeStakeholders: active.length,
+      avgScore,
+      totalInvestment,
+      byType,
+      byClient,
+      topContributors,
+      inactiveAlerts,
+    };
+  }, [allStakeholders, clientOrgs]);
+
+  return { data: dashboardData, isLoading };
 }

@@ -20,6 +20,7 @@ RETURNS TABLE (
 ) AS $$
 DECLARE
   v_stakeholder RECORD;
+  v_org_id UUID;
   v_meeting_score NUMERIC := 0;
   v_mentoring_score NUMERIC := 0;
   v_referral_score NUMERIC := 0;
@@ -37,6 +38,17 @@ DECLARE
   v_decay_factor NUMERIC := 1.0;
   v_last_interaction_days INTEGER;
 BEGIN
+  -- Get stakeholder's organization for permission check
+  SELECT s.organization_id INTO v_org_id
+  FROM public.stakeholders s
+  WHERE s.id = p_stakeholder_id;
+
+  -- Security: Verify caller has access to this organization
+  IF v_org_id IS NULL OR NOT (public.is_org_member(v_org_id) OR public.is_kosmos_master()) THEN
+    RETURN QUERY SELECT 0::NUMERIC, '{}'::JSONB;
+    RETURN;
+  END IF;
+
   -- Get stakeholder data
   SELECT s.*,
          COALESCE(s.investment_amount, 0) as inv_amount
@@ -289,6 +301,18 @@ DECLARE
   v_count INTEGER := 0;
   v_stakeholder_id UUID;
 BEGIN
+  -- Security: Only KOSMOS master or org admin can batch recalculate
+  IF p_organization_id IS NOT NULL THEN
+    IF NOT (public.has_org_role(p_organization_id, 'admin') OR public.is_kosmos_master()) THEN
+      RAISE EXCEPTION 'Permission denied: admin role required';
+    END IF;
+  ELSE
+    -- If no org specified, must be KOSMOS master
+    IF NOT public.is_kosmos_master() THEN
+      RAISE EXCEPTION 'Permission denied: KOSMOS master access required';
+    END IF;
+  END IF;
+
   FOR v_stakeholder_id IN
     SELECT s.id
     FROM public.stakeholders s
@@ -351,15 +375,22 @@ CREATE OR REPLACE FUNCTION public.record_stakeholder_score_snapshot(p_stakeholde
 RETURNS VOID AS $$
 DECLARE
   v_stakeholder RECORD;
+  v_org_id UUID;
 BEGIN
-  SELECT s.contribution_score, s.score_breakdown
-  INTO v_stakeholder
+  -- Get stakeholder's organization for permission check
+  SELECT s.organization_id, s.contribution_score, s.score_breakdown
+  INTO v_org_id, v_stakeholder.contribution_score, v_stakeholder.score_breakdown
   FROM public.stakeholders s
   WHERE s.id = p_stakeholder_id;
 
-  IF FOUND THEN
+  -- Security: Verify caller has admin access to this organization
+  IF v_org_id IS NULL OR NOT (public.has_org_role(v_org_id, 'admin') OR public.is_kosmos_master()) THEN
+    RETURN;
+  END IF;
+
+  IF v_stakeholder.contribution_score IS NOT NULL THEN
     INSERT INTO public.stakeholder_score_history (stakeholder_id, score, breakdown)
-    VALUES (p_stakeholder_id, v_stakeholder.contribution_score, v_stakeholder.score_breakdown);
+    VALUES (p_stakeholder_id, v_stakeholder.contribution_score, COALESCE(v_stakeholder.score_breakdown, '{}'));
   END IF;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -371,13 +402,30 @@ DECLARE
   v_count INTEGER := 0;
   v_stakeholder_id UUID;
 BEGIN
+  -- Security: Only KOSMOS master or org admin can record snapshots
+  IF p_organization_id IS NOT NULL THEN
+    IF NOT (public.has_org_role(p_organization_id, 'admin') OR public.is_kosmos_master()) THEN
+      RAISE EXCEPTION 'Permission denied: admin role required';
+    END IF;
+  ELSE
+    -- If no org specified, must be KOSMOS master
+    IF NOT public.is_kosmos_master() THEN
+      RAISE EXCEPTION 'Permission denied: KOSMOS master access required';
+    END IF;
+  END IF;
+
   FOR v_stakeholder_id IN
     SELECT s.id
     FROM public.stakeholders s
     WHERE (p_organization_id IS NULL OR s.organization_id = p_organization_id)
       AND s.status = 'active'
   LOOP
-    PERFORM public.record_stakeholder_score_snapshot(v_stakeholder_id);
+    -- Call internal insert directly since we already checked permissions
+    INSERT INTO public.stakeholder_score_history (stakeholder_id, score, breakdown)
+    SELECT s.id, s.contribution_score, COALESCE(s.score_breakdown, '{}')
+    FROM public.stakeholders s
+    WHERE s.id = v_stakeholder_id;
+
     v_count := v_count + 1;
   END LOOP;
 
@@ -399,7 +447,19 @@ RETURNS TABLE (
   score NUMERIC,
   trend TEXT
 ) AS $$
+DECLARE
+  v_org_id UUID;
 BEGIN
+  -- Get stakeholder's organization for permission check
+  SELECT s.organization_id INTO v_org_id
+  FROM public.stakeholders s
+  WHERE s.id = p_stakeholder_id;
+
+  -- Security: Verify caller has access to this organization
+  IF v_org_id IS NULL OR NOT (public.is_org_member(v_org_id) OR public.is_kosmos_master()) THEN
+    RETURN; -- Return empty result set
+  END IF;
+
   RETURN QUERY
   WITH history AS (
     SELECT

@@ -1,3 +1,4 @@
+Initialising cli_login_postgres role...
 export type Json =
   | string
   | number
@@ -11,6 +12,31 @@ export type Database = {
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.1"
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -248,6 +274,81 @@ export type Database = {
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_pipeline_positions: {
+        Row: {
+          contact_org_id: string
+          created_at: string
+          custom_fields: Json
+          entered_pipeline_at: string
+          entered_stage_at: string
+          id: string
+          owner_id: string | null
+          pipeline_id: string
+          stage_id: string
+          updated_at: string
+        }
+        Insert: {
+          contact_org_id: string
+          created_at?: string
+          custom_fields?: Json
+          entered_pipeline_at?: string
+          entered_stage_at?: string
+          id?: string
+          owner_id?: string | null
+          pipeline_id: string
+          stage_id: string
+          updated_at?: string
+        }
+        Update: {
+          contact_org_id?: string
+          created_at?: string
+          custom_fields?: Json
+          entered_pipeline_at?: string
+          entered_stage_at?: string
+          id?: string
+          owner_id?: string | null
+          pipeline_id?: string
+          stage_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_pipeline_positions_contact_org_id_fkey"
+            columns: ["contact_org_id"]
+            isOneToOne: false
+            referencedRelation: "audit_results_enriched"
+            referencedColumns: ["contact_org_id"]
+          },
+          {
+            foreignKeyName: "contact_pipeline_positions_contact_org_id_fkey"
+            columns: ["contact_org_id"]
+            isOneToOne: false
+            referencedRelation: "contact_orgs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_pipeline_positions_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_pipeline_positions_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "pipelines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_pipeline_positions_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "pipeline_stages"
             referencedColumns: ["id"]
           },
         ]
@@ -1050,6 +1151,63 @@ export type Database = {
           },
         ]
       }
+      org_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string | null
+          organization_id: string
+          role: string
+          status: string
+          token: string
+          updated_at: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string | null
+          email: string
+          expires_at: string
+          id?: string
+          invited_by?: string | null
+          organization_id: string
+          role?: string
+          status?: string
+          token: string
+          updated_at?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          organization_id?: string
+          role?: string
+          status?: string
+          token?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_invitations_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_invitations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_members: {
         Row: {
           created_at: string
@@ -1127,6 +1285,128 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      pipeline_stages: {
+        Row: {
+          automation_rules: Json
+          color: string
+          created_at: string
+          description: string | null
+          display_name: string
+          exit_type: Database["public"]["Enums"]["pipeline_exit_type"] | null
+          id: string
+          is_entry_stage: boolean
+          is_exit_stage: boolean
+          name: string
+          organization_id: string
+          pipeline_id: string
+          position: number
+          updated_at: string
+        }
+        Insert: {
+          automation_rules?: Json
+          color?: string
+          created_at?: string
+          description?: string | null
+          display_name: string
+          exit_type?: Database["public"]["Enums"]["pipeline_exit_type"] | null
+          id?: string
+          is_entry_stage?: boolean
+          is_exit_stage?: boolean
+          name: string
+          organization_id: string
+          pipeline_id: string
+          position?: number
+          updated_at?: string
+        }
+        Update: {
+          automation_rules?: Json
+          color?: string
+          created_at?: string
+          description?: string | null
+          display_name?: string
+          exit_type?: Database["public"]["Enums"]["pipeline_exit_type"] | null
+          id?: string
+          is_entry_stage?: boolean
+          is_exit_stage?: boolean
+          name?: string
+          organization_id?: string
+          pipeline_id?: string
+          position?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pipeline_stages_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipeline_stages_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "pipelines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pipelines: {
+        Row: {
+          color: string
+          created_at: string
+          description: string | null
+          display_name: string
+          icon: string | null
+          id: string
+          is_active: boolean
+          is_default: boolean
+          name: string
+          organization_id: string
+          position: number
+          settings: Json
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          display_name: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name: string
+          organization_id: string
+          position?: number
+          settings?: Json
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          display_name?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name?: string
+          organization_id?: string
+          position?: number
+          settings?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pipelines_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -1268,6 +1548,38 @@ export type Database = {
           {
             foreignKeyName: "stakeholder_relationships_stakeholder_b_id_fkey"
             columns: ["stakeholder_b_id"]
+            isOneToOne: false
+            referencedRelation: "stakeholders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stakeholder_score_history: {
+        Row: {
+          breakdown: Json
+          id: string
+          recorded_at: string
+          score: number
+          stakeholder_id: string
+        }
+        Insert: {
+          breakdown?: Json
+          id?: string
+          recorded_at?: string
+          score: number
+          stakeholder_id: string
+        }
+        Update: {
+          breakdown?: Json
+          id?: string
+          recorded_at?: string
+          score?: number
+          stakeholder_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stakeholder_score_history_stakeholder_id_fkey"
+            columns: ["stakeholder_id"]
             isOneToOne: false
             referencedRelation: "stakeholders"
             referencedColumns: ["id"]
@@ -1454,11 +1766,19 @@ export type Database = {
       }
     }
     Functions: {
+      accept_invitation: { Args: { invitation_token: string }; Returns: Json }
       calculate_project_score: {
         Args: { p_project_id: string }
         Returns: number
       }
       calculate_stage_score: { Args: { p_stage_id: string }; Returns: number }
+      calculate_stakeholder_score: {
+        Args: { p_stakeholder_id: string }
+        Returns: {
+          breakdown: Json
+          total_score: number
+        }[]
+      }
       create_default_journey_stages: {
         Args: { p_project_id: string }
         Returns: undefined
@@ -1542,6 +1862,10 @@ export type Database = {
           form: Json
         }[]
       }
+      get_invitation_by_token: {
+        Args: { invitation_token: string }
+        Returns: Json
+      }
       get_org_stakeholder_overview: {
         Args: { p_organization_id: string }
         Returns: {
@@ -1581,15 +1905,12 @@ export type Database = {
           relationship_type: Database["public"]["Enums"]["stakeholder_relationship_type"]
         }[]
       }
-      get_stakeholder_stats: {
-        Args: { p_organization_id: string }
+      get_stakeholder_score_trend: {
+        Args: { p_months?: number; p_stakeholder_id: string }
         Returns: {
-          active_stakeholders: number
-          avg_contribution_score: number
-          stakeholders_by_type: Json
-          total_investment: number
-          total_participation_pct: number
-          total_stakeholders: number
+          recorded_at: string
+          score: number
+          trend: string
         }[]
       }
       get_stakeholder_summary: {
@@ -1619,6 +1940,22 @@ export type Database = {
       }
       is_kosmos_master: { Args: never; Returns: boolean }
       is_org_member: { Args: { org_id: string }; Returns: boolean }
+      recalculate_all_stakeholder_scores: {
+        Args: { p_organization_id?: string }
+        Returns: number
+      }
+      record_all_score_snapshots: {
+        Args: { p_organization_id?: string }
+        Returns: number
+      }
+      record_stakeholder_score_snapshot: {
+        Args: { p_stakeholder_id: string }
+        Returns: undefined
+      }
+      update_stakeholder_score: {
+        Args: { p_stakeholder_id: string }
+        Returns: undefined
+      }
       upsert_contact_with_org: {
         Args: {
           p_email: string
@@ -1648,6 +1985,7 @@ export type Database = {
       org_role: "owner" | "admin" | "member" | "viewer"
       org_status: "active" | "suspended" | "churned"
       org_type: "master" | "client" | "community"
+      pipeline_exit_type: "positive" | "negative" | "neutral"
       stakeholder_interaction_type:
         | "meeting"
         | "mentoring"
@@ -1795,6 +2133,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       action_priority: ["high", "medium", "low"],
@@ -1812,6 +2153,7 @@ export const Constants = {
       org_role: ["owner", "admin", "member", "viewer"],
       org_status: ["active", "suspended", "churned"],
       org_type: ["master", "client", "community"],
+      pipeline_exit_type: ["positive", "negative", "neutral"],
       stakeholder_interaction_type: [
         "meeting",
         "mentoring",
@@ -1840,3 +2182,5 @@ export const Constants = {
     },
   },
 } as const
+A new version of Supabase CLI is available: v2.75.0 (currently installed v2.39.2)
+We recommend updating regularly for new features and bug fixes: https://supabase.com/docs/guides/cli/getting-started#updating-the-supabase-cli

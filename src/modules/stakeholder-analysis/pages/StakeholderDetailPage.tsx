@@ -48,12 +48,18 @@ import {
   useStakeholderRelationships,
   useStakeholderInteractions,
   useDeleteStakeholder,
+  useStakeholderScoreTrend,
+  useRecalculateScore,
 } from '../hooks/useStakeholders';
 import { StakeholderForm } from '../components/StakeholderForm';
 import { InteractionForm } from '../components/InteractionForm';
+import { ScoreBreakdownCard } from '../components/ScoreBreakdownCard';
+import type { ScoreTrend } from '../types/stakeholder.types';
 import {
   STAKEHOLDER_TYPE_LABELS,
   STAKEHOLDER_TYPE_COLORS,
+  STAKEHOLDER_STATUS_LABELS,
+  STAKEHOLDER_STATUS_COLORS,
   RELATIONSHIP_TYPE_LABELS,
   INTERACTION_TYPE_LABELS,
 } from '../types/stakeholder.types';
@@ -231,7 +237,12 @@ export function StakeholderDetailPage() {
   const [isInteractionOpen, setIsInteractionOpen] = useState(false);
 
   const { data: stakeholder, isLoading } = useStakeholderWithRelations(id || '');
+  const { data: scoreTrend } = useStakeholderScoreTrend(id || '');
   const deleteMutation = useDeleteStakeholder();
+  const recalculateMutation = useRecalculateScore();
+
+  // Get the latest trend from score history
+  const latestTrend: ScoreTrend | undefined = scoreTrend?.[0]?.trend;
 
   const handleDelete = async () => {
     if (!stakeholder) return;
@@ -288,9 +299,12 @@ export function StakeholderDetailPage() {
           </Avatar>
           <div>
             <h1 className="text-2xl font-bold text-foreground">{stakeholder.full_name}</h1>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
               <Badge className={STAKEHOLDER_TYPE_COLORS[stakeholder.stakeholder_type]}>
                 {STAKEHOLDER_TYPE_LABELS[stakeholder.stakeholder_type]}
+              </Badge>
+              <Badge className={STAKEHOLDER_STATUS_COLORS[stakeholder.status]}>
+                {STAKEHOLDER_STATUS_LABELS[stakeholder.status]}
               </Badge>
               {stakeholder.linkedin_url && (
                 <a
@@ -341,7 +355,7 @@ export function StakeholderDetailPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardContent className="p-4 text-center">
             <ScoreGauge score={stakeholder.contribution_score} />
@@ -365,76 +379,95 @@ export function StakeholderDetailPage() {
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-foreground">{stakeholder.relationships_count}</p>
-            <p className="text-xs text-muted-foreground">Relacionamentos</p>
+            <p className="text-2xl font-bold text-foreground">
+              {stakeholder.interactions_count || 0}
+            </p>
+            <p className="text-xs text-muted-foreground">Interacoes</p>
+            {stakeholder.last_interaction_at && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Ultima: {formatDate(stakeholder.last_interaction_at)}
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Details & Tabs */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Profile Info */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="text-sm">Informacoes</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {stakeholder.email && (
-              <div className="flex items-center gap-2 text-sm">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <span>{stakeholder.email}</span>
-              </div>
-            )}
-            {stakeholder.sector && (
-              <div className="flex items-center gap-2 text-sm">
-                <Briefcase className="h-4 w-4 text-muted-foreground" />
-                <span>{stakeholder.sector}</span>
-              </div>
-            )}
-            {stakeholder.joined_at && (
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span>Desde {formatDate(stakeholder.joined_at)}</span>
-              </div>
-            )}
-            {stakeholder.bio && (
-              <div className="pt-2 border-t border-border">
-                <p className="text-sm text-muted-foreground">{stakeholder.bio}</p>
-              </div>
-            )}
-            {stakeholder.expertise.length > 0 && (
-              <div className="pt-2 border-t border-border">
-                <p className="text-xs text-muted-foreground mb-2">Expertise</p>
-                <div className="flex flex-wrap gap-1">
-                  {stakeholder.expertise.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
+      {/* Main Content Grid */}
+      <div className="grid gap-6 lg:grid-cols-12">
+        {/* Left Column: Profile Info + Score Breakdown */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Profile Info */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Informacoes</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {stakeholder.email && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <span>{stakeholder.email}</span>
                 </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              )}
+              {stakeholder.sector && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Briefcase className="h-4 w-4 text-muted-foreground" />
+                  <span>{stakeholder.sector}</span>
+                </div>
+              )}
+              {stakeholder.joined_at && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span>Desde {formatDate(stakeholder.joined_at)}</span>
+                </div>
+              )}
+              {stakeholder.bio && (
+                <div className="pt-2 border-t border-border">
+                  <p className="text-sm text-muted-foreground">{stakeholder.bio}</p>
+                </div>
+              )}
+              {stakeholder.expertise.length > 0 && (
+                <div className="pt-2 border-t border-border">
+                  <p className="text-xs text-muted-foreground mb-2">Expertise</p>
+                  <div className="flex flex-wrap gap-1">
+                    {stakeholder.expertise.map((tag) => (
+                      <Badge key={tag} variant="secondary" className="text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-        {/* Tabs */}
-        <div className="lg:col-span-2">
-          <Tabs defaultValue="relationships">
+          {/* Score Breakdown */}
+          <ScoreBreakdownCard
+            score={stakeholder.contribution_score}
+            breakdown={stakeholder.score_breakdown}
+            trend={latestTrend}
+            onRecalculate={() => recalculateMutation.mutate(stakeholder.id)}
+            isRecalculating={recalculateMutation.isPending}
+          />
+        </div>
+
+        {/* Right Column: Tabs */}
+        <div className="lg:col-span-8">
+          <Tabs defaultValue="interactions">
             <TabsList>
-              <TabsTrigger value="relationships">
-                <Users className="h-4 w-4 mr-2" />
-                Relacionamentos ({stakeholder.relationships_count})
-              </TabsTrigger>
               <TabsTrigger value="interactions">
                 <Activity className="h-4 w-4 mr-2" />
                 Interacoes ({stakeholder.interactions_count})
               </TabsTrigger>
+              <TabsTrigger value="relationships">
+                <Users className="h-4 w-4 mr-2" />
+                Relacionamentos ({stakeholder.relationships_count})
+              </TabsTrigger>
             </TabsList>
-            <TabsContent value="relationships" className="mt-4">
-              <RelationshipsTab stakeholderId={stakeholder.id} />
-            </TabsContent>
             <TabsContent value="interactions" className="mt-4">
               <InteractionsTab stakeholderId={stakeholder.id} />
+            </TabsContent>
+            <TabsContent value="relationships" className="mt-4">
+              <RelationshipsTab stakeholderId={stakeholder.id} />
             </TabsContent>
           </Tabs>
         </div>

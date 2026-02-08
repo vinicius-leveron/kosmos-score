@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Skeleton } from '@/design-system/primitives/skeleton';
 import {
   Sheet,
@@ -10,17 +10,31 @@ import { ScrollArea, ScrollBar } from '@/design-system/primitives/scroll-area';
 import { usePipelineBoard, useMoveContactInPipeline } from '../../hooks/usePipelineBoard';
 import { StageColumn } from './StageColumn';
 import { ContactDetail } from '../contacts/ContactDetail';
-import type { ContactListItem } from '../../types';
+import { ConvertToClientModal } from './ConvertToClientModal';
+import { useOrganization } from '@/core/auth';
+import type { ContactListItem, PipelineBoardContact, PipelineStage } from '../../types';
 
 interface PipelineBoardProps {
   pipelineId?: string;
 }
 
+// Pending move state for conversion flow
+interface PendingMove {
+  positionId: string;
+  contactOrgId: string;
+  contactName: string;
+  stageId: string;
+  stage: PipelineStage;
+}
+
 export function PipelineBoard({ pipelineId }: PipelineBoardProps) {
   const { data, isLoading, error } = usePipelineBoard(pipelineId);
+  const { isKosmosMaster } = useOrganization();
   const moveContact = useMoveContactInPipeline();
   const [selectedContact, setSelectedContact] = useState<ContactListItem | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [pendingMove, setPendingMove] = useState<PendingMove | null>(null);
+  const [isConvertModalOpen, setIsConvertModalOpen] = useState(false);
 
   const handleContactClick = (contact: ContactListItem) => {
     setSelectedContact(contact);
@@ -32,11 +46,75 @@ export function PipelineBoard({ pipelineId }: PipelineBoardProps) {
     setTimeout(() => setSelectedContact(null), 300);
   };
 
+  // Find the target stage by ID
+  const findStageById = useCallback((stageId: string): PipelineStage | undefined => {
+    return data?.columns.find(col => col.stage.id === stageId)?.stage;
+  }, [data]);
+
+  // Find the contact being dropped
+  const findContactByOrgId = useCallback((contactOrgId: string): PipelineBoardContact | undefined => {
+    for (const column of data?.columns || []) {
+      const contact = column.contacts.find(c => c.contact_org_id === contactOrgId);
+      if (contact) return contact;
+    }
+    return undefined;
+  }, [data]);
+
+  // Complete the move (after conversion or skip)
+  const completePendingMove = useCallback(() => {
+    if (!pendingMove || !pipelineId) return;
+
+    moveContact.mutate({
+      positionId: pendingMove.positionId,
+      pipelineId,
+      newStageId: pendingMove.stageId,
+    });
+
+    setPendingMove(null);
+  }, [pendingMove, pipelineId, moveContact]);
+
   const handleDrop = (contactOrgId: string, stageId: string) => {
     // Don't update if dropping on "no-stage" placeholder or no pipeline selected
     if (stageId === 'no-stage' || !pipelineId) return;
 
-    moveContact.mutate({ contactOrgId, pipelineId, newStageId: stageId });
+    const targetStage = findStageById(stageId);
+    const contact = findContactByOrgId(contactOrgId);
+
+    if (!targetStage || !contact) {
+      // Fallback to regular move
+      moveContact.mutate({ positionId: contact?.id || contactOrgId, pipelineId, newStageId: stageId });
+      return;
+    }
+
+    // Check if this is a "winning" stage (positive exit) and user is KOSMOS master
+    const isWinningStage = targetStage.is_exit_stage && targetStage.exit_type === 'positive';
+
+    if (isWinningStage && isKosmosMaster) {
+      // Store pending move and open conversion modal
+      setPendingMove({
+        positionId: contact.id,
+        contactOrgId: contact.contact_org_id,
+        contactName: contact.full_name,
+        stageId,
+        stage: targetStage,
+      });
+      setIsConvertModalOpen(true);
+    } else {
+      // Regular move
+      moveContact.mutate({ positionId: contact.id, pipelineId, newStageId: stageId });
+    }
+  };
+
+  const handleConvertSuccess = (organizationId: string) => {
+    // Complete the move after successful conversion
+    completePendingMove();
+    setIsConvertModalOpen(false);
+  };
+
+  const handleConvertSkip = () => {
+    // Complete the move without conversion
+    completePendingMove();
+    setIsConvertModalOpen(false);
   };
 
   if (!pipelineId) {
@@ -102,6 +180,18 @@ export function PipelineBoard({ pipelineId }: PipelineBoardProps) {
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Convert to Client Modal */}
+      {pendingMove && (
+        <ConvertToClientModal
+          open={isConvertModalOpen}
+          onOpenChange={setIsConvertModalOpen}
+          contactOrgId={pendingMove.contactOrgId}
+          contactName={pendingMove.contactName}
+          onSuccess={handleConvertSuccess}
+          onSkip={handleConvertSkip}
+        />
+      )}
     </>
   );
 }

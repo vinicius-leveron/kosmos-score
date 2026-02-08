@@ -16,16 +16,46 @@ export type RelationshipType = 'co_investor' | 'referral' | 'mentor' | 'partner'
 export type InteractionType = 'meeting' | 'mentoring' | 'referral' | 'decision' | 'investment';
 
 // ============================================================================
-// SCORE BREAKDOWN
+// SCORE BREAKDOWN (detailed structure from database calculation)
 // ============================================================================
 
-export interface ScoreBreakdown {
-  meetings?: number;
-  mentoring?: number;
-  referrals?: number;
-  decisions?: number;
-  total?: number;
+export interface ScoreComponentBreakdown {
+  count?: number;
+  score: number;
+  weight: number;
+  weighted_score: number;
+  period_days?: number | null;
+  avg_impact?: number;
+  amount?: number;
+  org_max?: number;
 }
+
+export interface ScoreDecayBreakdown {
+  days_since_interaction: number;
+  factor: number;
+}
+
+export interface ScoreBreakdown {
+  meetings?: ScoreComponentBreakdown;
+  mentoring?: ScoreComponentBreakdown;
+  referrals?: ScoreComponentBreakdown;
+  decisions?: ScoreComponentBreakdown;
+  investments?: ScoreComponentBreakdown;
+  decay?: ScoreDecayBreakdown;
+  calculated_at?: string;
+}
+
+// ============================================================================
+// SCORE HISTORY & TREND
+// ============================================================================
+
+export interface ScoreHistoryPoint {
+  recorded_at: string;
+  score: number;
+  trend: 'up' | 'down' | 'neutral';
+}
+
+export type ScoreTrend = 'up' | 'down' | 'neutral';
 
 // ============================================================================
 // STAKEHOLDER
