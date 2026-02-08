@@ -29,33 +29,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Fetch user profile from profiles table
   const fetchProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
     console.log('[Auth] Fetching profile for:', userId);
+    console.log('[Auth] Starting profile fetch at:', new Date().toISOString());
+
+    // Add timeout to prevent infinite hang
+    const timeoutPromise = new Promise<null>((_, reject) => {
+      setTimeout(() => reject(new Error('Profile fetch timeout after 5s')), 5000);
+    });
+
+    const fetchPromise = (async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, email, full_name, avatar_url, phone, preferences')
+          .eq('id', userId)
+          .maybeSingle();
+
+        console.log('[Auth] Profile result:', { data, error });
+        if (error) {
+          console.error('[Auth] Error fetching profile:', error);
+          return null;
+        }
+        if (!data) {
+          console.log('[Auth] No profile found for user');
+          return null;
+        }
+
+        return {
+          id: data.id,
+          email: data.email,
+          full_name: data.full_name,
+          avatar_url: data.avatar_url,
+          phone: data.phone,
+          preferences: (data.preferences as Record<string, unknown>) || {},
+        };
+      } catch (err) {
+        console.error('[Auth] Exception fetching profile:', err);
+        return null;
+      }
+    })();
+
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, email, full_name, avatar_url, phone, preferences')
-        .eq('id', userId)
-        .maybeSingle();
-
-      console.log('[Auth] Profile result:', { data, error });
-      if (error) {
-        console.error('[Auth] Error fetching profile:', error);
-        return null;
-      }
-      if (!data) {
-        console.log('[Auth] No profile found for user');
-        return null;
-      }
-
-      return {
-        id: data.id,
-        email: data.email,
-        full_name: data.full_name,
-        avatar_url: data.avatar_url,
-        phone: data.phone,
-        preferences: (data.preferences as Record<string, unknown>) || {},
-      };
+      return await Promise.race([fetchPromise, timeoutPromise]);
     } catch (err) {
-      console.error('[Auth] Exception fetching profile:', err);
+      console.error('[Auth] Profile fetch timed out or failed:', err);
       return null;
     }
   }, []);
@@ -63,45 +79,61 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Fetch user's organization memberships
   const fetchMemberships = useCallback(async (userId: string): Promise<OrgMembership[]> => {
     console.log('[Auth] Fetching memberships for:', userId);
+    console.log('[Auth] Starting memberships fetch at:', new Date().toISOString());
+
+    // Add timeout to prevent infinite hang
+    const timeoutPromise = new Promise<OrgMembership[]>((_, reject) => {
+      setTimeout(() => reject(new Error('Memberships fetch timeout after 5s')), 5000);
+    });
+
+    const fetchPromise = (async () => {
+      try {
+        // First get org_members
+        const { data: memberData, error: memberError } = await supabase
+          .from('org_members')
+          .select('organization_id, role')
+          .eq('profile_id', userId);
+
+        console.log('[Auth] org_members result:', { memberData, memberError });
+        if (memberError || !memberData || memberData.length === 0) {
+          console.log('[Auth] No memberships found');
+          return [];
+        }
+
+        // Then get organizations
+        const orgIds = memberData.map(m => m.organization_id);
+        const { data: orgData, error: orgError } = await supabase
+          .from('organizations')
+          .select('id, name, slug, type')
+          .in('id', orgIds);
+
+        console.log('[Auth] organizations result:', { orgData, orgError });
+        if (orgError || !orgData) {
+          console.error('[Auth] Error fetching organizations:', orgError);
+          return [];
+        }
+
+        // Combine the data
+        return memberData.map(m => {
+          const org = orgData.find(o => o.id === m.organization_id);
+          return {
+            organization_id: m.organization_id,
+            organization_name: org?.name || 'Unknown',
+            organization_slug: org?.slug || '',
+            organization_type: org?.type || 'client',
+            role: m.role,
+          };
+        });
+      } catch (err) {
+        console.error('[Auth] Exception fetching memberships:', err);
+        return [];
+      }
+    })();
+
     try {
-      // First get org_members
-      const { data: memberData, error: memberError } = await supabase
-        .from('org_members')
-        .select('organization_id, role')
-        .eq('profile_id', userId);
-
-      console.log('[Auth] org_members result:', { memberData, memberError });
-      if (memberError || !memberData || memberData.length === 0) {
-        console.log('[Auth] No memberships found');
-        return [];
-      }
-
-      // Then get organizations
-      const orgIds = memberData.map(m => m.organization_id);
-      const { data: orgData, error: orgError } = await supabase
-        .from('organizations')
-        .select('id, name, slug, type')
-        .in('id', orgIds);
-
-      console.log('[Auth] organizations result:', { orgData, orgError });
-      if (orgError || !orgData) {
-        console.error('[Auth] Error fetching organizations:', orgError);
-        return [];
-      }
-
-      // Combine the data
-      return memberData.map(m => {
-        const org = orgData.find(o => o.id === m.organization_id);
-        return {
-          organization_id: m.organization_id,
-          organization_name: org?.name || 'Unknown',
-          organization_slug: org?.slug || '',
-          organization_type: org?.type || 'client',
-          role: m.role,
-        };
-      });
+      return await Promise.race([fetchPromise, timeoutPromise]);
     } catch (err) {
-      console.error('[Auth] Exception fetching memberships:', err);
+      console.error('[Auth] Memberships fetch timed out or failed:', err);
       return [];
     }
   }, []);
