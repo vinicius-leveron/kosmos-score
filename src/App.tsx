@@ -7,6 +7,10 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { AdminResults } from "./modules/kosmos-score/pages/AdminResults";
 import { AdminDashboard } from "./modules/kosmos-score/pages/AdminDashboard";
+import { ContactsPage } from "./modules/crm/pages/ContactsPage";
+import { PipelinePage } from "./modules/crm/pages/PipelinePage";
+import { StakeholdersListPage } from "./modules/stakeholder-analysis/pages/StakeholdersListPage";
+import { StakeholderDetailPage } from "./modules/stakeholder-analysis/pages/StakeholderDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +24,12 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/resultados" element={<AdminResults />} />
+          {/* CRM Routes */}
+          <Route path="/crm/contacts" element={<ContactsPage />} />
+          <Route path="/crm/pipeline" element={<PipelinePage />} />
+          {/* Stakeholder Analysis Routes */}
+          <Route path="/stakeholders" element={<StakeholdersListPage organizationId="c0000000-0000-0000-0000-000000000001" />} />
+          <Route path="/stakeholders/:id" element={<StakeholderDetailPage organizationId="c0000000-0000-0000-0000-000000000001" />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
