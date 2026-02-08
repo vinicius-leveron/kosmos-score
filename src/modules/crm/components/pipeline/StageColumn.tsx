@@ -43,7 +43,7 @@ export function StageColumn({
   return (
     <div
       className={cn(
-        'flex flex-col w-72 flex-shrink-0 bg-muted/30 rounded-lg',
+        'flex flex-col w-72 flex-shrink-0 bg-muted/30 rounded-lg h-full',
         isDropTarget && 'ring-2 ring-primary ring-offset-2',
         className
       )}
@@ -51,10 +51,10 @@ export function StageColumn({
       onDrop={handleDrop}
     >
       {/* Header */}
-      <div className="p-3 border-b">
+      <div className="p-3 border-b flex-shrink-0">
         <div className="flex items-center gap-2">
           <span
-            className="w-3 h-3 rounded-full"
+            className="w-3 h-3 rounded-full flex-shrink-0"
             style={{ backgroundColor: stage.color }}
           />
           <span className="font-medium text-sm">{stage.display_name}</span>
@@ -64,8 +64,8 @@ export function StageColumn({
         </div>
       </div>
 
-      {/* Cards */}
-      <ScrollArea className="flex-1 p-2">
+      {/* Cards com scroll vertical */}
+      <div className="flex-1 overflow-y-auto p-2 min-h-0">
         <div className="space-y-2">
           {contacts.length === 0 ? (
             <div className="p-4 text-center text-sm text-muted-foreground">
@@ -86,7 +86,7 @@ export function StageColumn({
             ))
           )}
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 }

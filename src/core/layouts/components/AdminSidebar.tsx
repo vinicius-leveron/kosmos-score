@@ -8,12 +8,13 @@ import {
   Map,
   ChevronDown,
   LogOut,
-  TrendingUp,
+  Megaphone,
   Kanban,
   Wrench,
   Settings,
   Building2,
   UserPlus,
+  BarChart3,
 } from 'lucide-react';
 import { useAuth, useOrganization } from '@/core/auth';
 import {
@@ -27,9 +28,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from '@/design-system/primitives/sidebar';
 import {
   Collapsible,
@@ -40,10 +38,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/design-system/primitives/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/design-system/primitives/avatar';
-import { cn } from '@/design-system/lib/utils';
 
 interface NavItem {
   title: string;
@@ -64,11 +62,11 @@ const dashboardItem: NavItem = {
   icon: LayoutDashboard,
 };
 
-// Grupos de navegação
+// Grupos de navegação (sem Configurações - foi pro footer)
 const navigationGroups: NavGroup[] = [
   {
-    label: 'Aquisição',
-    icon: TrendingUp,
+    label: 'Lead Magnets',
+    icon: Megaphone,
     items: [
       { title: 'KOSMOS Score', href: '/admin/kosmos-score', icon: Target },
       { title: 'Formulários', href: '/admin/toolkit/forms', icon: FileText },
@@ -78,7 +76,6 @@ const navigationGroups: NavGroup[] = [
     label: 'CRM',
     icon: Users,
     items: [
-      { title: 'Visão Geral', href: '/admin/crm', icon: LayoutDashboard },
       { title: 'Contatos', href: '/admin/crm/contacts', icon: Users },
       { title: 'Pipeline', href: '/admin/crm/pipeline', icon: Kanban },
     ],
@@ -87,16 +84,9 @@ const navigationGroups: NavGroup[] = [
     label: 'Serviços',
     icon: Wrench,
     items: [
+      { title: 'Benchmarking', href: '/admin/benchmarks', icon: BarChart3 },
       { title: 'Análise de Jornada', href: '/admin/journey', icon: Map },
       { title: 'Stakeholders', href: '/admin/stakeholders', icon: Network },
-    ],
-  },
-  {
-    label: 'Configurações',
-    icon: Settings,
-    items: [
-      { title: 'Equipe', href: '/admin/settings/team', icon: UserPlus },
-      { title: 'Clientes', href: '/admin/settings/clients', icon: Building2 },
     ],
   },
 ];
@@ -107,8 +97,7 @@ export function AdminSidebar() {
   const { currentOrg } = useOrganization();
 
   const isActive = (href: string) => {
-    // Exact match for dashboard pages
-    if (href === '/admin' || href === '/admin/crm') {
+    if (href === '/admin') {
       return location.pathname === href;
     }
     return location.pathname.startsWith(href);
@@ -213,8 +202,21 @@ export function AdminSidebar() {
                   <ChevronDown className="ml-auto h-4 w-4" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-48">
-                <DropdownMenuItem onClick={() => signOut()}>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuItem asChild>
+                  <Link to="/admin/settings/team" className="flex items-center">
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Equipe
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/admin/settings/clients" className="flex items-center">
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Clientes
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => signOut()} className="text-destructive">
                   <LogOut className="h-4 w-4 mr-2" />
                   Sair
                 </DropdownMenuItem>

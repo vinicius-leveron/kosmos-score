@@ -1,4 +1,3 @@
-Initialising cli_login_postgres role...
 export type Json =
   | string
   | number
@@ -12,31 +11,6 @@ export type Database = {
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.1"
-  }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
   }
   public: {
     Tables: {
@@ -196,6 +170,143 @@ export type Database = {
           ticket_value?: number
         }
         Relationships: []
+      }
+      benchmarks: {
+        Row: {
+          analysis_date: string
+          contact_org_id: string
+          created_at: string
+          created_by: string
+          id: string
+          insights: Json
+          ltv_benchmark: number | null
+          ltv_estimado: number | null
+          lucro_oculto: number | null
+          market_avg_causa: number | null
+          market_avg_cultura: number | null
+          market_avg_economia: number | null
+          market_avg_total: number | null
+          organization_id: string
+          percentile_causa: number | null
+          percentile_cultura: number | null
+          percentile_economia: number | null
+          percentile_total: number | null
+          projecao_crescimento: number | null
+          published_at: string | null
+          score_causa: number | null
+          score_cultura: number | null
+          score_economia: number | null
+          score_total: number | null
+          status: Database["public"]["Enums"]["benchmark_status"]
+          ticket_medio: number | null
+          ticket_medio_benchmark: number | null
+          title: string
+          top10_causa: number | null
+          top10_cultura: number | null
+          top10_economia: number | null
+          top10_total: number | null
+          updated_at: string
+        }
+        Insert: {
+          analysis_date: string
+          contact_org_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          insights?: Json
+          ltv_benchmark?: number | null
+          ltv_estimado?: number | null
+          lucro_oculto?: number | null
+          market_avg_causa?: number | null
+          market_avg_cultura?: number | null
+          market_avg_economia?: number | null
+          market_avg_total?: number | null
+          organization_id: string
+          percentile_causa?: number | null
+          percentile_cultura?: number | null
+          percentile_economia?: number | null
+          percentile_total?: number | null
+          projecao_crescimento?: number | null
+          published_at?: string | null
+          score_causa?: number | null
+          score_cultura?: number | null
+          score_economia?: number | null
+          score_total?: number | null
+          status?: Database["public"]["Enums"]["benchmark_status"]
+          ticket_medio?: number | null
+          ticket_medio_benchmark?: number | null
+          title: string
+          top10_causa?: number | null
+          top10_cultura?: number | null
+          top10_economia?: number | null
+          top10_total?: number | null
+          updated_at?: string
+        }
+        Update: {
+          analysis_date?: string
+          contact_org_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          insights?: Json
+          ltv_benchmark?: number | null
+          ltv_estimado?: number | null
+          lucro_oculto?: number | null
+          market_avg_causa?: number | null
+          market_avg_cultura?: number | null
+          market_avg_economia?: number | null
+          market_avg_total?: number | null
+          organization_id?: string
+          percentile_causa?: number | null
+          percentile_cultura?: number | null
+          percentile_economia?: number | null
+          percentile_total?: number | null
+          projecao_crescimento?: number | null
+          published_at?: string | null
+          score_causa?: number | null
+          score_cultura?: number | null
+          score_economia?: number | null
+          score_total?: number | null
+          status?: Database["public"]["Enums"]["benchmark_status"]
+          ticket_medio?: number | null
+          ticket_medio_benchmark?: number | null
+          title?: string
+          top10_causa?: number | null
+          top10_cultura?: number | null
+          top10_economia?: number | null
+          top10_total?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benchmarks_contact_org_id_fkey"
+            columns: ["contact_org_id"]
+            isOneToOne: false
+            referencedRelation: "audit_results_enriched"
+            referencedColumns: ["contact_org_id"]
+          },
+          {
+            foreignKeyName: "benchmarks_contact_org_id_fkey"
+            columns: ["contact_org_id"]
+            isOneToOne: false
+            referencedRelation: "contact_orgs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benchmarks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benchmarks_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contact_orgs: {
         Row: {
@@ -1973,6 +2084,7 @@ export type Database = {
     Enums: {
       action_priority: "high" | "medium" | "low"
       action_status: "pending" | "in_progress" | "done"
+      benchmark_status: "draft" | "published" | "archived"
       contact_org_status: "active" | "archived" | "unsubscribed"
       contact_source:
         | "kosmos_score"
@@ -2133,13 +2245,11 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       action_priority: ["high", "medium", "low"],
       action_status: ["pending", "in_progress", "done"],
+      benchmark_status: ["draft", "published", "archived"],
       contact_org_status: ["active", "archived", "unsubscribed"],
       contact_source: [
         "kosmos_score",
@@ -2182,5 +2292,3 @@ export const Constants = {
     },
   },
 } as const
-A new version of Supabase CLI is available: v2.75.0 (currently installed v2.39.2)
-We recommend updating regularly for new features and bug fixes: https://supabase.com/docs/guides/cli/getting-started#updating-the-supabase-cli

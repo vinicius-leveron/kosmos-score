@@ -150,8 +150,8 @@ export function PipelineBoard({ pipelineId }: PipelineBoardProps) {
 
   return (
     <>
-      <ScrollArea className="w-full">
-        <div className="flex gap-4 p-4 min-h-[calc(100vh-200px)]">
+      <div className="h-full overflow-x-auto overflow-y-hidden">
+        <div className="flex gap-4 p-4 h-full min-w-max">
           {data?.columns.map((column) => (
             <StageColumn
               key={column.stage.id}
@@ -163,8 +163,7 @@ export function PipelineBoard({ pipelineId }: PipelineBoardProps) {
             />
           ))}
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      </div>
 
       {/* Contact Detail Sheet */}
       <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>

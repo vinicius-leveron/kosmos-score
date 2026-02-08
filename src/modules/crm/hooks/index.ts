@@ -12,3 +12,7 @@ export * from './usePipelines';
 export * from './usePipelineStages';
 export * from './usePipelineBoard';
 export * from './useContactPipelines';
+
+// B2B CRM hooks
+export * from './useCompanies';
+export * from './useDeals';

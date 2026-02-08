@@ -19,16 +19,19 @@ import NotFound from "./pages/NotFound";
 // Public pages
 import Index from "./pages/Index"; // KOSMOS Score quiz
 
+// Admin pages
+import { DashboardPage } from "./pages/admin";
+
 // Admin module pages
-import { AdminResults } from "./modules/kosmos-score/pages/AdminResults";
-import { AdminDashboard } from "./modules/kosmos-score/pages/AdminDashboard";
-import { ContactsPage, PipelinePage, CrmDashboardPage } from "./modules/crm/pages";
+import { AdminResults, AdminDashboard as KosmosScoreDashboard } from "./modules/kosmos-score/pages";
+import { ContactsPage, PipelinePage } from "./modules/crm/pages";
 import { StakeholdersListPage } from "./modules/stakeholder-analysis/pages/StakeholdersListPage";
 import { StakeholderDetailPage } from "./modules/stakeholder-analysis/pages/StakeholderDetailPage";
 import { StakeholderDashboardPage } from "./modules/stakeholder-analysis/pages/StakeholderDashboardPage";
 import { JourneyAnalyzerPage } from "./modules/journey-analyzer";
 import { FormsListPage, FormEditorPage, FormAnalyticsPage, FormPublicPage } from "./modules/toolkit";
 import { TeamPage, ClientsPage, AcceptInvitePage } from "./modules/settings";
+import { AdminBenchmarksPage, AdminBenchmarkFormPage, ClientBenchmarkPage } from "./modules/benchmarking";
 
 const queryClient = new QueryClient();
 
@@ -56,9 +59,9 @@ const App = () => (
                 </AdminRoute>
               }
             >
-              <Route index element={<AdminDashboard />} />
-              <Route path="kosmos-score" element={<AdminResults />} />
-              <Route path="crm" element={<CrmDashboardPage />} />
+              <Route index element={<DashboardPage />} />
+              <Route path="kosmos-score" element={<KosmosScoreDashboard />} />
+              <Route path="kosmos-score/results" element={<AdminResults />} />
               <Route path="crm/contacts" element={<ContactsPage />} />
               <Route path="crm/pipeline" element={<PipelinePage />} />
               <Route path="toolkit/forms" element={<FormsListPage />} />
@@ -70,6 +73,9 @@ const App = () => (
               <Route path="journey" element={<JourneyAnalyzerPage />} />
               <Route path="settings/team" element={<TeamPage />} />
               <Route path="settings/clients" element={<ClientsPage />} />
+              <Route path="benchmarks" element={<AdminBenchmarksPage />} />
+              <Route path="benchmarks/new" element={<AdminBenchmarkFormPage />} />
+              <Route path="benchmarks/:id/edit" element={<AdminBenchmarkFormPage />} />
             </Route>
 
             {/* CLIENT PORTAL */}
@@ -82,6 +88,8 @@ const App = () => (
               }
             >
               <Route index element={<ClientDashboard />} />
+              <Route path="benchmark" element={<ClientBenchmarkPage />} />
+              <Route path="benchmark/:id" element={<ClientBenchmarkPage />} />
             </Route>
 
             {/* 404 */}

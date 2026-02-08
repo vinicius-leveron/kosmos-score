@@ -4,6 +4,10 @@
 // Re-export pipeline types
 export * from './pipeline';
 
+// Re-export B2B CRM types
+export * from './company';
+export * from './deal';
+
 export type ActivityType =
   | 'note'
   | 'email_sent'

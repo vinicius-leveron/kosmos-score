@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/design-system/primitives/button';
-import { Kanban, Plus, Users } from 'lucide-react';
+import { Kanban, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useOrganization } from '@/core/auth';
 import { PipelineBoard } from '../components/pipeline/PipelineBoard';
@@ -29,46 +29,42 @@ export function PipelinePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b">
-        <div className="container py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Kanban className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold">Pipeline</h1>
-                <p className="text-muted-foreground">
-                  {boardData?.totalContacts ?? 0} contatos na jornada
-                </p>
-              </div>
+    <div className="flex flex-col h-[calc(100vh-64px)]">
+      {/* Header fixo */}
+      <div className="flex-shrink-0 border-b bg-background px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Kanban className="h-5 w-5 text-primary" />
             </div>
-            <div className="flex items-center gap-2">
-              <PipelineSelector
-                pipelines={pipelines || []}
-                selectedPipeline={selectedPipeline}
-                onSelect={handleSelectPipeline}
-                isLoading={pipelinesLoading}
-              />
-              <Button variant="outline" asChild>
-                <Link to="/admin/crm/contacts">
-                  <Users className="h-4 w-4 mr-2" />
-                  Lista
-                </Link>
-              </Button>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Novo Contato
-              </Button>
+            <div>
+              <h1 className="text-xl font-semibold">Pipeline de Vendas</h1>
+              <p className="text-sm text-muted-foreground">
+                {boardData?.totalContacts ?? 0} contatos na jornada
+              </p>
             </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <PipelineSelector
+              pipelines={pipelines || []}
+              selectedPipeline={selectedPipeline}
+              onSelect={handleSelectPipeline}
+              isLoading={pipelinesLoading}
+            />
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/admin/crm/contacts">
+                <Users className="h-4 w-4 mr-2" />
+                Ver Lista
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Pipeline Board */}
-      <PipelineBoard pipelineId={selectedPipeline?.id} />
+      {/* Board com scroll */}
+      <div className="flex-1 overflow-hidden">
+        <PipelineBoard pipelineId={selectedPipeline?.id} />
+      </div>
     </div>
   );
 }
