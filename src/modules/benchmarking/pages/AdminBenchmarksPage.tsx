@@ -15,7 +15,9 @@ import {
   Archive,
   Calendar,
   User,
+  AlertCircle,
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/design-system/primitives/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/primitives/card';
 import { Badge } from '@/design-system/primitives/badge';
@@ -44,7 +46,8 @@ import type { BenchmarkWithRelations, BenchmarkStatus } from '../types';
 
 export function AdminBenchmarksPage() {
   const navigate = useNavigate();
-  const { data: benchmarks, isLoading } = useBenchmarks();
+  const { toast } = useToast();
+  const { data: benchmarks, isLoading, error } = useBenchmarks();
   const deleteBenchmark = useDeleteBenchmark();
   const publishBenchmark = usePublishBenchmark();
   const archiveBenchmark = useArchiveBenchmark();
@@ -59,24 +62,42 @@ export function AdminBenchmarksPage() {
       await deleteBenchmark.mutateAsync(benchmarkToDelete.id);
       setIsDeleteDialogOpen(false);
       setBenchmarkToDelete(null);
+      toast({ title: 'Benchmark excluído com sucesso' });
     } catch (error) {
       console.error('Error deleting benchmark:', error);
+      toast({
+        title: 'Erro ao excluir',
+        description: 'Não foi possível excluir o benchmark',
+        variant: 'destructive',
+      });
     }
   };
 
   const handlePublish = async (id: string) => {
     try {
       await publishBenchmark.mutateAsync(id);
+      toast({ title: 'Benchmark publicado', description: 'O cliente já pode visualizar' });
     } catch (error) {
       console.error('Error publishing benchmark:', error);
+      toast({
+        title: 'Erro ao publicar',
+        description: 'Não foi possível publicar o benchmark',
+        variant: 'destructive',
+      });
     }
   };
 
   const handleArchive = async (id: string) => {
     try {
       await archiveBenchmark.mutateAsync(id);
+      toast({ title: 'Benchmark arquivado' });
     } catch (error) {
       console.error('Error archiving benchmark:', error);
+      toast({
+        title: 'Erro ao arquivar',
+        description: 'Não foi possível arquivar o benchmark',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -104,6 +125,27 @@ export function AdminBenchmarksPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-kosmos-orange" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <Card className="bg-red-500/10 border-red-500/20">
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+            <h3 className="text-lg font-medium text-kosmos-white mb-2">
+              Erro ao carregar benchmarks
+            </h3>
+            <p className="text-kosmos-gray-400 text-center mb-4">
+              {(error as Error).message || 'Tente novamente mais tarde'}
+            </p>
+            <Button onClick={() => window.location.reload()}>
+              Tentar novamente
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }

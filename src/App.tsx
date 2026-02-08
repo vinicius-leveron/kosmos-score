@@ -20,7 +20,7 @@ import NotFound from "./pages/NotFound";
 import Index from "./pages/Index"; // KOSMOS Score quiz
 
 // Admin pages
-import { DashboardPage } from "./pages/admin";
+import { DashboardPage, LeadMagnetsPage } from "./pages/admin";
 
 // Admin module pages
 import { AdminResults, AdminDashboard as KosmosScoreDashboard } from "./modules/kosmos-score/pages";
@@ -60,6 +60,7 @@ const App = () => (
               }
             >
               <Route index element={<DashboardPage />} />
+              <Route path="lead-magnets" element={<LeadMagnetsPage />} />
               <Route path="kosmos-score" element={<KosmosScoreDashboard />} />
               <Route path="kosmos-score/results" element={<AdminResults />} />
               <Route path="crm/contacts" element={<ContactsPage />} />

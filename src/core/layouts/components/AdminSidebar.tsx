@@ -1,9 +1,7 @@
 import { useLocation, Link } from 'react-router-dom';
 import {
   LayoutDashboard,
-  Target,
   Users,
-  FileText,
   Network,
   Map,
   ChevronDown,
@@ -11,10 +9,10 @@ import {
   Megaphone,
   Kanban,
   Wrench,
-  Settings,
   Building2,
   UserPlus,
   BarChart3,
+  TrendingUp,
 } from 'lucide-react';
 import { useAuth, useOrganization } from '@/core/auth';
 import {
@@ -65,11 +63,10 @@ const dashboardItem: NavItem = {
 // Grupos de navegação (sem Configurações - foi pro footer)
 const navigationGroups: NavGroup[] = [
   {
-    label: 'Lead Magnets',
-    icon: Megaphone,
+    label: 'Aquisição',
+    icon: TrendingUp,
     items: [
-      { title: 'KOSMOS Score', href: '/admin/kosmos-score', icon: Target },
-      { title: 'Formulários', href: '/admin/toolkit/forms', icon: FileText },
+      { title: 'Lead Magnets', href: '/admin/lead-magnets', icon: Megaphone },
     ],
   },
   {

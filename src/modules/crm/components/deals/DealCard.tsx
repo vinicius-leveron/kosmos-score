@@ -1,5 +1,3 @@
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { Building2, Calendar, DollarSign, User } from 'lucide-react';
 import type { DealBoardCard } from '../../types';
 
@@ -9,23 +7,6 @@ interface DealCardProps {
 }
 
 export function DealCard({ deal, onClick }: DealCardProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
-    id: deal.id,
-    data: { type: 'deal', deal },
-  });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
   const formatCurrency = (value: number | null) => {
     if (!value) return null;
     return new Intl.NumberFormat('pt-BR', {
@@ -45,16 +26,8 @@ export function DealCard({ deal, onClick }: DealCardProps) {
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
       onClick={onClick}
-      className={`
-        p-3 bg-card border rounded-lg cursor-grab active:cursor-grabbing
-        hover:border-primary/50 transition-colors
-        ${isDragging ? 'opacity-50 shadow-lg' : ''}
-      `}
+      className="p-3 bg-card border rounded-lg cursor-pointer hover:border-primary/50 transition-colors"
     >
       <h4 className="font-medium text-sm mb-2 line-clamp-2">{deal.name}</h4>
 
