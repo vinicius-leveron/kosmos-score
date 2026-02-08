@@ -6,6 +6,7 @@ import { questions, AuditAnswers, calculateAuditResult, AuditResult } from '@/mo
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { generatePDF } from '@/modules/kosmos-score/lib/pdfGenerator';
+import type { TablesInsert } from '@/integrations/supabase/types';
 
 type AuditStep = 'welcome' | 'questions' | 'result';
 
@@ -52,7 +53,7 @@ export function AuditFlow() {
   const saveAuditResult = async (auditResult: AuditResult) => {
     setIsSaving(true);
     try {
-      const { error } = await supabase.from('audit_results').insert({
+      const insertData: TablesInsert<'audit_results'> = {
         email: auditResult.email,
         // Quantitative data
         base_size: answers[1]?.value || '',
@@ -85,7 +86,9 @@ export function AuditFlow() {
         kosmos_asset_score: auditResult.kosmosAssetScore,
         lucro_oculto: auditResult.lucroOculto,
         is_beginner: auditResult.isBeginner,
-      });
+      };
+
+      const { error } = await supabase.from('audit_results').insert(insertData);
 
       if (error) {
         console.error('Error saving audit result:', error);
