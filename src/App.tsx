@@ -25,8 +25,10 @@ import { AdminDashboard } from "./modules/kosmos-score/pages/AdminDashboard";
 import { ContactsPage, PipelinePage, CrmDashboardPage } from "./modules/crm/pages";
 import { StakeholdersListPage } from "./modules/stakeholder-analysis/pages/StakeholdersListPage";
 import { StakeholderDetailPage } from "./modules/stakeholder-analysis/pages/StakeholderDetailPage";
+import { StakeholderDashboardPage } from "./modules/stakeholder-analysis/pages/StakeholderDashboardPage";
 import { JourneyAnalyzerPage } from "./modules/journey-analyzer";
 import { FormsListPage, FormEditorPage, FormAnalyticsPage, FormPublicPage } from "./modules/toolkit";
+import { TeamPage, ClientsPage, AcceptInvitePage } from "./modules/settings";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +45,7 @@ const App = () => (
             <Route path="/login" element={<LoginPage />} />
             <Route path="/quiz/kosmos-score" element={<Index />} />
             <Route path="/f/:slug" element={<FormPublicPage />} />
+            <Route path="/invite/:token" element={<AcceptInvitePage />} />
 
             {/* ADMIN PORTAL */}
             <Route
@@ -62,8 +65,11 @@ const App = () => (
               <Route path="toolkit/forms/:formId/edit" element={<FormEditorPage />} />
               <Route path="toolkit/forms/:formId/analytics" element={<FormAnalyticsPage />} />
               <Route path="stakeholders" element={<StakeholdersListPage />} />
+              <Route path="stakeholders/dashboard" element={<StakeholderDashboardPage />} />
               <Route path="stakeholders/:id" element={<StakeholderDetailPage />} />
               <Route path="journey" element={<JourneyAnalyzerPage />} />
+              <Route path="settings/team" element={<TeamPage />} />
+              <Route path="settings/clients" element={<ClientsPage />} />
             </Route>
 
             {/* CLIENT PORTAL */}

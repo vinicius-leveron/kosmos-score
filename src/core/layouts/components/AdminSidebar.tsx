@@ -11,6 +11,9 @@ import {
   TrendingUp,
   Kanban,
   Wrench,
+  Settings,
+  Building2,
+  UserPlus,
 } from 'lucide-react';
 import { useAuth, useOrganization } from '@/core/auth';
 import {
@@ -86,6 +89,14 @@ const navigationGroups: NavGroup[] = [
     items: [
       { title: 'Análise de Jornada', href: '/admin/journey', icon: Map },
       { title: 'Stakeholders', href: '/admin/stakeholders', icon: Network },
+    ],
+  },
+  {
+    label: 'Configurações',
+    icon: Settings,
+    items: [
+      { title: 'Equipe', href: '/admin/settings/team', icon: UserPlus },
+      { title: 'Clientes', href: '/admin/settings/clients', icon: Building2 },
     ],
   },
 ];
