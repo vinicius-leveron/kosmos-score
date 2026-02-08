@@ -23,7 +23,7 @@ export function FormAnalyticsPage() {
       <div className="flex items-center justify-center min-h-screen bg-kosmos-black">
         <div className="text-center">
           <h1 className="text-xl text-kosmos-white mb-4">Formulário não encontrado</h1>
-          <Button onClick={() => navigate('/toolkit/forms')}>
+          <Button onClick={() => navigate('/admin/toolkit/forms')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar para lista
           </Button>
@@ -50,7 +50,7 @@ export function FormAnalyticsPage() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => navigate('/toolkit/forms')}
+                onClick={() => navigate('/admin/toolkit/forms')}
                 aria-label="Voltar"
               >
                 <ArrowLeft className="h-5 w-5" />

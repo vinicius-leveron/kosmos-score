@@ -64,7 +64,7 @@ export function FormsListPage() {
       setIsCreateDialogOpen(false);
       setNewFormName('');
       setNewFormDescription('');
-      navigate(`/toolkit/forms/${form.id}/edit`);
+      navigate(`/admin/toolkit/forms/${form.id}/edit`);
     } catch (error) {
       console.error('Error creating form:', error);
     }
@@ -125,7 +125,7 @@ export function FormsListPage() {
             <Card
               key={form.id}
               className="bg-kosmos-gray-900 border-kosmos-gray-800 hover:border-kosmos-orange/50 transition-colors cursor-pointer"
-              onClick={() => navigate(`/toolkit/forms/${form.id}/edit`)}
+              onClick={() => navigate(`/admin/toolkit/forms/${form.id}/edit`)}
             >
               <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
                 <div className="flex items-center gap-2">
@@ -139,7 +139,7 @@ export function FormsListPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/toolkit/forms/${form.id}/edit`); }}>
+                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/admin/toolkit/forms/${form.id}/edit`); }}>
                       <Edit className="h-4 w-4 mr-2" />
                       Editar
                     </DropdownMenuItem>
@@ -149,7 +149,7 @@ export function FormsListPage() {
                         Visualizar
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/toolkit/forms/${form.id}/analytics`); }}>
+                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/admin/toolkit/forms/${form.id}/analytics`); }}>
                       <BarChart className="h-4 w-4 mr-2" />
                       Analytics
                     </DropdownMenuItem>
