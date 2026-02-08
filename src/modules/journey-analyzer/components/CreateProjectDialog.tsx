@@ -1,0 +1,143 @@
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import { useCreateProject } from '../hooks';
+import { Button } from '@/design-system/primitives/button';
+import { Input } from '@/design-system/primitives/input';
+import { Textarea } from '@/design-system/primitives/textarea';
+import { Label } from '@/design-system/primitives/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/design-system/primitives/dialog';
+import { useToast } from '@/hooks/use-toast';
+
+interface CreateProjectDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  organizationId: string;
+}
+
+export function CreateProjectDialog({ open, onOpenChange, organizationId }: CreateProjectDialogProps) {
+  const createProject = useCreateProject();
+  const { toast } = useToast();
+
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    client_name: '',
+    client_email: '',
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.name.trim() || !formData.client_name.trim()) {
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Preencha o nome do projeto e do cliente.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      await createProject.mutateAsync({
+        organization_id: organizationId,
+        name: formData.name.trim(),
+        description: formData.description.trim() || null,
+        client_name: formData.client_name.trim(),
+        client_email: formData.client_email.trim() || null,
+      });
+
+      toast({
+        title: 'Projeto criado',
+        description: 'A análise foi criada com as etapas padrão.',
+      });
+
+      setFormData({ name: '', description: '', client_name: '', client_email: '' });
+      onOpenChange(false);
+    } catch (error) {
+      toast({
+        title: 'Erro ao criar projeto',
+        description: 'Tente novamente.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px]">
+        <form onSubmit={handleSubmit}>
+          <DialogHeader>
+            <DialogTitle>Nova Análise de Jornada</DialogTitle>
+            <DialogDescription>
+              Crie um projeto de análise para mapear a jornada do cliente.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Nome do Projeto *</Label>
+              <Input
+                id="name"
+                placeholder="Ex: Análise Comunidade XYZ"
+                value={formData.name}
+                onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="client_name">Nome do Cliente *</Label>
+              <Input
+                id="client_name"
+                placeholder="Ex: João Silva"
+                value={formData.client_name}
+                onChange={(e) => setFormData((prev) => ({ ...prev, client_name: e.target.value }))}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="client_email">E-mail do Cliente</Label>
+              <Input
+                id="client_email"
+                type="email"
+                placeholder="cliente@email.com"
+                value={formData.client_email}
+                onChange={(e) => setFormData((prev) => ({ ...prev, client_email: e.target.value }))}
+              />
+              <p className="text-xs text-muted-foreground">
+                O cliente poderá acessar os resultados via link
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Descrição</Label>
+              <Textarea
+                id="description"
+                placeholder="Descreva o objetivo desta análise..."
+                value={formData.description}
+                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={createProject.isPending}>
+              {createProject.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Criar Projeto
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

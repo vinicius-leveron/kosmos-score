@@ -11,6 +11,7 @@ import { ContactsPage } from "./modules/crm/pages/ContactsPage";
 import { PipelinePage } from "./modules/crm/pages/PipelinePage";
 import { StakeholdersListPage } from "./modules/stakeholder-analysis/pages/StakeholdersListPage";
 import { StakeholderDetailPage } from "./modules/stakeholder-analysis/pages/StakeholderDetailPage";
+import { JourneyAnalyzerPage } from "./modules/journey-analyzer";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,8 @@ const App = () => (
           {/* Stakeholder Analysis Routes */}
           <Route path="/stakeholders" element={<StakeholdersListPage organizationId="c0000000-0000-0000-0000-000000000001" />} />
           <Route path="/stakeholders/:id" element={<StakeholderDetailPage organizationId="c0000000-0000-0000-0000-000000000001" />} />
+          {/* Journey Analyzer Routes */}
+          <Route path="/journey-analyzer" element={<JourneyAnalyzerPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
