@@ -25,6 +25,8 @@ import {
 
 interface StakeholderCardProps {
   stakeholder: Stakeholder;
+  /** Organization name to display as badge (for multi-client view) */
+  organizationName?: string;
   onClick?: () => void;
   className?: string;
 }
@@ -63,6 +65,7 @@ function formatPercentage(value: number | null): string {
 
 export function StakeholderCard({
   stakeholder,
+  organizationName,
   onClick,
   className,
 }: StakeholderCardProps) {
@@ -118,6 +121,14 @@ export function StakeholderCard({
                   className={cn('text-xs', STAKEHOLDER_STATUS_COLORS[stakeholder.status])}
                 >
                   {stakeholder.status === 'inactive' ? 'Inativo' : 'Saiu'}
+                </Badge>
+              )}
+              {organizationName && (
+                <Badge
+                  variant="secondary"
+                  className="text-xs bg-blue-500/10 text-blue-400 border-blue-500/20"
+                >
+                  {organizationName}
                 </Badge>
               )}
             </div>

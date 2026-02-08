@@ -127,8 +127,15 @@ function FormSection({ title, children }: FormSectionProps) {
  * StakeholderForm - Create or edit stakeholder information
  *
  * @example
+ * // For clients (single org)
  * <StakeholderForm
  *   organizationId="org-123"
+ *   onSuccess={(stakeholder) => console.log('Created:', stakeholder)}
+ *   onCancel={() => setOpen(false)}
+ * />
+ *
+ * // For consultants (can select client)
+ * <StakeholderForm
  *   onSuccess={(stakeholder) => console.log('Created:', stakeholder)}
  *   onCancel={() => setOpen(false)}
  * />
@@ -141,12 +148,18 @@ export function StakeholderForm({
   className,
 }: StakeholderFormProps) {
   const isEditing = !!initialData;
+  const { isKosmosMaster } = useOrganization();
   const createMutation = useCreateStakeholder();
   const updateMutation = useUpdateStakeholder();
+
+  // Fetch client organizations for consultants
+  const { data: clientOrgs, isLoading: isLoadingClients } = useClientOrganizations();
+  const showClientSelect = isKosmosMaster && !isEditing;
 
   const form = useForm<StakeholderFormValues>({
     resolver: zodResolver(stakeholderFormSchema),
     defaultValues: {
+      organization_id: initialData?.organization_id ?? organizationId ?? '',
       full_name: initialData?.full_name ?? '',
       email: initialData?.email ?? '',
       stakeholder_type: initialData?.stakeholder_type ?? undefined,
@@ -165,10 +178,18 @@ export function StakeholderForm({
   const isPending = createMutation.isPending || updateMutation.isPending;
 
   const onSubmit = async (values: StakeholderFormValues) => {
+    // Determine final organization ID
+    const finalOrgId = values.organization_id || organizationId;
+
+    if (!finalOrgId) {
+      toast.error('Selecione um cliente');
+      return;
+    }
+
     try {
       const payload = {
         ...values,
-        organization_id: organizationId,
+        organization_id: finalOrgId,
         email: values.email || undefined,
         sector: values.sector || undefined,
         bio: values.bio || undefined,
@@ -206,6 +227,47 @@ export function StakeholderForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn('space-y-6', className)}
       >
+        {/* Selecao de Cliente (apenas para consultores) */}
+        {showClientSelect && (
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium text-muted-foreground">Cliente</h3>
+            <FormField
+              control={form.control}
+              name="organization_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Vincular a qual cliente? *</FormLabel>
+                  {isLoadingClients ? (
+                    <Skeleton className="h-10 w-full" />
+                  ) : (
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecionar cliente..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {clientOrgs?.map((org) => (
+                          <SelectItem key={org.id} value={org.id}>
+                            {org.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                  <FormDescription>
+                    Selecione o cliente ao qual este stakeholder pertence
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+
         {/* Informacoes Basicas */}
         <FormSection title="Informacoes Basicas">
           <FormField

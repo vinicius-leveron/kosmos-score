@@ -63,7 +63,7 @@ export function LoginPage() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-black p-4">
       {/* Background pattern - subtle grid */}
       <div
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{
           backgroundImage: `
             linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
