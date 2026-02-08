@@ -5,8 +5,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Form, FormWithRelations, FormStatus } from '../types/form.types';
-
-const KOSMOS_ORG_ID = 'c0000000-0000-0000-0000-000000000001';
+import { KOSMOS_ORG_ID } from '@/core/auth';
 
 // ============================================================================
 // QUERY KEYS

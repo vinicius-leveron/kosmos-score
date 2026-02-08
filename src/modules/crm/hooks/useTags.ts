@@ -1,8 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tag } from '../types';
-
-const KOSMOS_ORG_ID = 'c0000000-0000-0000-0000-000000000001';
+import { KOSMOS_ORG_ID } from '@/core/auth';
 
 export function useTags(organizationId: string = KOSMOS_ORG_ID) {
   return useQuery({

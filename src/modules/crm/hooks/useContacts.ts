@@ -8,8 +8,7 @@ import type {
   PaginatedResult,
   ContactFormData,
 } from '../types';
-
-const KOSMOS_ORG_ID = 'c0000000-0000-0000-0000-000000000001';
+import { KOSMOS_ORG_ID } from '@/core/auth';
 const DEFAULT_PER_PAGE = 20;
 
 interface UseContactsParams {
