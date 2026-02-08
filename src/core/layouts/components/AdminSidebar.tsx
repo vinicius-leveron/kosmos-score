@@ -13,6 +13,7 @@ import {
   UserPlus,
   BarChart3,
   TrendingUp,
+  Target,
 } from 'lucide-react';
 import { useAuth, useOrganization } from '@/core/auth';
 import {
@@ -74,6 +75,8 @@ const navigationGroups: NavGroup[] = [
     icon: Users,
     items: [
       { title: 'Contatos', href: '/admin/crm/contacts', icon: Users },
+      { title: 'Empresas', href: '/admin/crm/companies', icon: Building2 },
+      { title: 'Deals', href: '/admin/crm/deals/board', icon: Target },
       { title: 'Pipeline', href: '/admin/crm/pipeline', icon: Kanban },
     ],
   },

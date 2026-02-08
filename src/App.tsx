@@ -24,7 +24,7 @@ import { DashboardPage, LeadMagnetsPage } from "./pages/admin";
 
 // Admin module pages
 import { AdminResults, AdminDashboard as KosmosScoreDashboard } from "./modules/kosmos-score/pages";
-import { ContactsPage, PipelinePage } from "./modules/crm/pages";
+import { ContactsPage, PipelinePage, CompaniesPage, DealBoardPage } from "./modules/crm/pages";
 import { StakeholdersListPage } from "./modules/stakeholder-analysis/pages/StakeholdersListPage";
 import { StakeholderDetailPage } from "./modules/stakeholder-analysis/pages/StakeholderDetailPage";
 import { StakeholderDashboardPage } from "./modules/stakeholder-analysis/pages/StakeholderDashboardPage";
@@ -65,6 +65,8 @@ const App = () => (
               <Route path="kosmos-score/results" element={<AdminResults />} />
               <Route path="crm/contacts" element={<ContactsPage />} />
               <Route path="crm/pipeline" element={<PipelinePage />} />
+              <Route path="crm/companies" element={<CompaniesPage />} />
+              <Route path="crm/deals/board" element={<DealBoardPage />} />
               <Route path="toolkit/forms" element={<FormsListPage />} />
               <Route path="toolkit/forms/:formId/edit" element={<FormEditorPage />} />
               <Route path="toolkit/forms/:formId/analytics" element={<FormAnalyticsPage />} />
