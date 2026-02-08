@@ -8,6 +8,9 @@ import {
   Map,
   ChevronDown,
   LogOut,
+  TrendingUp,
+  Kanban,
+  Wrench,
 } from 'lucide-react';
 import { useAuth, useOrganization } from '@/core/auth';
 import {
@@ -41,46 +44,49 @@ import { cn } from '@/design-system/lib/utils';
 
 interface NavItem {
   title: string;
-  href?: string;
+  href: string;
   icon: React.ComponentType<{ className?: string }>;
-  items?: { title: string; href: string }[];
 }
 
-const navigation: NavItem[] = [
+interface NavGroup {
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  items: NavItem[];
+}
+
+// Dashboard - acesso direto
+const dashboardItem: NavItem = {
+  title: 'Dashboard',
+  href: '/admin',
+  icon: LayoutDashboard,
+};
+
+// Grupos de navegação
+const navigationGroups: NavGroup[] = [
   {
-    title: 'Dashboard',
-    href: '/admin',
-    icon: LayoutDashboard,
-  },
-  {
-    title: 'KOSMOS Score',
-    icon: Target,
+    label: 'Aquisição',
+    icon: TrendingUp,
     items: [
-      { title: 'Resultados', href: '/admin/kosmos-score' },
+      { title: 'KOSMOS Score', href: '/admin/kosmos-score', icon: Target },
+      { title: 'Formulários', href: '/admin/toolkit/forms', icon: FileText },
     ],
   },
   {
-    title: 'CRM',
+    label: 'CRM',
     icon: Users,
     items: [
-      { title: 'Contatos', href: '/admin/crm/contacts' },
-      { title: 'Pipeline', href: '/admin/crm/pipeline' },
+      { title: 'Visão Geral', href: '/admin/crm', icon: LayoutDashboard },
+      { title: 'Contatos', href: '/admin/crm/contacts', icon: Users },
+      { title: 'Pipeline', href: '/admin/crm/pipeline', icon: Kanban },
     ],
   },
   {
-    title: 'Formulários',
-    href: '/admin/toolkit/forms',
-    icon: FileText,
-  },
-  {
-    title: 'Stakeholders',
-    href: '/admin/stakeholders',
-    icon: Network,
-  },
-  {
-    title: 'Jornada',
-    href: '/admin/journey',
-    icon: Map,
+    label: 'Serviços',
+    icon: Wrench,
+    items: [
+      { title: 'Análise de Jornada', href: '/admin/journey', icon: Map },
+      { title: 'Stakeholders', href: '/admin/stakeholders', icon: Network },
+    ],
   },
 ];
 
@@ -90,8 +96,9 @@ export function AdminSidebar() {
   const { currentOrg } = useOrganization();
 
   const isActive = (href: string) => {
-    if (href === '/admin') {
-      return location.pathname === '/admin';
+    // Exact match for dashboard pages
+    if (href === '/admin' || href === '/admin/crm') {
+      return location.pathname === href;
     }
     return location.pathname.startsWith(href);
   };
@@ -125,49 +132,54 @@ export function AdminSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
+        {/* Dashboard - Acesso direto */}
         <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigation.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  {item.items ? (
-                    <Collapsible defaultOpen={item.items.some((sub) => isActive(sub.href))}>
-                      <CollapsibleTrigger asChild>
-                        <SidebarMenuButton>
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.title}</span>
-                          <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
-                        </SidebarMenuButton>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <SidebarMenuSub>
-                          {item.items.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.href}>
-                              <SidebarMenuSubButton
-                                asChild
-                                isActive={isActive(subItem.href)}
-                              >
-                                <Link to={subItem.href}>{subItem.title}</Link>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    </Collapsible>
-                  ) : (
-                    <SidebarMenuButton asChild isActive={isActive(item.href!)}>
-                      <Link to={item.href!}>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  )}
-                </SidebarMenuItem>
-              ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive(dashboardItem.href)}>
+                  <Link to={dashboardItem.href}>
+                    <dashboardItem.icon className="h-4 w-4" />
+                    <span>{dashboardItem.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Grupos de navegação */}
+        {navigationGroups.map((group) => (
+          <SidebarGroup key={group.label}>
+            <Collapsible defaultOpen={group.items.some((item) => isActive(item.href))}>
+              <CollapsibleTrigger asChild>
+                <SidebarGroupLabel className="cursor-pointer hover:bg-accent/50 rounded-md px-2 py-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <group.icon className="h-3.5 w-3.5" />
+                    {group.label}
+                  </span>
+                  <ChevronDown className="h-3.5 w-3.5 transition-transform group-data-[state=open]:rotate-180" />
+                </SidebarGroupLabel>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {group.items.map((item) => (
+                      <SidebarMenuItem key={item.href}>
+                        <SidebarMenuButton asChild isActive={isActive(item.href)}>
+                          <Link to={item.href}>
+                            <item.icon className="h-4 w-4" />
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </CollapsibleContent>
+            </Collapsible>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
 
       <SidebarFooter className="border-t">

@@ -10,12 +10,21 @@ import { useToast } from '@/hooks/use-toast';
 export function LoginPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { signIn, isAuthenticated, canAccessAdmin } = useAuth();
+  const { signIn, isAuthenticated, isLoading: authLoading, canAccessAdmin } = useAuth();
   const { toast } = useToast();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <Loader2 className="h-8 w-8 animate-spin text-[#FF4500]" />
+      </div>
+    );
+  }
 
   // If already authenticated, redirect
   if (isAuthenticated) {
@@ -40,7 +49,7 @@ export function LoginPage() {
       return;
     }
 
-    setIsLoading(true);
+    setIsSubmitting(true);
 
     const { error } = await signIn(email, password);
 
@@ -50,7 +59,7 @@ export function LoginPage() {
         description: 'Email ou senha incorretos.',
         variant: 'destructive',
       });
-      setIsLoading(false);
+      setIsSubmitting(false);
       return;
     }
 
@@ -105,7 +114,7 @@ export function LoginPage() {
                 placeholder="seu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
+                disabled={isSubmitting}
                 autoComplete="email"
                 className="bg-black border-[#333] text-white placeholder:text-[#444] focus:border-[#FF4500] focus:ring-[#FF4500]/20 h-12"
               />
@@ -121,7 +130,7 @@ export function LoginPage() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
+                disabled={isSubmitting}
                 autoComplete="current-password"
                 className="bg-black border-[#333] text-white placeholder:text-[#444] focus:border-[#FF4500] focus:ring-[#FF4500]/20 h-12"
               />
@@ -130,9 +139,9 @@ export function LoginPage() {
             <Button
               type="submit"
               className="w-full h-12 bg-[#FF4500] hover:bg-[#E03D00] text-white font-semibold uppercase tracking-wider transition-all duration-200"
-              disabled={isLoading}
+              disabled={isSubmitting}
             >
-              {isLoading ? (
+              {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Entrando...

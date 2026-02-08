@@ -1,10 +1,26 @@
+import {
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+  ResponsiveContainer,
+  Tooltip,
+} from 'recharts';
 import { cn } from '@/design-system/lib/utils';
 import type { ScoreBreakdown } from '../../types';
 
 interface ScoreDisplayProps {
   scoreBreakdown: ScoreBreakdown;
   className?: string;
+  showRadar?: boolean;
 }
+
+const PILLAR_COLORS = {
+  causa: '#FF4500',
+  cultura: '#A855F7',
+  economia: '#3B82F6',
+};
 
 interface PillarBarProps {
   label: string;
@@ -34,7 +50,55 @@ function PillarBar({ label, value, color }: PillarBarProps) {
   );
 }
 
-export function ScoreDisplay({ scoreBreakdown, className }: ScoreDisplayProps) {
+function ScoreRadar({ causa, cultura, economia }: { causa: number; cultura: number; economia: number }) {
+  const chartData = [
+    { pillar: 'Causa', score: Math.round(causa), fullMark: 100 },
+    { pillar: 'Cultura', score: Math.round(cultura), fullMark: 100 },
+    { pillar: 'Economia', score: Math.round(economia), fullMark: 100 },
+  ];
+
+  return (
+    <div className="h-48">
+      <ResponsiveContainer width="100%" height="100%">
+        <RadarChart data={chartData}>
+          <PolarGrid stroke="hsl(var(--border))" strokeDasharray="3 3" />
+          <PolarAngleAxis
+            dataKey="pillar"
+            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+          />
+          <PolarRadiusAxis
+            angle={90}
+            domain={[0, 100]}
+            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+            tickCount={5}
+          />
+          <Radar
+            name="Score"
+            dataKey="score"
+            stroke="#FF4500"
+            fill="#FF4500"
+            fillOpacity={0.3}
+            strokeWidth={2}
+          />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: 'hsl(var(--card))',
+              border: '1px solid hsl(var(--border))',
+              borderRadius: '8px',
+            }}
+            formatter={(value: number) => [`${value}/100`, 'Score']}
+          />
+        </RadarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+export function ScoreDisplay({ scoreBreakdown, className, showRadar = true }: ScoreDisplayProps) {
+  const causa = scoreBreakdown.causa ?? 0;
+  const cultura = scoreBreakdown.cultura ?? 0;
+  const economia = scoreBreakdown.economia ?? 0;
+
   const hasPillars =
     scoreBreakdown.causa !== undefined ||
     scoreBreakdown.cultura !== undefined ||
@@ -48,21 +112,25 @@ export function ScoreDisplay({ scoreBreakdown, className }: ScoreDisplayProps) {
     <div className={cn('space-y-4', className)}>
       <h4 className="text-sm font-medium">Score por Pilar</h4>
 
+      {showRadar && (causa > 0 || cultura > 0 || economia > 0) && (
+        <ScoreRadar causa={causa} cultura={cultura} economia={economia} />
+      )}
+
       <div className="space-y-3">
         <PillarBar
           label="Causa"
           value={scoreBreakdown.causa}
-          color="#f97316"
+          color={PILLAR_COLORS.causa}
         />
         <PillarBar
           label="Cultura"
           value={scoreBreakdown.cultura}
-          color="#8b5cf6"
+          color={PILLAR_COLORS.cultura}
         />
         <PillarBar
           label="Economia"
           value={scoreBreakdown.economia}
-          color="#10b981"
+          color={PILLAR_COLORS.economia}
         />
       </div>
 

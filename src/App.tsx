@@ -22,8 +22,7 @@ import Index from "./pages/Index"; // KOSMOS Score quiz
 // Admin module pages
 import { AdminResults } from "./modules/kosmos-score/pages/AdminResults";
 import { AdminDashboard } from "./modules/kosmos-score/pages/AdminDashboard";
-import { ContactsPage } from "./modules/crm/pages/ContactsPage";
-import { PipelinePage } from "./modules/crm/pages/PipelinePage";
+import { ContactsPage, PipelinePage, CrmDashboardPage } from "./modules/crm/pages";
 import { StakeholdersListPage } from "./modules/stakeholder-analysis/pages/StakeholdersListPage";
 import { StakeholderDetailPage } from "./modules/stakeholder-analysis/pages/StakeholderDetailPage";
 import { JourneyAnalyzerPage } from "./modules/journey-analyzer";
@@ -56,6 +55,7 @@ const App = () => (
             >
               <Route index element={<AdminDashboard />} />
               <Route path="kosmos-score" element={<AdminResults />} />
+              <Route path="crm" element={<CrmDashboardPage />} />
               <Route path="crm/contacts" element={<ContactsPage />} />
               <Route path="crm/pipeline" element={<PipelinePage />} />
               <Route path="toolkit/forms" element={<FormsListPage />} />

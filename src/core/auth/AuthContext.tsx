@@ -102,21 +102,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const [profile, memberships] = await Promise.all([
-      fetchProfile(user.id),
-      fetchMemberships(user.id),
-    ]);
+    try {
+      const [profile, memberships] = await Promise.all([
+        fetchProfile(user.id),
+        fetchMemberships(user.id),
+      ]);
 
-    const currentOrg = loadSavedCurrentOrg(memberships);
+      const currentOrg = loadSavedCurrentOrg(memberships);
 
-    setState({
-      user,
-      profile,
-      memberships,
-      currentOrg,
-      isLoading: false,
-      isAuthenticated: true,
-    });
+      setState({
+        user,
+        profile,
+        memberships,
+        currentOrg,
+        isLoading: false,
+        isAuthenticated: true,
+      });
+    } catch (error) {
+      console.error('Error initializing auth:', error);
+      // Still set authenticated but with empty memberships
+      setState({
+        user,
+        profile: null,
+        memberships: [],
+        currentOrg: null,
+        isLoading: false,
+        isAuthenticated: true,
+      });
+    }
   }, [fetchProfile, fetchMemberships, loadSavedCurrentOrg]);
 
   // Listen for auth state changes
