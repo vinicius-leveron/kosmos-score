@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { ProjectList, ProjectDetail } from '../components';
-
-// KOSMOS master org ID
-const KOSMOS_ORG_ID = 'c0000000-0000-0000-0000-000000000001';
+import { useOrganization } from '@/core/auth';
 
 export function JourneyAnalyzerPage() {
+  const { organizationId } = useOrganization();
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
 
   if (selectedProjectId) {
@@ -18,7 +17,7 @@ export function JourneyAnalyzerPage() {
 
   return (
     <ProjectList
-      organizationId={KOSMOS_ORG_ID}
+      organizationId={organizationId}
       onSelectProject={setSelectedProjectId}
     />
   );

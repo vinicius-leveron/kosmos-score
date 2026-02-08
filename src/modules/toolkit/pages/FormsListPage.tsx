@@ -28,12 +28,12 @@ import { Label } from '@/design-system/primitives/label';
 import { Textarea } from '@/design-system/primitives/textarea';
 import { useForms, useCreateForm, useDeleteForm } from '../hooks/useForms';
 import type { Form } from '../types/form.types';
-
-const KOSMOS_ORG_ID = 'c0000000-0000-0000-0000-000000000001';
+import { useOrganization } from '@/core/auth';
 
 export function FormsListPage() {
   const navigate = useNavigate();
-  const { data: forms, isLoading } = useForms(KOSMOS_ORG_ID);
+  const { organizationId } = useOrganization();
+  const { data: forms, isLoading } = useForms(organizationId);
   const createForm = useCreateForm();
   const deleteForm = useDeleteForm();
 
@@ -58,7 +58,7 @@ export function FormsListPage() {
         name: newFormName,
         slug,
         description: newFormDescription || undefined,
-        organization_id: KOSMOS_ORG_ID,
+        organization_id: organizationId,
       });
 
       setIsCreateDialogOpen(false);

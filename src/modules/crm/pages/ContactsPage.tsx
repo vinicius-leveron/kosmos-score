@@ -14,10 +14,10 @@ import { ContactDetail } from '../components/contacts/ContactDetail';
 import { ContactForm } from '../components/contacts/ContactForm';
 import type { ContactListItem } from '../types';
 import { useQueryClient } from '@tanstack/react-query';
-
-const KOSMOS_ORG_ID = 'c0000000-0000-0000-0000-000000000001';
+import { useOrganization } from '@/core/auth';
 
 export function ContactsPage() {
+  const { organizationId } = useOrganization();
   const [selectedContact, setSelectedContact] = useState<ContactListItem | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -101,7 +101,7 @@ export function ContactsPage() {
             </SheetDescription>
           </SheetHeader>
           <ContactForm
-            organizationId={KOSMOS_ORG_ID}
+            organizationId={organizationId}
             onSuccess={handleCreateSuccess}
             onCancel={() => setIsCreateOpen(false)}
           />

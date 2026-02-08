@@ -7,8 +7,7 @@ import { FileX } from 'lucide-react';
 import { FormRuntime } from '../components/runtime';
 import { useFormBySlug } from '../hooks/useForms';
 import type { FormSubmission } from '../types/form.types';
-
-const KOSMOS_ORG_ID = 'c0000000-0000-0000-0000-000000000001';
+import { KOSMOS_ORG_ID } from '@/core/auth';
 
 export function FormPublicPage() {
   const { slug } = useParams<{ slug: string }>();
