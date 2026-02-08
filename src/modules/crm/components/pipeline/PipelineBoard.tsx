@@ -7,15 +7,18 @@ import {
   SheetTitle,
 } from '@/design-system/primitives/sheet';
 import { ScrollArea, ScrollBar } from '@/design-system/primitives/scroll-area';
-import { usePipeline } from '../../hooks/usePipeline';
-import { useUpdateContactStage } from '../../hooks/useJourneyStages';
+import { usePipelineBoard, useMoveContactInPipeline } from '../../hooks/usePipelineBoard';
 import { StageColumn } from './StageColumn';
 import { ContactDetail } from '../contacts/ContactDetail';
 import type { ContactListItem } from '../../types';
 
-export function PipelineBoard() {
-  const { data, isLoading, error } = usePipeline();
-  const updateStage = useUpdateContactStage();
+interface PipelineBoardProps {
+  pipelineId?: string;
+}
+
+export function PipelineBoard({ pipelineId }: PipelineBoardProps) {
+  const { data, isLoading, error } = usePipelineBoard(pipelineId);
+  const moveContact = useMoveContactInPipeline();
   const [selectedContact, setSelectedContact] = useState<ContactListItem | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
@@ -30,11 +33,19 @@ export function PipelineBoard() {
   };
 
   const handleDrop = (contactOrgId: string, stageId: string) => {
-    // Don't update if dropping on "no-stage" placeholder
-    if (stageId === 'no-stage') return;
+    // Don't update if dropping on "no-stage" placeholder or no pipeline selected
+    if (stageId === 'no-stage' || !pipelineId) return;
 
-    updateStage.mutate({ contactOrgId, stageId });
+    moveContact.mutate({ contactOrgId, pipelineId, newStageId: stageId });
   };
+
+  if (!pipelineId) {
+    return (
+      <div className="p-8 text-center text-muted-foreground">
+        Selecione um pipeline para visualizar
+      </div>
+    );
+  }
 
   if (error) {
     return (

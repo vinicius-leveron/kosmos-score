@@ -21,6 +21,7 @@ import { useCreateActivity } from '../../hooks/useActivities';
 import { ContactAvatar, ScoreBadge, JourneyStageSelect } from '../shared';
 import { ActivityTimeline } from '../timeline/ActivityTimeline';
 import { ScoreDisplay } from './ScoreDisplay';
+import { ContactPipelinesList } from './ContactPipelinesList';
 
 interface ContactDetailProps {
   contactOrgId: string;
@@ -141,9 +142,14 @@ export function ContactDetail({ contactOrgId, onClose }: ContactDetailProps) {
         </>
       )}
 
-      {/* Stage */}
+      {/* Pipelines */}
+      <ContactPipelinesList contactOrgId={contactOrgId} />
+
+      <Separator />
+
+      {/* Legacy Stage - keeping for backwards compatibility */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Estágio da Jornada</label>
+        <label className="text-sm font-medium">Estágio da Jornada (Legado)</label>
         <JourneyStageSelect
           value={contact.contact_org.journey_stage_id || undefined}
           onValueChange={handleStageChange}

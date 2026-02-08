@@ -6,21 +6,13 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function test() {
-  console.log('1. Testing if user exists...');
-  const { error: authError } = await supabase.auth.signInWithPassword({
-    email: 'vinicius@leveron.online',
-    password: 'wrongpassword123'
-  });
-  
-  console.log('Login result:', authError ? authError.message : 'Success!');
-  
-  console.log('\n2. Checking profiles table (anon)...');
-  const { data: profiles, error: pErr } = await supabase.from('profiles').select('id').limit(1);
-  console.log('Profiles:', pErr ? pErr.message : 'OK - ' + (profiles ? profiles.length : 0) + ' rows');
-  
-  console.log('\n3. Checking org_members table (anon)...');
-  const { data: members, error: mErr } = await supabase.from('org_members').select('profile_id').limit(1);
-  console.log('Members:', mErr ? mErr.message : 'OK - ' + (members ? members.length : 0) + ' rows');
+  console.log('Testing organizations (should work - public read)...');
+  const start = Date.now();
+  const { data: orgs, error: orgErr } = await supabase
+    .from('organizations')
+    .select('id, name')
+    .limit(5);
+  console.log('Organizations:', orgErr ? orgErr.message : orgs, '(' + (Date.now() - start) + 'ms)');
 }
 
 test().catch(e => console.error('Error:', e.message));

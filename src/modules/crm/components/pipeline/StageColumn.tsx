@@ -1,10 +1,10 @@
 import { cn } from '@/design-system/lib/utils';
 import { ScrollArea } from '@/design-system/primitives/scroll-area';
 import { ContactDragCard } from './ContactDragCard';
-import type { JourneyStage, ContactListItem } from '../../types';
+import type { JourneyStage, ContactListItem, PipelineStage } from '../../types';
 
 interface StageColumnProps {
-  stage: JourneyStage;
+  stage: JourneyStage | PipelineStage;
   contacts: ContactListItem[];
   count: number;
   onContactClick: (contact: ContactListItem) => void;
