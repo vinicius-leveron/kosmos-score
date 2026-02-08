@@ -5,16 +5,23 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
 } from '@/design-system/primitives/sheet';
 import { Kanban, Plus, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ContactsTable } from '../components/contacts/ContactsTable';
 import { ContactDetail } from '../components/contacts/ContactDetail';
+import { ContactForm } from '../components/contacts/ContactForm';
 import type { ContactListItem } from '../types';
+import { useQueryClient } from '@tanstack/react-query';
+
+const KOSMOS_ORG_ID = 'c0000000-0000-0000-0000-000000000001';
 
 export function ContactsPage() {
   const [selectedContact, setSelectedContact] = useState<ContactListItem | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleSelectContact = (contact: ContactListItem) => {
     setSelectedContact(contact);
@@ -23,7 +30,12 @@ export function ContactsPage() {
 
   const handleCloseDetail = () => {
     setIsDetailOpen(false);
-    setTimeout(() => setSelectedContact(null), 300); // Wait for animation
+    setTimeout(() => setSelectedContact(null), 300);
+  };
+
+  const handleCreateSuccess = () => {
+    setIsCreateOpen(false);
+    queryClient.invalidateQueries({ queryKey: ['contacts'] });
   };
 
   return (
@@ -50,7 +62,7 @@ export function ContactsPage() {
                   Pipeline
                 </Link>
               </Button>
-              <Button>
+              <Button onClick={() => setIsCreateOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Novo Contato
               </Button>
@@ -76,6 +88,23 @@ export function ContactsPage() {
               onClose={handleCloseDetail}
             />
           )}
+        </SheetContent>
+      </Sheet>
+
+      {/* Create Contact Sheet */}
+      <Sheet open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Novo Contato</SheetTitle>
+            <SheetDescription>
+              Adicione um novo contato ao CRM
+            </SheetDescription>
+          </SheetHeader>
+          <ContactForm
+            organizationId={KOSMOS_ORG_ID}
+            onSuccess={handleCreateSuccess}
+            onCancel={() => setIsCreateOpen(false)}
+          />
         </SheetContent>
       </Sheet>
     </div>
