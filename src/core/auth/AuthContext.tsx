@@ -135,9 +135,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Listen for auth state changes
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      initializeAuth(session?.user ?? null);
-    });
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        initializeAuth(session?.user ?? null);
+      })
+      .catch((error) => {
+        console.error('Error getting session:', error);
+        setState({ ...initialState, isLoading: false });
+      });
 
     // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(

@@ -19,22 +19,63 @@ import type {
 } from '../types/stakeholder.types';
 
 // ============================================================================
+// TYPES
+// ============================================================================
+
+export interface ClientOrganization {
+  id: string;
+  name: string;
+  slug: string;
+  type: 'master' | 'client';
+}
+
+export interface StakeholderWithOrg extends Stakeholder {
+  organization?: {
+    id: string;
+    name: string;
+  };
+}
+
+// ============================================================================
 // QUERY KEYS
 // ============================================================================
 
 export const stakeholderKeys = {
   all: ['stakeholders'] as const,
   lists: () => [...stakeholderKeys.all, 'list'] as const,
-  list: (orgId: string) => [...stakeholderKeys.lists(), orgId] as const,
+  list: (orgId: string | string[]) => [...stakeholderKeys.lists(), orgId] as const,
+  listAll: () => [...stakeholderKeys.lists(), 'all'] as const,
   details: () => [...stakeholderKeys.all, 'detail'] as const,
   detail: (id: string) => [...stakeholderKeys.details(), id] as const,
   relationships: (id: string) => [...stakeholderKeys.all, 'relationships', id] as const,
   interactions: (id: string) => [...stakeholderKeys.all, 'interactions', id] as const,
   stats: (orgId: string) => [...stakeholderKeys.all, 'stats', orgId] as const,
+  statsAll: () => [...stakeholderKeys.all, 'stats', 'all'] as const,
+  clients: () => ['client-organizations'] as const,
 };
 
 // ============================================================================
-// FETCH STAKEHOLDERS LIST
+// FETCH CLIENT ORGANIZATIONS (for consultants)
+// ============================================================================
+
+export function useClientOrganizations() {
+  return useQuery({
+    queryKey: stakeholderKeys.clients(),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('organizations')
+        .select('id, name, slug, type')
+        .eq('type', 'client')
+        .order('name');
+
+      if (error) throw error;
+      return data as ClientOrganization[];
+    },
+  });
+}
+
+// ============================================================================
+// FETCH STAKEHOLDERS LIST (single org)
 // ============================================================================
 
 export function useStakeholders(organizationId: string) {
@@ -51,6 +92,85 @@ export function useStakeholders(organizationId: string) {
       return data as Stakeholder[];
     },
     enabled: !!organizationId,
+  });
+}
+
+// ============================================================================
+// FETCH ALL STAKEHOLDERS (for consultants - all clients)
+// ============================================================================
+
+interface UseAllStakeholdersParams {
+  organizationIds?: string[];
+  enabled?: boolean;
+}
+
+export function useAllStakeholders({ organizationIds, enabled = true }: UseAllStakeholdersParams = {}) {
+  return useQuery({
+    queryKey: stakeholderKeys.list(organizationIds || 'all'),
+    queryFn: async () => {
+      let query = supabase
+        .from('stakeholders')
+        .select(`
+          *,
+          organization:organizations!inner (
+            id,
+            name
+          )
+        `)
+        .order('contribution_score', { ascending: false });
+
+      // Filter by specific orgs if provided
+      if (organizationIds && organizationIds.length > 0) {
+        query = query.in('organization_id', organizationIds);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      return data as StakeholderWithOrg[];
+    },
+    enabled,
+  });
+}
+
+// ============================================================================
+// FETCH ALL STAKEHOLDER STATS (aggregated across orgs)
+// ============================================================================
+
+export function useAllStakeholderStats(organizationIds?: string[]) {
+  return useQuery({
+    queryKey: stakeholderKeys.statsAll(),
+    queryFn: async () => {
+      let query = supabase
+        .from('stakeholders')
+        .select('*');
+
+      if (organizationIds && organizationIds.length > 0) {
+        query = query.in('organization_id', organizationIds);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      // Calculate stats from raw data
+      const stakeholders = data || [];
+      const activeStakeholders = stakeholders.filter(s => s.status === 'active');
+
+      return {
+        total_stakeholders: stakeholders.length,
+        active_stakeholders: activeStakeholders.length,
+        investors_count: stakeholders.filter(s => s.stakeholder_type === 'investor').length,
+        partners_count: stakeholders.filter(s => s.stakeholder_type === 'partner').length,
+        advisors_count: stakeholders.filter(s => s.stakeholder_type === 'advisor').length,
+        cofounders_count: stakeholders.filter(s => s.stakeholder_type === 'co_founder').length,
+        total_investment: stakeholders.reduce((sum, s) => sum + (s.investment_amount || 0), 0),
+        total_participation: stakeholders.reduce((sum, s) => sum + (s.participation_pct || 0), 0),
+        avg_score: stakeholders.length > 0
+          ? stakeholders.reduce((sum, s) => sum + s.contribution_score, 0) / stakeholders.length
+          : 0,
+      } as StakeholderStats;
+    },
   });
 }
 
@@ -230,7 +350,8 @@ export function useUpdateStakeholder() {
     mutationFn: async ({ id, ...updates }: UpdateStakeholderInput) => {
       const { data, error } = await supabase
         .from('stakeholders')
-        .update(updates)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .update(updates as any)
         .eq('id', id)
         .select()
         .single();

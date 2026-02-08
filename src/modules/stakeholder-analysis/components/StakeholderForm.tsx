@@ -28,11 +28,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/design-system/primitives/form';
+import { Skeleton } from '@/design-system/primitives/skeleton';
 
+import { useOrganization } from '@/core/auth';
 import {
   useCreateStakeholder,
   useUpdateStakeholder,
+  useClientOrganizations,
 } from '../hooks/useStakeholders';
 import type {
   Stakeholder,
@@ -48,6 +52,7 @@ import { CurrencyInput } from './CurrencyInput';
 // ============================================================================
 
 const stakeholderFormSchema = z.object({
+  organization_id: z.string().optional(),
   full_name: z
     .string()
     .min(2, 'Nome deve ter pelo menos 2 caracteres')
@@ -84,8 +89,8 @@ type StakeholderFormValues = z.infer<typeof stakeholderFormSchema>;
 // ============================================================================
 
 interface StakeholderFormProps {
-  /** Organization ID for the stakeholder */
-  organizationId: string;
+  /** Organization ID for the stakeholder (optional if consultant can select) */
+  organizationId?: string;
   /** Initial data for editing (optional) */
   initialData?: Stakeholder;
   /** Callback when form is successfully submitted */

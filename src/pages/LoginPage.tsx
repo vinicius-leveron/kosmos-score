@@ -17,17 +17,8 @@ export function LoginPage() {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Show loading while checking auth
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <Loader2 className="h-8 w-8 animate-spin text-[#FF4500]" />
-      </div>
-    );
-  }
-
-  // If already authenticated, redirect
-  if (isAuthenticated) {
+  // If already authenticated and done loading, redirect
+  if (!authLoading && isAuthenticated) {
     const returnUrl = searchParams.get('returnUrl');
     if (returnUrl) {
       navigate(returnUrl, { replace: true });
