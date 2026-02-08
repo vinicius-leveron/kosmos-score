@@ -12,6 +12,7 @@ import { PipelinePage } from "./modules/crm/pages/PipelinePage";
 import { StakeholdersListPage } from "./modules/stakeholder-analysis/pages/StakeholdersListPage";
 import { StakeholderDetailPage } from "./modules/stakeholder-analysis/pages/StakeholderDetailPage";
 import { JourneyAnalyzerPage } from "./modules/journey-analyzer";
+import { FormsListPage, FormEditorPage, FormAnalyticsPage, FormPublicPage } from "./modules/toolkit";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,11 @@ const App = () => (
           <Route path="/stakeholders/:id" element={<StakeholderDetailPage organizationId="c0000000-0000-0000-0000-000000000001" />} />
           {/* Journey Analyzer Routes */}
           <Route path="/journey-analyzer" element={<JourneyAnalyzerPage />} />
+          {/* Toolkit - Forms Routes */}
+          <Route path="/toolkit/forms" element={<FormsListPage />} />
+          <Route path="/toolkit/forms/:formId/edit" element={<FormEditorPage />} />
+          <Route path="/toolkit/forms/:formId/analytics" element={<FormAnalyticsPage />} />
+          <Route path="/f/:slug" element={<FormPublicPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
