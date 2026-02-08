@@ -28,14 +28,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Fetch user profile from profiles table
   const fetchProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
+    console.log('[Auth] Fetching profile for:', userId);
     const { data, error } = await supabase
       .from('profiles')
       .select('id, email, full_name, avatar_url, phone, preferences')
       .eq('id', userId)
       .single();
 
+    console.log('[Auth] Profile result:', { data, error });
     if (error || !data) {
-      console.error('Error fetching profile:', error);
+      console.error('[Auth] Error fetching profile:', error);
       return null;
     }
 
@@ -51,6 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Fetch user's organization memberships
   const fetchMemberships = useCallback(async (userId: string): Promise<OrgMembership[]> => {
+    console.log('[Auth] Fetching memberships for:', userId);
     const { data, error } = await supabase
       .from('org_members')
       .select(`
@@ -64,8 +67,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       `)
       .eq('profile_id', userId);
 
+    console.log('[Auth] Memberships result:', { data, error });
     if (error || !data) {
-      console.error('Error fetching memberships:', error);
+      console.error('[Auth] Error fetching memberships:', error);
       return [];
     }
 
@@ -94,7 +98,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Initialize auth state from session
   const initializeAuth = useCallback(async (user: User | null) => {
+    console.log('[Auth] initializeAuth called with user:', user?.email);
     if (!user) {
+      console.log('[Auth] No user, setting initial state');
       setState({
         ...initialState,
         isLoading: false,
@@ -103,10 +109,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
+      console.log('[Auth] Fetching profile and memberships...');
       const [profile, memberships] = await Promise.all([
         fetchProfile(user.id),
         fetchMemberships(user.id),
       ]);
+      console.log('[Auth] Got profile:', profile, 'memberships:', memberships.length);
 
       const currentOrg = loadSavedCurrentOrg(memberships);
 

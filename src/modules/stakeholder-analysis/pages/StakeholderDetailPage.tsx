@@ -50,6 +50,7 @@ import {
   useDeleteStakeholder,
 } from '../hooks/useStakeholders';
 import { StakeholderForm } from '../components/StakeholderForm';
+import { InteractionForm } from '../components/InteractionForm';
 import {
   STAKEHOLDER_TYPE_LABELS,
   STAKEHOLDER_TYPE_COLORS,
@@ -223,14 +224,11 @@ function InteractionsTab({ stakeholderId }: { stakeholderId: string }) {
 // PAGE
 // ============================================================================
 
-interface StakeholderDetailPageProps {
-  organizationId: string;
-}
-
-export function StakeholderDetailPage({ organizationId }: StakeholderDetailPageProps) {
+export function StakeholderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isInteractionOpen, setIsInteractionOpen] = useState(false);
 
   const { data: stakeholder, isLoading } = useStakeholderWithRelations(id || '');
   const deleteMutation = useDeleteStakeholder();
@@ -244,7 +242,7 @@ export function StakeholderDetailPage({ organizationId }: StakeholderDetailPageP
         organizationId: stakeholder.organization_id,
       });
       toast.success('Stakeholder removido com sucesso');
-      navigate('/stakeholders');
+      navigate('/admin/stakeholders');
     } catch {
       toast.error('Erro ao remover stakeholder');
     }
@@ -253,7 +251,7 @@ export function StakeholderDetailPage({ organizationId }: StakeholderDetailPageP
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" onClick={() => navigate('/stakeholders')}>
+        <Button variant="ghost" onClick={() => navigate('/admin/stakeholders')}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Voltar
         </Button>
@@ -266,7 +264,7 @@ export function StakeholderDetailPage({ organizationId }: StakeholderDetailPageP
     return (
       <div className="text-center py-16">
         <p className="text-muted-foreground">Stakeholder nao encontrado</p>
-        <Button variant="link" onClick={() => navigate('/stakeholders')}>
+        <Button variant="link" onClick={() => navigate('/admin/stakeholders')}>
           Voltar para lista
         </Button>
       </div>
@@ -276,7 +274,7 @@ export function StakeholderDetailPage({ organizationId }: StakeholderDetailPageP
   return (
     <div className="space-y-6">
       {/* Back Button */}
-      <Button variant="ghost" onClick={() => navigate('/stakeholders')}>
+      <Button variant="ghost" onClick={() => navigate('/admin/stakeholders')}>
         <ArrowLeft className="h-4 w-4 mr-2" />
         Voltar
       </Button>
@@ -300,6 +298,7 @@ export function StakeholderDetailPage({ organizationId }: StakeholderDetailPageP
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-kosmos-orange"
+                  aria-label="Ver perfil no LinkedIn"
                 >
                   <ExternalLink className="h-4 w-4" />
                 </a>
@@ -309,6 +308,10 @@ export function StakeholderDetailPage({ organizationId }: StakeholderDetailPageP
         </div>
 
         <div className="flex gap-2">
+          <Button onClick={() => setIsInteractionOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nova Interacao
+          </Button>
           <Button variant="outline" onClick={() => setIsEditOpen(true)}>
             <Edit className="h-4 w-4 mr-2" />
             Editar
@@ -444,10 +447,25 @@ export function StakeholderDetailPage({ organizationId }: StakeholderDetailPageP
             <DialogTitle>Editar Stakeholder</DialogTitle>
           </DialogHeader>
           <StakeholderForm
-            organizationId={organizationId}
+            organizationId={stakeholder.organization_id}
             initialData={stakeholder}
             onSuccess={() => setIsEditOpen(false)}
             onCancel={() => setIsEditOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Interaction Form Dialog */}
+      <Dialog open={isInteractionOpen} onOpenChange={setIsInteractionOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Nova Interacao</DialogTitle>
+          </DialogHeader>
+          <InteractionForm
+            stakeholderId={stakeholder.id}
+            organizationId={stakeholder.organization_id}
+            onSuccess={() => setIsInteractionOpen(false)}
+            onCancel={() => setIsInteractionOpen(false)}
           />
         </DialogContent>
       </Dialog>

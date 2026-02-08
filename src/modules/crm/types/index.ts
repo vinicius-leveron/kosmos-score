@@ -1,6 +1,9 @@
 // Types do módulo CRM
 // Baseados nas tabelas do Supabase
 
+// Re-export pipeline types
+export * from './pipeline';
+
 export type ActivityType =
   | 'note'
   | 'email_sent'

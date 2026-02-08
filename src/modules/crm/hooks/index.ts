@@ -6,3 +6,9 @@ export * from './useActivities';
 export * from './useTags';
 export * from './usePipeline';
 export * from './useCrmDashboard';
+
+// Multi-pipeline hooks
+export * from './usePipelines';
+export * from './usePipelineStages';
+export * from './usePipelineBoard';
+export * from './useContactPipelines';

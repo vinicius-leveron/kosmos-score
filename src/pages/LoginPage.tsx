@@ -41,8 +41,10 @@ export function LoginPage() {
     }
 
     setIsSubmitting(true);
+    console.log('[Login] Attempting sign in for:', email);
 
     const { error } = await signIn(email, password);
+    console.log('[Login] Sign in result:', error ? error.message : 'success');
 
     if (error) {
       toast({

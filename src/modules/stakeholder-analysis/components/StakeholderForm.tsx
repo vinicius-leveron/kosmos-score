@@ -152,9 +152,11 @@ export function StakeholderForm({
   const createMutation = useCreateStakeholder();
   const updateMutation = useUpdateStakeholder();
 
-  // Fetch client organizations for consultants
-  const { data: clientOrgs, isLoading: isLoadingClients } = useClientOrganizations();
+  // Fetch client organizations for consultants (only enabled for KOSMOS master)
   const showClientSelect = isKosmosMaster && !isEditing;
+  const { data: clientOrgs, isLoading: isLoadingClients } = useClientOrganizations({
+    enabled: showClientSelect,
+  });
 
   const form = useForm<StakeholderFormValues>({
     resolver: zodResolver(stakeholderFormSchema),

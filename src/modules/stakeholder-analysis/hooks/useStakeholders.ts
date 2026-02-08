@@ -55,10 +55,15 @@ export const stakeholderKeys = {
 };
 
 // ============================================================================
-// FETCH CLIENT ORGANIZATIONS (for consultants)
+// FETCH CLIENT ORGANIZATIONS (for consultants only)
 // ============================================================================
 
-export function useClientOrganizations() {
+interface UseClientOrganizationsParams {
+  /** Only enable this query for KOSMOS master users */
+  enabled?: boolean;
+}
+
+export function useClientOrganizations({ enabled = true }: UseClientOrganizationsParams = {}) {
   return useQuery({
     queryKey: stakeholderKeys.clients(),
     queryFn: async () => {
@@ -71,6 +76,7 @@ export function useClientOrganizations() {
       if (error) throw error;
       return data as ClientOrganization[];
     },
+    enabled, // Should only be enabled for KOSMOS master users
   });
 }
 
