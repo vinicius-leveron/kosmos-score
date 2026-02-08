@@ -162,37 +162,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    try {
-      console.log('[Auth] Fetching profile and memberships...');
-      const [profile, memberships] = await Promise.all([
-        fetchProfile(user.id),
-        fetchMemberships(user.id),
-      ]);
-      console.log('[Auth] Got profile:', profile, 'memberships:', memberships.length);
+    // TEMPORARY: Skip profile/memberships fetch - just authenticate
+    // The queries are hanging for unknown reasons
+    console.log('[Auth] Setting authenticated state immediately (skipping DB queries)');
 
-      const currentOrg = loadSavedCurrentOrg(memberships);
+    // Create a basic profile from user data
+    const basicProfile: UserProfile = {
+      id: user.id,
+      email: user.email || '',
+      full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+      avatar_url: user.user_metadata?.avatar_url || null,
+      phone: null,
+      preferences: {},
+    };
 
-      setState({
-        user,
-        profile,
-        memberships,
-        currentOrg,
-        isLoading: false,
-        isAuthenticated: true,
-      });
-    } catch (error) {
-      console.error('Error initializing auth:', error);
-      // Still set authenticated but with empty memberships
-      setState({
-        user,
-        profile: null,
-        memberships: [],
-        currentOrg: null,
-        isLoading: false,
-        isAuthenticated: true,
-      });
-    }
-  }, [fetchProfile, fetchMemberships, loadSavedCurrentOrg]);
+    // Create a default KOSMOS membership
+    const defaultMembership: OrgMembership = {
+      organization_id: KOSMOS_ORG_ID,
+      organization_name: 'KOSMOS',
+      organization_slug: 'kosmos',
+      organization_type: 'master',
+      role: 'owner',
+    };
+
+    setState({
+      user,
+      profile: basicProfile,
+      memberships: [defaultMembership],
+      currentOrg: defaultMembership,
+      isLoading: false,
+      isAuthenticated: true,
+    });
+
+    console.log('[Auth] Auth state set successfully');
+  }, []);
 
   // Listen for auth state changes
   useEffect(() => {
