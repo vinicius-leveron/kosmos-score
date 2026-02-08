@@ -5,7 +5,6 @@ import { useAuth } from '@/core/auth';
 import { Button } from '@/design-system/primitives/button';
 import { Input } from '@/design-system/primitives/input';
 import { Label } from '@/design-system/primitives/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/design-system/primitives/card';
 import { useToast } from '@/hooks/use-toast';
 
 export function LoginPage() {
@@ -61,19 +60,45 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
-            <span className="text-white font-bold text-xl">K</span>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-black p-4">
+      {/* Background pattern - subtle grid */}
+      <div
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
+          `,
+          backgroundSize: '50px 50px'
+        }}
+      />
+
+      {/* Content */}
+      <div className="relative z-10 w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold tracking-[0.3em] text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            K<span className="text-[#FF4500]">O</span>SMOS
+          </h1>
+          <div className="mt-3 h-px w-16 mx-auto bg-gradient-to-r from-transparent via-[#FF4500] to-transparent" />
+        </div>
+
+        {/* Login Card */}
+        <div className="bg-[#0a0a0a] border border-[#222] rounded-lg p-8">
+          <div className="text-center mb-8">
+            <h2 className="text-xl font-semibold text-white uppercase tracking-wider">
+              Acesso à Plataforma
+            </h2>
+            <p className="text-[#666] text-sm mt-2">
+              Entre com suas credenciais
+            </p>
           </div>
-          <CardTitle className="text-2xl">KOSMOS Platform</CardTitle>
-          <CardDescription>Entre com suas credenciais</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-[#999] text-xs uppercase tracking-wider">
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -82,29 +107,52 @@ export function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
                 autoComplete="email"
+                className="bg-black border-[#333] text-white placeholder:text-[#444] focus:border-[#FF4500] focus:ring-[#FF4500]/20 h-12"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
+              <Label htmlFor="password" className="text-[#999] text-xs uppercase tracking-wider">
+                Senha
+              </Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Sua senha"
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
                 autoComplete="current-password"
+                className="bg-black border-[#333] text-white placeholder:text-[#444] focus:border-[#FF4500] focus:ring-[#FF4500]/20 h-12"
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Entrar
+            <Button
+              type="submit"
+              className="w-full h-12 bg-[#FF4500] hover:bg-[#E03D00] text-white font-semibold uppercase tracking-wider transition-all duration-200"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Entrando...
+                </>
+              ) : (
+                'Entrar'
+              )}
             </Button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Footer */}
+        <p className="text-center text-[#444] text-xs mt-8 uppercase tracking-wider">
+          Arquitetura de Comunidades
+        </p>
+      </div>
+
+      {/* Decorative element - orange circle */}
+      <div className="absolute bottom-8 left-8 w-2 h-2 rounded-full bg-[#FF4500] opacity-60" />
+      <div className="absolute top-8 right-8 w-1 h-1 rounded-full bg-[#FF4500] opacity-40" />
     </div>
   );
 }
