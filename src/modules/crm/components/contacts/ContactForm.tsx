@@ -54,15 +54,18 @@ export function ContactForm({ organizationId, onSuccess, onCancel }: ContactForm
     },
   });
 
-  const onSubmit = async (data: ContactFormData) => {
+  const onSubmit = async (formData: ContactFormData) => {
     setIsSubmitting(true);
     try {
       await createContact.mutateAsync({
-        email: data.email,
-        full_name: data.full_name,
-        phone: data.phone || undefined,
-        organization_id: organizationId,
-        journey_stage_id: data.journey_stage_id || undefined,
+        data: {
+          email: formData.email,
+          full_name: formData.full_name,
+          phone: formData.phone || undefined,
+          journey_stage_id: formData.journey_stage_id || undefined,
+          notes: formData.notes || undefined,
+        },
+        organizationId,
       });
       onSuccess?.();
     } catch (error) {
