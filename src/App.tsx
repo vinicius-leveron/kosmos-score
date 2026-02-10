@@ -43,12 +43,14 @@ const App = () => (
         <Sonner />
         <HashRouter>
           <Routes>
-            {/* PUBLIC ROUTES */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/quiz/kosmos-score" element={<Index />} />
+            {/* PUBLIC ROUTES - Lead magnets, forms, invitations */}
+            <Route path="/" element={<Index />} />
+            <Route path="/quiz/kosmos-score" element={<Navigate to="/" replace />} />
             <Route path="/f/:slug" element={<FormPublicPage />} />
             <Route path="/invite/:token" element={<AcceptInvitePage />} />
+
+            {/* PLATFORM AUTH */}
+            <Route path="/login" element={<LoginPage />} />
 
             {/* ADMIN PORTAL */}
             <Route

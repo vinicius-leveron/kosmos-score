@@ -7,6 +7,17 @@ import { Input } from '@/design-system/primitives/input';
 import { Label } from '@/design-system/primitives/label';
 import { useToast } from '@/hooks/use-toast';
 
+// Only allow redirects to internal platform paths
+const ALLOWED_RETURN_PREFIXES = ['/admin', '/app', '/invite/'];
+
+function getSafeReturnUrl(returnUrl: string | null): string | null {
+  if (!returnUrl) return null;
+  if (ALLOWED_RETURN_PREFIXES.some(prefix => returnUrl.startsWith(prefix))) {
+    return returnUrl;
+  }
+  return null;
+}
+
 export function LoginPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -19,7 +30,7 @@ export function LoginPage() {
 
   // If already authenticated and done loading, redirect
   if (!authLoading && isAuthenticated) {
-    const returnUrl = searchParams.get('returnUrl');
+    const returnUrl = getSafeReturnUrl(searchParams.get('returnUrl'));
     if (returnUrl) {
       navigate(returnUrl, { replace: true });
     } else {
@@ -57,8 +68,8 @@ export function LoginPage() {
     }
 
     // Redirect will happen automatically via auth state change
-    const returnUrl = searchParams.get('returnUrl');
-    navigate(returnUrl || '/admin', { replace: true });
+    const returnUrl = getSafeReturnUrl(searchParams.get('returnUrl'));
+    navigate(returnUrl || (canAccessAdmin() ? '/admin' : '/app'), { replace: true });
   };
 
   return (

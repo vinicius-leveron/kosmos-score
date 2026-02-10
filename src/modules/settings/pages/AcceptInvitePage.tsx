@@ -140,7 +140,7 @@ export function AcceptInvitePage() {
           </CardHeader>
           <CardFooter className="justify-center">
             <Button asChild variant="outline">
-              <Link to="/login">Ir para Login</Link>
+              <Link to="/">Voltar ao início</Link>
             </Button>
           </CardFooter>
         </Card>
@@ -164,7 +164,7 @@ export function AcceptInvitePage() {
           </CardHeader>
           <CardFooter className="justify-center">
             <Button asChild variant="outline">
-              <Link to="/login">Ir para Login</Link>
+              <Link to="/">Voltar ao início</Link>
             </Button>
           </CardFooter>
         </Card>
@@ -292,7 +292,7 @@ export function AcceptInvitePage() {
             </Button>
           ) : (
             <Button asChild className="w-full">
-              <Link to={`/login?redirect=/invite/${token}`}>
+              <Link to={`/login?returnUrl=${encodeURIComponent(`/invite/${token}`)}`}>
                 Fazer Login para Aceitar
               </Link>
             </Button>

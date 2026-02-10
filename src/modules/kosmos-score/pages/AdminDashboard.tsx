@@ -196,9 +196,9 @@ export function AdminDashboard() {
           <p className="text-kosmos-gray mb-6">
             Quando os leads completarem a auditoria, os dados aparecerão aqui.
           </p>
-          <Link to="/">
+          <Link to="/admin">
             <Button className="bg-kosmos-orange hover:bg-kosmos-orange-glow text-white font-display">
-              Voltar ao KOSMOS Score
+              Voltar ao Dashboard
             </Button>
           </Link>
         </div>
@@ -216,7 +216,7 @@ export function AdminDashboard() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to="/">
+            <Link to="/admin">
               <Button variant="ghost" size="icon" className="text-kosmos-gray hover:text-kosmos-white hover:bg-kosmos-black-light">
                 <ArrowLeft className="h-5 w-5" />
               </Button>
@@ -238,7 +238,7 @@ export function AdminDashboard() {
             >
               <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />
             </Button>
-            <Link to="/admin/resultados">
+            <Link to="/admin/kosmos-score/results">
               <Button variant="outline" className="border-border hover:border-kosmos-orange/50 hover:bg-kosmos-black-light text-kosmos-gray-light font-display">
                 <List className="h-4 w-4 mr-2" />
                 Ver Lista

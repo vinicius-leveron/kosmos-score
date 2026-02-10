@@ -36,7 +36,7 @@ const leadMagnets: LeadMagnet[] = [
     icon: Target,
     color: 'text-orange-500',
     href: '/admin/kosmos-score',
-    publicUrl: '/quiz/kosmos-score',
+    publicUrl: '/',
     status: 'active',
   },
   {
