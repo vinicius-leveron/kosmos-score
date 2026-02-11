@@ -1,10 +1,11 @@
-import { useAuthContext } from '../AuthContext';
+import { useAuth } from '../AuthContextOptimized';
 
 /**
  * Hook for user-specific data
  */
 export function useUser() {
-  const { user, profile, isAuthenticated, isLoading } = useAuthContext();
+  const { user, profile, isLoading } = useAuth();
+  const isAuthenticated = !!user;
 
   return {
     user,
