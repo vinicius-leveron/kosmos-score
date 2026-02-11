@@ -18,6 +18,7 @@ import {
   Save,
 } from 'lucide-react';
 import { useDealDetail, useCloseDeal, useAddDealActivity } from '../../hooks/useDeals';
+import { TaskPanel } from '../tasks';
 import type { DealActivity } from '../../types';
 
 interface DealDetailProps {
@@ -221,6 +222,13 @@ export function DealDetail({ dealId, onClose }: DealDetailProps) {
           </div>
         </>
       )}
+
+      {/* Tasks */}
+      <Separator />
+      <div className="space-y-2">
+        <h3 className="font-medium text-sm text-muted-foreground">Tarefas</h3>
+        <TaskPanel dealId={dealId} />
+      </div>
 
       {/* Notes */}
       <Separator />
