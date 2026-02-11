@@ -38,6 +38,7 @@ export interface AuthState {
   organizations: OrgMembership[];
   currentOrg: OrgMembership | null;
   isLoading: boolean;
+  isAuthenticated: boolean;
 }
 
 interface AuthContextType extends AuthState {
@@ -46,6 +47,7 @@ interface AuthContextType extends AuthState {
   signOut: () => Promise<void>;
   switchOrganization: (orgId: string) => void;
   refreshSession: () => Promise<void>;
+  canAccessAdmin: () => boolean;
   organizationId: string | null;
   organizationName: string | null;
 }
@@ -57,6 +59,7 @@ const initialState: AuthState = {
   organizations: [],
   currentOrg: null,
   isLoading: true,
+  isAuthenticated: false,
 };
 
 // Create default KOSMOS organization
@@ -206,6 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       organizations: [DEFAULT_KOSMOS_ORG],
       currentOrg: DEFAULT_KOSMOS_ORG,
       isLoading: false,
+      isAuthenticated: true,
     });
 
     // Then fetch real data in background
@@ -218,10 +222,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        setState(prev => ({ ...prev, session }));
+        setState(prev => ({ ...prev, session, isAuthenticated: true }));
         initializeAuth(session.user);
       } else {
-        setState(prev => ({ ...prev, isLoading: false }));
+        setState(prev => ({ ...prev, isLoading: false, isAuthenticated: false }));
       }
     });
 
@@ -232,7 +236,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('[Auth] Auth state change:', event);
       
       if (session) {
-        setState(prev => ({ ...prev, session }));
+        setState(prev => ({ ...prev, session, isAuthenticated: true }));
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           initializeAuth(session.user);
         }
@@ -240,6 +244,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setState({
           ...initialState,
           isLoading: false,
+          isAuthenticated: false,
         });
       }
     });
@@ -298,9 +303,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshSession = useCallback(async () => {
     const { data: { session } } = await supabase.auth.refreshSession();
     if (session) {
-      setState(prev => ({ ...prev, session }));
+      setState(prev => ({ ...prev, session, isAuthenticated: true }));
     }
   }, []);
+
+  const canAccessAdmin = useCallback((): boolean => {
+    // KOSMOS master users always have admin access
+    if (state.currentOrg?.organization_id === KOSMOS_ORG_ID) return true;
+    
+    // Check if user has admin or owner role in current org
+    const role = state.currentOrg?.role;
+    return role === 'admin' || role === 'owner';
+  }, [state.currentOrg]);
 
   const value: AuthContextType = {
     ...state,
@@ -309,6 +323,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signOut,
     switchOrganization,
     refreshSession,
+    canAccessAdmin,
     organizationId: state.currentOrg?.organization_id || KOSMOS_ORG_ID,
     organizationName: state.currentOrg?.organization_name || 'KOSMOS',
   };

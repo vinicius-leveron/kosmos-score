@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { render as rtlRender } from '@testing-library/react';
-import { AuthProvider } from '@/core/auth/AuthContext';
+import { AuthProvider } from '@/core/auth/AuthContextOptimized';
 
 // Create a new QueryClient for each test
 function createTestQueryClient() {
