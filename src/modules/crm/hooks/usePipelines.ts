@@ -1,23 +1,32 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import type { Pipeline, PipelineFormData, PipelineWithStages } from '../types';
 import { KOSMOS_ORG_ID } from '@/core/auth';
+import type { Pipeline, PipelineFormData, PipelineWithStages } from '../types';
 
-export function usePipelines(organizationId: string = KOSMOS_ORG_ID) {
+// Fixed version with proper fallback
+export function usePipelines(organizationId?: string | null) {
+  const orgId = organizationId || KOSMOS_ORG_ID;
+  
   return useQuery({
-    queryKey: ['pipelines', organizationId],
+    queryKey: ['pipelines', orgId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('pipelines')
         .select('*')
-        .eq('organization_id', organizationId)
+        .eq('organization_id', orgId)
         .eq('is_active', true)
         .order('position', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[Pipelines] Error fetching:', error);
+        throw error;
+      }
+      
+      console.log('[Pipelines] Fetched:', data?.length || 0, 'pipelines for org:', orgId);
       return data as Pipeline[];
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
+    retry: 3,
   });
 }
 
@@ -73,34 +82,84 @@ export function usePipelineWithStages(pipelineId: string | undefined) {
   });
 }
 
-export function useDefaultPipeline(organizationId: string = KOSMOS_ORG_ID) {
+export function useDefaultPipeline(organizationId?: string | null) {
+  const orgId = organizationId || KOSMOS_ORG_ID;
+  
   return useQuery({
-    queryKey: ['default-pipeline', organizationId],
+    queryKey: ['default-pipeline', orgId],
     queryFn: async () => {
+      // Try to get default pipeline
       const { data, error } = await supabase
         .from('pipelines')
         .select('*')
-        .eq('organization_id', organizationId)
+        .eq('organization_id', orgId)
         .eq('is_default', true)
         .eq('is_active', true)
         .single();
 
-      if (error) {
-        // If no default found, get the first active pipeline
-        const { data: firstPipeline, error: firstError } = await supabase
-          .from('pipelines')
-          .select('*')
-          .eq('organization_id', organizationId)
-          .eq('is_active', true)
-          .order('position', { ascending: true })
-          .limit(1)
-          .single();
-
-        if (firstError) throw firstError;
-        return firstPipeline as Pipeline;
+      if (!error && data) {
+        console.log('[Pipeline] Found default pipeline:', data.name);
+        return data as Pipeline;
       }
 
-      return data as Pipeline;
+      // If no default found, get the first active pipeline
+      console.log('[Pipeline] No default found, getting first active');
+      const { data: firstPipeline, error: firstError } = await supabase
+        .from('pipelines')
+        .select('*')
+        .eq('organization_id', orgId)
+        .eq('is_active', true)
+        .order('position', { ascending: true })
+        .limit(1)
+        .single();
+
+      if (firstError) {
+        console.error('[Pipeline] Error getting first pipeline:', firstError);
+        
+        // If still no pipeline, create a default one
+        if (firstError.code === 'PGRST116') {
+          console.log('[Pipeline] No pipelines found, creating default');
+          const { data: newPipeline, error: createError } = await supabase
+            .from('pipelines')
+            .insert({
+              organization_id: orgId,
+              name: 'Pipeline de Vendas',
+              description: 'Pipeline padrão para gerenciar vendas',
+              position: 0,
+              is_default: true,
+              is_active: true,
+            })
+            .select()
+            .single();
+          
+          if (createError) throw createError;
+          
+          // Create default stages
+          const defaultStages = [
+            { name: 'Novo', color: '#3B82F6', position: 0 },
+            { name: 'Qualificação', color: '#F59E0B', position: 1 },
+            { name: 'Proposta', color: '#8B5CF6', position: 2 },
+            { name: 'Negociação', color: '#EC4899', position: 3 },
+            { name: 'Fechado', color: '#10B981', position: 4 },
+          ];
+          
+          await supabase
+            .from('pipeline_stages')
+            .insert(
+              defaultStages.map(stage => ({
+                pipeline_id: newPipeline.id,
+                organization_id: orgId,
+                ...stage,
+              }))
+            );
+          
+          return newPipeline as Pipeline;
+        }
+        
+        throw firstError;
+      }
+      
+      return firstPipeline as Pipeline;
     },
     staleTime: 5 * 60 * 1000,
   });

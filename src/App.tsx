@@ -7,7 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 
 // Auth
-import { AuthProvider } from "@/core/auth";
+import { AuthProvider } from "@/core/auth/AuthContextOptimized";
 import { AdminRoute, ProtectedRoute } from "@/core/auth/guards";
 
 // Layouts

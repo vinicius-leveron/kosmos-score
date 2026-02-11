@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { KOSMOS_ORG_ID } from '@/core/auth';
 import type {
   Deal,
   DealListItem,
@@ -27,19 +28,11 @@ export function useDeals({
   filters = {},
   pagination = { page: 1, per_page: DEFAULT_PER_PAGE },
 }: UseDealsParams = {}) {
+  const orgId = organizationId || KOSMOS_ORG_ID;
+  
   return useQuery({
-    queryKey: ['deals', organizationId, filters, pagination],
+    queryKey: ['deals', orgId, filters, pagination],
     queryFn: async (): Promise<PaginatedResult<DealListItem>> => {
-      if (!organizationId) {
-        return {
-          data: [],
-          total: 0,
-          page: pagination.page,
-          per_page: pagination.per_page,
-          total_pages: 0,
-        };
-      }
-      
       let query = supabase
         .from('deals')
         .select(`
@@ -62,7 +55,7 @@ export function useDeals({
             display_name
           )
         `, { count: 'exact' })
-        .eq('organization_id', organizationId);
+        .eq('organization_id', orgId);
 
       // Apply filters
       if (filters.status) {
@@ -106,7 +99,12 @@ export function useDeals({
 
       const { data, error, count } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error('[Deals] Error fetching:', error);
+        throw error;
+      }
+      
+      console.log('[Deals] Fetched:', data?.length || 0, 'deals for org:', orgId);
 
       const items: DealListItem[] = (data || []).map((deal: any) => ({
         id: deal.id,
@@ -144,19 +142,11 @@ export function useDeals({
 }
 
 export function useDealBoard(pipelineId: string, organizationId: string | null) {
+  const orgId = organizationId || KOSMOS_ORG_ID;
+  
   return useQuery({
-    queryKey: ['deal-board', pipelineId, organizationId],
+    queryKey: ['deal-board', pipelineId, orgId],
     queryFn: async (): Promise<DealBoardData> => {
-      if (!organizationId) {
-        return {
-          pipeline_id: pipelineId,
-          pipeline_name: '',
-          columns: [],
-          total_value: 0,
-          total_deals: 0,
-        };
-      }
-      
       // Get pipeline stages
       const { data: stages, error: stagesError } = await supabase
         .from('pipeline_stages')
@@ -164,7 +154,12 @@ export function useDealBoard(pipelineId: string, organizationId: string | null) 
         .eq('pipeline_id', pipelineId)
         .order('position', { ascending: true });
 
-      if (stagesError) throw stagesError;
+      if (stagesError) {
+        console.error('[DealBoard] Error fetching stages:', stagesError);
+        throw stagesError;
+      }
+
+      console.log('[DealBoard] Loaded', stages?.length || 0, 'stages for pipeline:', pipelineId);
 
       // Get deals for this pipeline
       const { data: deals, error: dealsError } = await supabase
@@ -196,10 +191,15 @@ export function useDealBoard(pipelineId: string, organizationId: string | null) 
           )
         `)
         .eq('pipeline_id', pipelineId)
-        .eq('organization_id', organizationId)
+        .eq('organization_id', orgId)
         .eq('status', 'open');
 
-      if (dealsError) throw dealsError;
+      if (dealsError) {
+        console.error('[DealBoard] Error fetching deals:', dealsError);
+        throw dealsError;
+      }
+      
+      console.log('[DealBoard] Loaded', deals?.length || 0, 'deals for org:', orgId);
 
       // Build columns
       const columns: DealBoardColumn[] = (stages || []).map((stage: any) => {
