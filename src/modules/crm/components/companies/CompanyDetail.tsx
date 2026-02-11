@@ -276,7 +276,7 @@ export function CompanyDetail({ companyId, onClose }: CompanyDetailProps) {
       {/* Actions */}
       <div className="flex gap-2">
         <Button variant="outline" className="flex-1" asChild>
-          <Link to={`/crm/deals?company_id=${companyId}`}>
+          <Link to={`/admin/crm/deals?company_id=${companyId}`}>
             Ver Deals
           </Link>
         </Button>

@@ -596,7 +596,7 @@ export function CrmDashboardPage() {
             <Users className="h-4 w-4 mr-2" />
             Ver Contatos
           </Button>
-          <Button variant="outline" onClick={() => navigate('/admin/crm/deals/board')}>
+          <Button variant="outline" onClick={() => navigate('/admin/crm/deals')}>
             <Target className="h-4 w-4 mr-2" />
             Gerenciar Deals
           </Button>

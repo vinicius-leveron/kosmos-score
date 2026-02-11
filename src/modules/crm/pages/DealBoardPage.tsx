@@ -97,7 +97,7 @@ export function DealBoardPage() {
 
             <div className="flex items-center gap-2">
               <Button variant="outline" asChild>
-                <Link to="/crm/companies">
+                <Link to="/admin/crm/companies">
                   <Building2 className="h-4 w-4 mr-2" />
                   Empresas
                 </Link>
