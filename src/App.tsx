@@ -79,6 +79,7 @@ const App = () => (
               <Route path="lead-magnets" element={<LeadMagnetsPage />} />
               <Route path="kosmos-score" element={<Suspense fallback={<PageLoader />}><KosmosScoreDashboard /></Suspense>} />
               <Route path="kosmos-score/results" element={<Suspense fallback={<PageLoader />}><AdminResults /></Suspense>} />
+              <Route path="crm" element={<Suspense fallback={<PageLoader />}><CrmDashboardPage /></Suspense>} />
               <Route path="crm/contacts" element={<Suspense fallback={<PageLoader />}><ContactsPage /></Suspense>} />
               <Route path="crm/pipeline" element={<Suspense fallback={<PageLoader />}><PipelinePage /></Suspense>} />
               <Route path="crm/companies" element={<Suspense fallback={<PageLoader />}><CompaniesPage /></Suspense>} />

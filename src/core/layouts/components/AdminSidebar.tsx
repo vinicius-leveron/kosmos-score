@@ -74,6 +74,7 @@ const navigationGroups: NavGroup[] = [
     label: 'CRM',
     icon: Users,
     items: [
+      { title: 'Dashboard', href: '/admin/crm', icon: BarChart3 },
       { title: 'Contatos', href: '/admin/crm/contacts', icon: Users },
       { title: 'Empresas', href: '/admin/crm/companies', icon: Building2 },
       { title: 'Deals', href: '/admin/crm/deals/board', icon: Target },
