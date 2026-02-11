@@ -316,8 +316,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// Hook to use auth context
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
+
 // Helper hook for organization context
 export function useOrganization() {
-  const { organizationId, organizationName } = useAuth();
-  return { organizationId, organizationName };
+  const { organizationId, organizationName, currentOrg } = useAuth();
+  const isKosmosMaster = currentOrg?.organization_type === 'master';
+  return { 
+    organizationId, 
+    organizationName,
+    isKosmosMaster,
+  };
 }
