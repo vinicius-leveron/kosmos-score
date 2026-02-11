@@ -34,7 +34,7 @@ export function CompaniesPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const { data: companiesData, isLoading } = useCompanies({
-    organizationId,
+    organizationId: organizationId || undefined,
     filters: {
       search: search || undefined,
       status: statusFilter !== 'all' ? statusFilter : undefined,

@@ -23,6 +23,7 @@ import { ActivityTimeline } from '../timeline/ActivityTimeline';
 import { ScoreDisplay } from './ScoreDisplay';
 import { ContactPipelinesList } from './ContactPipelinesList';
 import { QuickActionsMenu } from '../quick-actions';
+import { TaskPanel } from '../tasks';
 
 interface ContactDetailProps {
   contactOrgId: string;
@@ -222,6 +223,14 @@ export function ContactDetail({ contactOrgId, onClose }: ContactDetailProps) {
             <span className="text-sm text-muted-foreground">Nenhuma tag</span>
           )}
         </div>
+      </div>
+
+      <Separator />
+
+      {/* Tasks */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-medium">Tarefas</h3>
+        <TaskPanel contactOrgId={contactOrgId} />
       </div>
 
       <Separator />

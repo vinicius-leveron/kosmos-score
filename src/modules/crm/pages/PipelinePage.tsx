@@ -1,19 +1,22 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/design-system/primitives/button';
-import { Kanban, Users } from 'lucide-react';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/design-system/primitives/sheet';
+import { Kanban, Users, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useOrganization } from '@/core/auth';
 import { PipelineBoard } from '../components/pipeline/PipelineBoard';
 import { PipelineSelector } from '../components/pipeline/PipelineSelector';
+import { PipelineForm } from '../components/pipeline/PipelineForm';
 import { usePipelines, useDefaultPipeline } from '../hooks/usePipelines';
 import { usePipelineBoard } from '../hooks/usePipelineBoard';
 import type { Pipeline } from '../types';
 
 export function PipelinePage() {
   const { organizationId } = useOrganization();
-  const { data: pipelines, isLoading: pipelinesLoading } = usePipelines(organizationId);
+  const { data: pipelines, isLoading: pipelinesLoading, refetch: refetchPipelines } = usePipelines(organizationId);
   const { data: defaultPipeline } = useDefaultPipeline(organizationId);
   const [selectedPipeline, setSelectedPipeline] = useState<Pipeline | null>(null);
+  const [isCreatePipelineOpen, setIsCreatePipelineOpen] = useState(false);
 
   // Use default pipeline when loaded
   useEffect(() => {
@@ -26,6 +29,11 @@ export function PipelinePage() {
 
   const handleSelectPipeline = (pipeline: Pipeline) => {
     setSelectedPipeline(pipeline);
+  };
+
+  const handleCreateSuccess = () => {
+    setIsCreatePipelineOpen(false);
+    refetchPipelines();
   };
 
   return (
@@ -51,6 +59,14 @@ export function PipelinePage() {
               onSelect={handleSelectPipeline}
               isLoading={pipelinesLoading}
             />
+            <Button 
+              size="sm" 
+              onClick={() => setIsCreatePipelineOpen(true)}
+              disabled={!organizationId}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Pipeline
+            </Button>
             <Button variant="outline" size="sm" asChild>
               <Link to="/admin/crm/contacts">
                 <Users className="h-4 w-4 mr-2" />
@@ -65,6 +81,25 @@ export function PipelinePage() {
       <div className="flex-1 overflow-hidden">
         <PipelineBoard pipelineId={selectedPipeline?.id} />
       </div>
+
+      {/* Sheet para criar novo pipeline */}
+      <Sheet open={isCreatePipelineOpen} onOpenChange={setIsCreatePipelineOpen}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Criar Novo Pipeline</SheetTitle>
+            <SheetDescription>
+              Configure um novo pipeline para organizar seus contatos
+            </SheetDescription>
+          </SheetHeader>
+          {organizationId && (
+            <PipelineForm
+              organizationId={organizationId}
+              onSuccess={handleCreateSuccess}
+              onCancel={() => setIsCreatePipelineOpen(false)}
+            />
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

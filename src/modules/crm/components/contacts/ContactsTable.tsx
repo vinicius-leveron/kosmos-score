@@ -22,6 +22,7 @@ import { useContacts } from '../../hooks/useContacts';
 import { ContactAvatar, ScoreBadge } from '../shared';
 import { ContactsTableMobile } from './ContactsTableMobile';
 import { useResponsive } from '@/design-system/hooks/useResponsive';
+import { useOrganization } from '@/core/auth';
 import type { ContactFilters, ContactSort, ContactListItem } from '../../types';
 
 interface ContactsTableProps {
@@ -30,6 +31,7 @@ interface ContactsTableProps {
 
 export const ContactsTable = memo(function ContactsTable({ onSelectContact }: ContactsTableProps) {
   const responsive = useResponsive();
+  const { organizationId } = useOrganization();
   const [filters, setFilters] = useState<ContactFilters>({});
   const [sort, setSort] = useState<ContactSort>({
     field: 'created_at',
@@ -39,6 +41,7 @@ export const ContactsTable = memo(function ContactsTable({ onSelectContact }: Co
   const perPage = 20;
 
   const { data, isLoading, error } = useContacts({
+    organizationId: organizationId || undefined,
     filters,
     sort,
     pagination: { page, per_page: perPage },

@@ -24,13 +24,13 @@ import { DealBoardColumn, DealForm, DealDetail } from '../components/deals';
 export function DealBoardPage() {
   const { organizationId } = useOrganization();
 
-  const { data: pipelines } = usePipelines(organizationId);
+  const { data: pipelines } = usePipelines(organizationId || undefined);
   const [selectedPipelineId, setSelectedPipelineId] = useState<string>('');
 
   // Use first pipeline as default
   const activePipelineId = selectedPipelineId || pipelines?.[0]?.id || '';
 
-  const { data: boardData, isLoading } = useDealBoard(activePipelineId, organizationId);
+  const { data: boardData, isLoading } = useDealBoard(activePipelineId, organizationId || undefined);
   const moveDealStage = useMoveDealStage();
 
   const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
