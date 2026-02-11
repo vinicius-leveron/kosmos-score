@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   BarChart3,
   TrendingUp,
@@ -30,6 +30,9 @@ import {
 } from '@/design-system/primitives/select';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/design-system/lib/utils';
+import { useDashboardMetrics, useAIOSFunnelMetrics, useTopPerformers, usePipelineByStage } from '../hooks/useDashboardMetrics';
+import { useUpcomingTasks } from '../hooks/useEntityTasks';
+import { Skeleton } from '@/design-system/primitives/skeleton';
 
 // Tipos para métricas
 interface MetricCard {
@@ -67,42 +70,56 @@ interface PipelineHealth {
 export function CrmDashboardPage() {
   const navigate = useNavigate();
   const [selectedPeriod, setSelectedPeriod] = useState('month');
+  
+  // Buscar dados reais do dashboard
+  const { data: dashboardMetrics, isLoading: metricsLoading } = useDashboardMetrics();
+  const { data: funnelData } = useAIOSFunnelMetrics();
+  const { data: topPerformers } = useTopPerformers();
+  const { data: pipelineStages } = usePipelineByStage();
+  const { data: upcomingTasks } = useUpcomingTasks(5);
 
-  // Dados mockados - em produção viriam da API
-  const metrics: MetricCard[] = [
-    {
-      title: 'Receita do Mês',
-      value: 'R$ 127.890',
-      change: 12.5,
-      changeLabel: 'vs mês anterior',
-      icon: DollarSign,
-      trend: 'up',
-    },
-    {
-      title: 'Novos Deals',
-      value: 42,
-      change: -5.2,
-      changeLabel: 'vs mês anterior',
-      icon: Target,
-      trend: 'down',
-    },
-    {
-      title: 'Taxa de Conversão',
-      value: '23.4%',
-      change: 3.1,
-      changeLabel: 'vs mês anterior',
-      icon: TrendingUp,
-      trend: 'up',
-    },
-    {
-      title: 'Ticket Médio',
-      value: 'R$ 3.045',
-      change: 8.7,
-      changeLabel: 'vs mês anterior',
-      icon: Activity,
-      trend: 'up',
-    },
-  ];
+  // Calcular métricas formatadas
+  const metrics: MetricCard[] = useMemo(() => {
+    if (!dashboardMetrics) return [];
+    
+    const formatCurrency = (value: number) => 
+      new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    
+    return [
+      {
+        title: 'Receita do Mês',
+        value: formatCurrency(dashboardMetrics.revenue_month),
+        change: dashboardMetrics.revenue_month > 0 ? 12.5 : 0, // TODO: calcular vs mês anterior
+        changeLabel: 'vs mês anterior',
+        icon: DollarSign,
+        trend: dashboardMetrics.revenue_month > 0 ? 'up' : 'neutral',
+      },
+      {
+        title: 'Novos Deals',
+        value: dashboardMetrics.deals_created_month,
+        change: 0, // TODO: calcular vs mês anterior
+        changeLabel: 'vs mês anterior',
+        icon: Target,
+        trend: 'neutral',
+      },
+      {
+        title: 'Taxa de Conversão',
+        value: `${dashboardMetrics.win_rate_month.toFixed(1)}%`,
+        change: 0, // TODO: calcular vs mês anterior
+        changeLabel: 'vs mês anterior',
+        icon: TrendingUp,
+        trend: dashboardMetrics.win_rate_month > 20 ? 'up' : 'down',
+      },
+      {
+        title: 'Pipeline Total',
+        value: formatCurrency(dashboardMetrics.pipeline_value),
+        change: 0, // TODO: calcular vs mês anterior
+        changeLabel: 'deals abertos',
+        icon: Activity,
+        trend: 'neutral',
+      },
+    ];
+  }, [dashboardMetrics]);
 
   const forecastData: ForecastData[] = [
     { month: 'Jan', projected: 95000, achieved: 92000, probability: 97 },
