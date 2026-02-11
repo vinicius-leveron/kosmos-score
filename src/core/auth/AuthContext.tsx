@@ -189,9 +189,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .select(`
           organizations (
             id,
-            organization_name,
-            organization_slug,
-            organization_type
+            name,
+            slug,
+            type
           ),
           role
         `)
@@ -213,9 +213,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Process memberships
       const memberships: OrgMembership[] = membershipData?.map((m: any) => ({
         organization_id: m.organizations.id,
-        organization_name: m.organizations.organization_name,
-        organization_slug: m.organizations.organization_slug,
-        organization_type: m.organizations.organization_type,
+        organization_name: m.organizations.name,
+        organization_slug: m.organizations.slug,
+        organization_type: m.organizations.type,
         role: m.role,
       })) || [];
 
@@ -234,7 +234,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const savedOrgId = localStorage.getItem(CURRENT_ORG_KEY);
       const currentOrg = savedOrgId
         ? memberships.find((m) => m.organization_id === savedOrgId) || memberships[0]
-        : getDefaultOrg(memberships);
+        : loadSavedCurrentOrg(memberships);
 
       // Use fetched profile or create basic one
       const userProfile: UserProfile = profile || {
