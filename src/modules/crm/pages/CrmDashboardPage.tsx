@@ -30,8 +30,7 @@ import {
 } from '@/design-system/primitives/select';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/design-system/lib/utils';
-import { useDashboardMetrics, useAIOSFunnelMetrics, useTopPerformers, usePipelineByStage } from '../hooks/useDashboardMetrics';
-import { useUpcomingTasks } from '../hooks/useEntityTasks';
+import { useDashboardMetrics, useAIOSFunnelMetrics, useTopPerformers, usePipelineByStage } from '../hooks/useDashboardMetricsSimple';
 import { Skeleton } from '@/design-system/primitives/skeleton';
 
 // Tipos para métricas
@@ -76,7 +75,6 @@ export function CrmDashboardPage() {
   const { data: funnelData } = useAIOSFunnelMetrics();
   const { data: topPerformers } = useTopPerformers();
   const { data: pipelineStages } = usePipelineByStage();
-  const { data: upcomingTasks } = useUpcomingTasks(5);
 
   // Calcular métricas formatadas
   const metrics: MetricCard[] = useMemo(() => {

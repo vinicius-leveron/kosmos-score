@@ -96,6 +96,10 @@ ON pipeline_summary(organization_id, pipeline_id);
 CREATE INDEX IF NOT EXISTS idx_pipeline_summary_stage 
 ON pipeline_summary(pipeline_id, stage_id);
 
+-- Create unique index for concurrent refresh
+CREATE UNIQUE INDEX IF NOT EXISTS idx_pipeline_summary_unique
+ON pipeline_summary(pipeline_id, stage_id);
+
 -- 5. Create function to refresh materialized view
 CREATE OR REPLACE FUNCTION refresh_pipeline_summary()
 RETURNS void
@@ -104,6 +108,10 @@ SECURITY DEFINER
 AS $$
 BEGIN
   REFRESH MATERIALIZED VIEW CONCURRENTLY pipeline_summary;
+EXCEPTION
+  WHEN OTHERS THEN
+    -- Fallback to non-concurrent refresh if concurrent fails
+    REFRESH MATERIALIZED VIEW pipeline_summary;
 END;
 $$;
 
@@ -155,17 +163,17 @@ contact_metrics AS (
   GROUP BY o.id
 ),
 deal_metrics AS (
-  SELECT 
+  SELECT
     o.id as organization_id,
     COUNT(*) FILTER (WHERE d.created_at >= dr.today_start) as deals_created_today,
     COUNT(*) FILTER (WHERE d.created_at >= dr.week_start) as deals_created_week,
     COUNT(*) FILTER (WHERE d.created_at >= dr.month_start) as deals_created_month,
     COUNT(*) FILTER (WHERE d.status = 'open') as deals_open,
-    COUNT(*) FILTER (WHERE d.status = 'won' AND d.closed_at >= dr.month_start) as deals_won_month,
-    COUNT(*) FILTER (WHERE d.status = 'lost' AND d.closed_at >= dr.month_start) as deals_lost_month,
+    COUNT(*) FILTER (WHERE d.status = 'won' AND d.actual_close_date >= dr.month_start::date) as deals_won_month,
+    COUNT(*) FILTER (WHERE d.status = 'lost' AND d.actual_close_date >= dr.month_start::date) as deals_lost_month,
     SUM(d.amount) FILTER (WHERE d.status = 'open') as pipeline_value,
-    SUM(d.amount) FILTER (WHERE d.status = 'won' AND d.closed_at >= dr.month_start) as revenue_month,
-    AVG(EXTRACT(epoch FROM (d.closed_at - d.created_at))/86400) FILTER (WHERE d.status = 'won') as avg_sales_cycle_days
+    SUM(d.amount) FILTER (WHERE d.status = 'won' AND d.actual_close_date >= dr.month_start::date) as revenue_month,
+    AVG(d.actual_close_date - d.created_at::date) FILTER (WHERE d.status = 'won' AND d.actual_close_date IS NOT NULL) as avg_sales_cycle_days
   FROM organizations o
   CROSS JOIN date_ranges dr
   LEFT JOIN deals d ON d.organization_id = o.id
@@ -227,5 +235,5 @@ GRANT SELECT ON pipeline_summary TO authenticated;
 GRANT SELECT ON crm_dashboard_metrics TO authenticated;
 GRANT EXECUTE ON FUNCTION refresh_pipeline_summary() TO authenticated;
 
--- Initial refresh
-SELECT refresh_pipeline_summary();
+-- Initial refresh (non-concurrent for first time)
+REFRESH MATERIALIZED VIEW pipeline_summary;

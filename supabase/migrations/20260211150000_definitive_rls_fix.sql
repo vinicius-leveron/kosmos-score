@@ -67,6 +67,23 @@ BEGIN
 END $$;
 
 -- ============================================================================
+-- 3.5 DROPAR TODAS AS POLICIES QUE DEPENDEM DA FUNÇÃO HELPER
+-- (necessário antes de dropar/recriar a função)
+-- ============================================================================
+
+DROP POLICY IF EXISTS "contact_orgs_org_access" ON public.contact_orgs;
+DROP POLICY IF EXISTS "contacts_public_or_org" ON public.contacts;
+DROP POLICY IF EXISTS "companies_org_access" ON public.companies;
+DROP POLICY IF EXISTS "deals_org_access" ON public.deals;
+DROP POLICY IF EXISTS "journey_stages_read" ON public.journey_stages;
+DROP POLICY IF EXISTS "journey_stages_insert" ON public.journey_stages;
+DROP POLICY IF EXISTS "journey_stages_update" ON public.journey_stages;
+DROP POLICY IF EXISTS "journey_stages_delete" ON public.journey_stages;
+DROP POLICY IF EXISTS "pipeline_stages_org_access" ON public.pipeline_stages;
+DROP POLICY IF EXISTS "pipelines_org_access" ON public.pipelines;
+DROP POLICY IF EXISTS "contact_pipeline_positions_org_access" ON public.contact_pipeline_positions;
+
+-- ============================================================================
 -- 4. CRIAR/RECRIAR FUNÇÃO HELPER COM SECURITY DEFINER
 -- Esta função bypassa RLS completamente
 -- ============================================================================
