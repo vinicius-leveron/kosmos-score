@@ -29,7 +29,6 @@ import {
   SelectValue,
 } from '@/design-system/primitives/select';
 import { useNavigate } from 'react-router-dom';
-import { useOrganization } from '@/core/auth';
 import { cn } from '@/design-system/lib/utils';
 
 // Tipos para métricas
@@ -67,9 +66,7 @@ interface PipelineHealth {
 
 export function CrmDashboardPage() {
   const navigate = useNavigate();
-  const { organizationId } = useOrganization();
   const [selectedPeriod, setSelectedPeriod] = useState('month');
-  const [selectedMetric, setSelectedMetric] = useState('revenue');
 
   // Dados mockados - em produção viriam da API
   const metrics: MetricCard[] = [

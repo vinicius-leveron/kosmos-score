@@ -27,6 +27,7 @@ import { DashboardPage, LeadMagnetsPage } from "./pages/admin";
 // Admin module pages - Lazy loaded for performance
 const AdminResults = lazy(() => import("./modules/kosmos-score/pages").then(m => ({ default: m.AdminResults })));
 const KosmosScoreDashboard = lazy(() => import("./modules/kosmos-score/pages").then(m => ({ default: m.AdminDashboard })));
+const CrmDashboardPage = lazy(() => import("./modules/crm/pages").then(m => ({ default: m.CrmDashboardPage })));
 const ContactsPage = lazy(() => import("./modules/crm/pages").then(m => ({ default: m.ContactsPage })));
 const PipelinePage = lazy(() => import("./modules/crm/pages").then(m => ({ default: m.PipelinePage })));
 const CompaniesPage = lazy(() => import("./modules/crm/pages").then(m => ({ default: m.CompaniesPage })));
