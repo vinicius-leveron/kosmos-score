@@ -2,8 +2,8 @@ import { createContext, useContext, useState, useCallback, useEffect, ReactNode 
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
 
-// Constants
-export const KOSMOS_ORG_ID = 'c832cca7-d631-1953-05a7-88e347a191f9';
+// Constants - Must match the UUID in database RLS policies
+export const KOSMOS_ORG_ID = 'c0000000-0000-0000-0000-000000000001';
 const CURRENT_ORG_KEY = 'kosmos_current_org';
 
 // Types
