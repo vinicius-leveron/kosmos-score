@@ -24,3 +24,22 @@ dist-ssr
 *.sw?
 .vercel
 .env*.local
+
+# AIOS Framework (Project Development Mode - dependency)
+.aios-core/
+!.aios-core/install-manifest.yaml
+!.aios-core/version.json
+squads/
+
+# Keep AIOS stories in git (documentation)
+!docs/stories/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+tests/screenshots/
+test-results/
+playwright-report/
+.playwright/

@@ -1,6 +1,8 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/design-system/primitives/toaster";
 import { Toaster as Sonner } from "@/design-system/primitives/sonner";
 import { TooltipProvider } from "@/design-system/primitives/tooltip";
+import { Skeleton } from "@/design-system/primitives/skeleton";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 
@@ -22,16 +24,30 @@ import Index from "./pages/Index"; // KOSMOS Score quiz
 // Admin pages
 import { DashboardPage, LeadMagnetsPage } from "./pages/admin";
 
-// Admin module pages
-import { AdminResults, AdminDashboard as KosmosScoreDashboard } from "./modules/kosmos-score/pages";
-import { ContactsPage, PipelinePage, CompaniesPage, DealBoardPage } from "./modules/crm/pages";
-import { StakeholdersListPage } from "./modules/stakeholder-analysis/pages/StakeholdersListPage";
-import { StakeholderDetailPage } from "./modules/stakeholder-analysis/pages/StakeholderDetailPage";
-import { StakeholderDashboardPage } from "./modules/stakeholder-analysis/pages/StakeholderDashboardPage";
-import { JourneyAnalyzerPage } from "./modules/journey-analyzer";
-import { FormsListPage, FormEditorPage, FormAnalyticsPage, FormPublicPage } from "./modules/toolkit";
-import { TeamPage, ClientsPage, AcceptInvitePage } from "./modules/settings";
-import { AdminBenchmarksPage, AdminBenchmarkFormPage, ClientBenchmarkPage } from "./modules/benchmarking";
+// Admin module pages - Lazy loaded for performance
+const AdminResults = lazy(() => import("./modules/kosmos-score/pages").then(m => ({ default: m.AdminResults })));
+const KosmosScoreDashboard = lazy(() => import("./modules/kosmos-score/pages").then(m => ({ default: m.AdminDashboard })));
+const ContactsPage = lazy(() => import("./modules/crm/pages").then(m => ({ default: m.ContactsPage })));
+const PipelinePage = lazy(() => import("./modules/crm/pages").then(m => ({ default: m.PipelinePage })));
+const CompaniesPage = lazy(() => import("./modules/crm/pages").then(m => ({ default: m.CompaniesPage })));
+const DealBoardPage = lazy(() => import("./modules/crm/pages").then(m => ({ default: m.DealBoardPage })));
+const StakeholdersListPage = lazy(() => import("./modules/stakeholder-analysis/pages/StakeholdersListPage").then(m => ({ default: m.StakeholdersListPage })));
+const StakeholderDetailPage = lazy(() => import("./modules/stakeholder-analysis/pages/StakeholderDetailPage").then(m => ({ default: m.StakeholderDetailPage })));
+const StakeholderDashboardPage = lazy(() => import("./modules/stakeholder-analysis/pages/StakeholderDashboardPage").then(m => ({ default: m.StakeholderDashboardPage })));
+const JourneyAnalyzerPage = lazy(() => import("./modules/journey-analyzer").then(m => ({ default: m.JourneyAnalyzerPage })));
+const FormsListPage = lazy(() => import("./modules/toolkit").then(m => ({ default: m.FormsListPage })));
+const FormEditorPage = lazy(() => import("./modules/toolkit").then(m => ({ default: m.FormEditorPage })));
+const FormAnalyticsPage = lazy(() => import("./modules/toolkit").then(m => ({ default: m.FormAnalyticsPage })));
+const FormPublicPage = lazy(() => import("./modules/toolkit").then(m => ({ default: m.FormPublicPage })));
+const TeamPage = lazy(() => import("./modules/settings").then(m => ({ default: m.TeamPage })));
+const ClientsPage = lazy(() => import("./modules/settings").then(m => ({ default: m.ClientsPage })));
+const AcceptInvitePage = lazy(() => import("./modules/settings").then(m => ({ default: m.AcceptInvitePage })));
+const AdminBenchmarksPage = lazy(() => import("./modules/benchmarking").then(m => ({ default: m.AdminBenchmarksPage })));
+const AdminBenchmarkFormPage = lazy(() => import("./modules/benchmarking").then(m => ({ default: m.AdminBenchmarkFormPage })));
+const ClientBenchmarkPage = lazy(() => import("./modules/benchmarking").then(m => ({ default: m.ClientBenchmarkPage })));
+
+// Loading component for lazy loaded pages
+import { PageLoader } from "@/design-system/components/PageLoader";
 
 const queryClient = new QueryClient();
 
@@ -61,24 +77,24 @@ const App = () => (
             >
               <Route index element={<DashboardPage />} />
               <Route path="lead-magnets" element={<LeadMagnetsPage />} />
-              <Route path="kosmos-score" element={<KosmosScoreDashboard />} />
-              <Route path="kosmos-score/results" element={<AdminResults />} />
-              <Route path="crm/contacts" element={<ContactsPage />} />
-              <Route path="crm/pipeline" element={<PipelinePage />} />
-              <Route path="crm/companies" element={<CompaniesPage />} />
-              <Route path="crm/deals/board" element={<DealBoardPage />} />
-              <Route path="toolkit/forms" element={<FormsListPage />} />
-              <Route path="toolkit/forms/:formId/edit" element={<FormEditorPage />} />
-              <Route path="toolkit/forms/:formId/analytics" element={<FormAnalyticsPage />} />
-              <Route path="stakeholders" element={<StakeholdersListPage />} />
-              <Route path="stakeholders/dashboard" element={<StakeholderDashboardPage />} />
-              <Route path="stakeholders/:id" element={<StakeholderDetailPage />} />
-              <Route path="journey" element={<JourneyAnalyzerPage />} />
-              <Route path="settings/team" element={<TeamPage />} />
-              <Route path="settings/clients" element={<ClientsPage />} />
-              <Route path="benchmarks" element={<AdminBenchmarksPage />} />
-              <Route path="benchmarks/new" element={<AdminBenchmarkFormPage />} />
-              <Route path="benchmarks/:id/edit" element={<AdminBenchmarkFormPage />} />
+              <Route path="kosmos-score" element={<Suspense fallback={<PageLoader />}><KosmosScoreDashboard /></Suspense>} />
+              <Route path="kosmos-score/results" element={<Suspense fallback={<PageLoader />}><AdminResults /></Suspense>} />
+              <Route path="crm/contacts" element={<Suspense fallback={<PageLoader />}><ContactsPage /></Suspense>} />
+              <Route path="crm/pipeline" element={<Suspense fallback={<PageLoader />}><PipelinePage /></Suspense>} />
+              <Route path="crm/companies" element={<Suspense fallback={<PageLoader />}><CompaniesPage /></Suspense>} />
+              <Route path="crm/deals/board" element={<Suspense fallback={<PageLoader />}><DealBoardPage /></Suspense>} />
+              <Route path="toolkit/forms" element={<Suspense fallback={<PageLoader />}><FormsListPage /></Suspense>} />
+              <Route path="toolkit/forms/:formId/edit" element={<Suspense fallback={<PageLoader />}><FormEditorPage /></Suspense>} />
+              <Route path="toolkit/forms/:formId/analytics" element={<Suspense fallback={<PageLoader />}><FormAnalyticsPage /></Suspense>} />
+              <Route path="stakeholders" element={<Suspense fallback={<PageLoader />}><StakeholdersListPage /></Suspense>} />
+              <Route path="stakeholders/dashboard" element={<Suspense fallback={<PageLoader />}><StakeholderDashboardPage /></Suspense>} />
+              <Route path="stakeholders/:id" element={<Suspense fallback={<PageLoader />}><StakeholderDetailPage /></Suspense>} />
+              <Route path="journey" element={<Suspense fallback={<PageLoader />}><JourneyAnalyzerPage /></Suspense>} />
+              <Route path="settings/team" element={<Suspense fallback={<PageLoader />}><TeamPage /></Suspense>} />
+              <Route path="settings/clients" element={<Suspense fallback={<PageLoader />}><ClientsPage /></Suspense>} />
+              <Route path="benchmarks" element={<Suspense fallback={<PageLoader />}><AdminBenchmarksPage /></Suspense>} />
+              <Route path="benchmarks/new" element={<Suspense fallback={<PageLoader />}><AdminBenchmarkFormPage /></Suspense>} />
+              <Route path="benchmarks/:id/edit" element={<Suspense fallback={<PageLoader />}><AdminBenchmarkFormPage /></Suspense>} />
             </Route>
 
             {/* CLIENT PORTAL */}

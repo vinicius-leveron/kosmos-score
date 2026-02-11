@@ -27,7 +27,7 @@ export function useContacts({
   return useQuery({
     queryKey: ['contacts', organizationId, filters, sort, pagination],
     queryFn: async (): Promise<PaginatedResult<ContactListItem>> => {
-      // Build the query
+      // Build the query with tags included to avoid N+1
       let query = supabase
         .from('contact_orgs')
         .select(
@@ -51,6 +51,13 @@ export function useContacts({
             name,
             display_name,
             color
+          ),
+          contact_tags (
+            tags (
+              id,
+              name,
+              color
+            )
           )
         `,
           { count: 'exact' }
@@ -102,7 +109,7 @@ export function useContacts({
 
       if (error) throw error;
 
-      // Transform data to ContactListItem format
+      // Transform data to ContactListItem format with tags already included
       const items: ContactListItem[] = (data || []).map((row: any) => ({
         id: row.id,
         contact_id: row.contact_id,
@@ -113,50 +120,10 @@ export function useContacts({
         stage_name: row.journey_stages?.display_name || null,
         stage_color: row.journey_stages?.color || null,
         status: row.status,
-        tags: [], // Tags will be loaded separately or via a join
+        tags: row.contact_tags?.map((ct: any) => ct.tags).filter(Boolean) || [],
         created_at: row.created_at,
         updated_at: row.updated_at,
       }));
-
-      // If we have items, load their tags
-      if (items.length > 0) {
-        const contactOrgIds = items.map((i) => i.id);
-        const { data: tagsData } = await supabase
-          .from('contact_tags')
-          .select(
-            `
-            contact_org_id,
-            tags (
-              id,
-              name,
-              color
-            )
-          `
-          )
-          .in('contact_org_id', contactOrgIds);
-
-        if (tagsData) {
-          const tagsByContactOrg = new Map<
-            string,
-            { id: string; name: string; color: string }[]
-          >();
-          tagsData.forEach((row: any) => {
-            const existing = tagsByContactOrg.get(row.contact_org_id) || [];
-            if (row.tags) {
-              existing.push({
-                id: row.tags.id,
-                name: row.tags.name,
-                color: row.tags.color,
-              });
-            }
-            tagsByContactOrg.set(row.contact_org_id, existing);
-          });
-
-          items.forEach((item) => {
-            item.tags = tagsByContactOrg.get(item.id) || [];
-          });
-        }
-      }
 
       return {
         data: items,

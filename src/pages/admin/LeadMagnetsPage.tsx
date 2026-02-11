@@ -40,6 +40,16 @@ const leadMagnets: LeadMagnet[] = [
     status: 'active',
   },
   {
+    id: 'aplicacao-kosmos',
+    name: 'Aplicação KOSMOS',
+    description: 'Formulário de aplicação para validar fit com potenciais clientes',
+    icon: Users,
+    color: 'text-purple-500',
+    href: '/admin/toolkit/forms',
+    publicUrl: '/f/aplicacao-kosmos',
+    status: 'active',
+  },
+  {
     id: 'forms',
     name: 'Formulários',
     description: 'Crie formulários personalizados para captura de leads com campos customizados',

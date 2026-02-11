@@ -104,15 +104,15 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+      {/* Header - Mobile Optimized */}
       <div>
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <p className="text-muted-foreground">Visão geral do seu negócio</p>
+        <h1 className="text-xl sm:text-2xl font-semibold">Dashboard</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Visão geral do seu negócio</p>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* KPI Cards - Responsive Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -174,53 +174,53 @@ export function DashboardPage() {
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="hover:border-primary/50 transition-colors">
-          <Link to="/admin/crm/contacts">
-            <CardHeader>
-              <div className="flex items-center justify-between">
+      {/* Quick Actions - Mobile Responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        <Card className="hover:border-primary/50 transition-colors active:scale-[0.98]">
+          <Link to="/admin/crm/contacts" className="block">
+            <CardHeader className="p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-3">
                 <div className="p-2 rounded-lg bg-blue-500/10">
                   <Users className="h-5 w-5 text-blue-500" />
                 </div>
                 <ArrowRight className="h-4 w-4 text-muted-foreground" />
               </div>
-              <CardTitle className="text-base">CRM - Contatos</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-sm sm:text-base">CRM - Contatos</CardTitle>
+              <CardDescription className="text-xs sm:text-sm mt-1">
                 Gerencie seus contatos e leads
               </CardDescription>
             </CardHeader>
           </Link>
         </Card>
 
-        <Card className="hover:border-primary/50 transition-colors">
-          <Link to="/admin/crm/pipeline">
-            <CardHeader>
-              <div className="flex items-center justify-between">
+        <Card className="hover:border-primary/50 transition-colors active:scale-[0.98]">
+          <Link to="/admin/crm/pipeline" className="block">
+            <CardHeader className="p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-3">
                 <div className="p-2 rounded-lg bg-purple-500/10">
                   <Kanban className="h-5 w-5 text-purple-500" />
                 </div>
                 <ArrowRight className="h-4 w-4 text-muted-foreground" />
               </div>
-              <CardTitle className="text-base">Pipeline de Vendas</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-sm sm:text-base">Pipeline de Vendas</CardTitle>
+              <CardDescription className="text-xs sm:text-sm mt-1">
                 Acompanhe suas oportunidades
               </CardDescription>
             </CardHeader>
           </Link>
         </Card>
 
-        <Card className="hover:border-primary/50 transition-colors">
-          <Link to="/admin/kosmos-score">
-            <CardHeader>
-              <div className="flex items-center justify-between">
+        <Card className="hover:border-primary/50 transition-colors active:scale-[0.98]">
+          <Link to="/admin/kosmos-score" className="block">
+            <CardHeader className="p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-3">
                 <div className="p-2 rounded-lg bg-orange-500/10">
                   <BarChart3 className="h-5 w-5 text-orange-500" />
                 </div>
                 <ArrowRight className="h-4 w-4 text-muted-foreground" />
               </div>
-              <CardTitle className="text-base">KOSMOS Score Analytics</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-sm sm:text-base">KOSMOS Score Analytics</CardTitle>
+              <CardDescription className="text-xs sm:text-sm mt-1">
                 Análise dos leads do lead magnet
               </CardDescription>
             </CardHeader>

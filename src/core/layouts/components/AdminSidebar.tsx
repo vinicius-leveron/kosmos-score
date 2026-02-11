@@ -116,18 +116,18 @@ export function AdminSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="border-b">
-        <div className="flex items-center gap-3 px-2 py-3">
-          <div className="h-8 w-8 rounded-lg bg-black flex items-center justify-center">
-            <span className="text-orange-500 font-bold text-lg">O</span>
+        <div className="flex items-center gap-2 sm:gap-3 px-2 py-3">
+          <div className="h-8 w-8 rounded-lg bg-black flex items-center justify-center flex-shrink-0">
+            <span className="text-orange-500 font-bold text-lg">K</span>
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col min-w-0">
             <span className="font-semibold text-sm tracking-wide">
               <span className="text-foreground">K</span>
               <span className="text-orange-500">O</span>
               <span className="text-foreground">SMOS</span>
             </span>
             {currentOrg && (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-muted-foreground truncate">
                 {currentOrg.organization_name}
               </span>
             )}
@@ -191,15 +191,15 @@ export function AdminSidebar() {
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton className="w-full">
-                  <Avatar className="h-6 w-6">
+                <SidebarMenuButton className="w-full min-h-[44px]">
+                  <Avatar className="h-6 w-6 flex-shrink-0">
                     <AvatarImage src={profile?.avatar_url ?? undefined} />
                     <AvatarFallback className="text-xs">
                       {getInitials(profile?.full_name)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="truncate">{profile?.full_name || profile?.email}</span>
-                  <ChevronDown className="ml-auto h-4 w-4" />
+                  <span className="truncate text-sm">{profile?.full_name || profile?.email}</span>
+                  <ChevronDown className="ml-auto h-4 w-4 flex-shrink-0" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56">

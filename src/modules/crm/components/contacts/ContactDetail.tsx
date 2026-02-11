@@ -22,6 +22,7 @@ import { ContactAvatar, ScoreBadge, JourneyStageSelect } from '../shared';
 import { ActivityTimeline } from '../timeline/ActivityTimeline';
 import { ScoreDisplay } from './ScoreDisplay';
 import { ContactPipelinesList } from './ContactPipelinesList';
+import { QuickActionsMenu } from '../quick-actions';
 
 interface ContactDetailProps {
   contactOrgId: string;
@@ -130,6 +131,20 @@ export function ContactDetail({ contactOrgId, onClose }: ContactDetailProps) {
           )}
         </div>
         <ScoreBadge score={contact.contact_org.score} size="lg" />
+      </div>
+
+      <Separator />
+
+      {/* Quick Actions */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Ações Rápidas</label>
+        <QuickActionsMenu
+          contactOrgId={contactOrgId}
+          contactName={contact.full_name || undefined}
+          contactEmail={contact.email}
+          contactPhone={contact.phone || undefined}
+          className="w-full"
+        />
       </div>
 
       <Separator />

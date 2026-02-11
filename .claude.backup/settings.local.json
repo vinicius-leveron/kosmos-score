@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Bash(npm ls:*)",
+      "Bash(wc:*)",
+      "Bash(SUPABASE_ACCESS_TOKEN=sbp_c832cca7d631195305a788e347a191f97c696864 supabase db push:*)",
+      "Bash(supabase db push:*)",
+      "Bash(npm run build:*)",
+      "Bash(git add:*)",
+      "Bash(git restore:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git show:*)",
+      "Bash(PGPASSWORD=\"Ilikenescau10!\" psql \"postgresql://postgres.mtxtsvwvwuvnmczbblmy:Ilikenescau10!@aws-0-sa-east-1.pooler.supabase.com:6543/postgres\" -c \"SELECT table_name FROM information_schema.tables WHERE table_schema = ''public'' AND table_name LIKE ''%journey%'';\")",
+      "Bash(npx supabase db inspect:*)",
+      "Bash(vercel:*)",
+      "Bash(ls:*)",
+      "Bash(supabase status:*)",
+      "Bash(vercel ls:*)",
+      "Bash(supabase projects api-keys:*)",
+      "Bash(SERVICE_KEY=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBlZWdpY2l6eHliamd2dXV0ZWdjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MDQ4NDM5MCwiZXhwIjoyMDg2MDYwMzkwfQ.2adHsAWdvEFecRJ-nbkcE6zGXXJbG62lLqOHm1IhOp8\")",
+      "Bash(grep:*)",
+      "Bash(xxd:*)",
+      "Bash(npx supabase db execute:*)",
+      "Bash(of undefined\" error.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+    ]
+  }
+}

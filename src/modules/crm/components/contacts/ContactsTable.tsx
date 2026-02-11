@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo, useCallback, useMemo } from 'react';
 import {
   Table,
   TableBody,
@@ -20,13 +20,16 @@ import {
 } from 'lucide-react';
 import { useContacts } from '../../hooks/useContacts';
 import { ContactAvatar, ScoreBadge } from '../shared';
+import { ContactsTableMobile } from './ContactsTableMobile';
+import { useResponsive } from '@/design-system/hooks/useResponsive';
 import type { ContactFilters, ContactSort, ContactListItem } from '../../types';
 
 interface ContactsTableProps {
   onSelectContact: (contact: ContactListItem) => void;
 }
 
-export function ContactsTable({ onSelectContact }: ContactsTableProps) {
+export const ContactsTable = memo(function ContactsTable({ onSelectContact }: ContactsTableProps) {
+  const responsive = useResponsive();
   const [filters, setFilters] = useState<ContactFilters>({});
   const [sort, setSort] = useState<ContactSort>({
     field: 'created_at',
@@ -69,26 +72,31 @@ export function ContactsTable({ onSelectContact }: ContactsTableProps) {
     );
   }
 
+  // Use mobile version on small screens
+  if (!responsive.md) {
+    return <ContactsTableMobile onSelectContact={onSelectContact} />;
+  }
+
   return (
     <div className="space-y-4">
-      {/* Search */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por email ou nome..."
-            className="pl-9"
-            value={filters.search || ''}
-            onChange={(e) => handleSearch(e.target.value)}
-          />
+        {/* Search */}
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por email ou nome..."
+              className="pl-9 h-10" // Touch-friendly height
+              value={filters.search || ''}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {data?.total ?? 0} contatos
+          </div>
         </div>
-        <div className="text-sm text-muted-foreground">
-          {data?.total ?? 0} contatos
-        </div>
-      </div>
 
-      {/* Table */}
-      <div className="border rounded-lg">
+        {/* Table */}
+        <div className="border rounded-lg overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -236,34 +244,36 @@ export function ContactsTable({ onSelectContact }: ContactsTableProps) {
         </Table>
       </div>
 
-      {/* Pagination */}
-      {data && data.total_pages > 1 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            Página {data.page} de {data.total_pages}
+        {/* Pagination */}
+        {data && data.total_pages > 1 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-muted-foreground">
+              Página {data.page} de {data.total_pages}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-10 px-4" // Touch-friendly size
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                <span className="hidden sm:inline">Anterior</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-10 px-4" // Touch-friendly size
+                onClick={() => setPage((p) => Math.min(data.total_pages, p + 1))}
+                disabled={page === data.total_pages}
+              >
+                <span className="hidden sm:inline">Próxima</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Anterior
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((p) => Math.min(data.total_pages, p + 1))}
-              disabled={page === data.total_pages}
-            >
-              Próxima
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      )}
+        )}
     </div>
   );
-}
+});

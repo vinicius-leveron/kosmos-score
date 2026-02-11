@@ -3,7 +3,7 @@
  *
  * Handles the complete form flow:
  * 1. Welcome screen (optional email capture)
- * 2. Question-by-question navigation
+ * 2. Question-by-question navigation (single or multi-field screens)
  * 3. Conditional field visibility
  * 4. Score calculation
  * 5. Thank you screen with results
@@ -14,6 +14,7 @@ import type { FormWithRelations, FormSubmission } from '../../types/form.types';
 import { useFormRuntime } from './hooks/useFormRuntime';
 import { WelcomeScreen } from './WelcomeScreen';
 import { QuestionScreen } from './QuestionScreen';
+import { MultiFieldQuestionScreen } from './MultiFieldQuestionScreen';
 import { ThankYouScreen } from './ThankYouScreen';
 
 interface FormRuntimeProps {
@@ -40,8 +41,14 @@ export function FormRuntime({ form, onComplete }: FormRuntimeProps) {
     canGoBack,
     isLastQuestion,
     isCreating,
+    // New screen-based props
+    screens,
+    currentScreen,
+    currentScreenIndex,
+    isMultiFieldScreen,
     handleStart,
     handleAnswer,
+    handleFieldAnswer,
     handleNext,
     handlePrevious,
   } = useFormRuntime({ form, onComplete });
@@ -84,25 +91,48 @@ export function FormRuntime({ form, onComplete }: FormRuntimeProps) {
     );
   }
 
-  if (step === 'questions' && currentField) {
-    return (
-      <QuestionScreen
-        field={currentField}
-        block={currentBlock}
-        currentIndex={currentFieldIndex}
-        totalFields={visibleFields.length}
-        answer={answers[currentField.key]}
-        onAnswer={handleAnswer}
-        onNext={handleNext}
-        onPrevious={handlePrevious}
-        canGoBack={canGoBack}
-        isLastQuestion={isLastQuestion}
-        error={fieldError}
-        formName={form.name}
-        showProgress={form.settings.showProgressBar}
-        showQuestionNumbers={form.settings.showQuestionNumbers}
-      />
-    );
+  if (step === 'questions' && currentScreen) {
+    // Use MultiFieldQuestionScreen for screens with multiple fields
+    if (isMultiFieldScreen) {
+      return (
+        <MultiFieldQuestionScreen
+          fields={currentScreen.fields}
+          block={currentScreen.block}
+          currentScreenIndex={currentScreenIndex}
+          totalScreens={screens.length}
+          answers={answers}
+          onAnswer={handleFieldAnswer}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+          canGoBack={canGoBack}
+          isLastScreen={isLastQuestion}
+          formName={form.name}
+          showProgress={form.settings.showProgressBar}
+        />
+      );
+    }
+
+    // Use single-field QuestionScreen for screens with one field
+    if (currentField) {
+      return (
+        <QuestionScreen
+          field={currentField}
+          block={currentBlock}
+          currentIndex={currentScreenIndex}
+          totalFields={screens.length}
+          answer={answers[currentField.key]}
+          onAnswer={handleAnswer}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+          canGoBack={canGoBack}
+          isLastQuestion={isLastQuestion}
+          error={fieldError}
+          formName={form.name}
+          showProgress={form.settings.showProgressBar}
+          showQuestionNumbers={form.settings.showQuestionNumbers}
+        />
+      );
+    }
   }
 
   if (step === 'thank_you') {
