@@ -82,14 +82,6 @@ const AuthContext = createContext<AuthContextType>({
   organizationName: null,
 });
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-  return context;
-};
-
 // Optimized provider that doesn't block on timeouts
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>(initialState);
