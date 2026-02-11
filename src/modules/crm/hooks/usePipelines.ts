@@ -115,7 +115,7 @@ export function useCreatePipeline() {
       data,
     }: {
       organizationId: string;
-      data: PipelineFormData;
+      data: any;
     }) => {
       // Get max position
       const { data: maxPos } = await supabase
@@ -128,22 +128,39 @@ export function useCreatePipeline() {
 
       const position = (maxPos?.position ?? -1) + 1;
 
+      // Create the pipeline
       const { data: pipeline, error } = await supabase
         .from('pipelines')
         .insert({
           organization_id: organizationId,
           name: data.name,
-          display_name: data.display_name,
           description: data.description || null,
-          icon: data.icon || null,
-          color: data.color,
           position,
           is_default: data.is_default || false,
+          is_active: true,
         })
         .select()
         .single();
 
       if (error) throw error;
+
+      // Create the stages if provided
+      if (data.stages && data.stages.length > 0) {
+        const stagesToInsert = data.stages.map((stage: any, index: number) => ({
+          pipeline_id: pipeline.id,
+          organization_id: organizationId,
+          name: stage.name,
+          color: stage.color,
+          position: index,
+        }));
+
+        const { error: stagesError } = await supabase
+          .from('pipeline_stages')
+          .insert(stagesToInsert);
+
+        if (stagesError) throw stagesError;
+      }
+
       return pipeline as Pipeline;
     },
     onSuccess: (_, variables) => {

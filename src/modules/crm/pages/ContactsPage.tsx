@@ -9,7 +9,7 @@ import {
 } from '@/design-system/primitives/sheet';
 import { Kanban, Plus, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { ContactsTable } from '../components/contacts/ContactsTable';
+import { ContactsList } from '../components/contacts/ContactsList';
 import { ContactDetail } from '../components/contacts/ContactDetail';
 import { ContactForm } from '../components/contacts/ContactForm';
 import type { ContactListItem } from '../types';
@@ -73,7 +73,7 @@ export function ContactsPage() {
 
       {/* Content */}
       <div className="container py-6">
-        <ContactsTable onSelectContact={handleSelectContact} />
+        <ContactsList onSelectContact={handleSelectContact} />
       </div>
 
       {/* Contact Detail Sheet */}
