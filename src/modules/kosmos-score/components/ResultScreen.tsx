@@ -1,6 +1,13 @@
 import { Button } from '@/design-system/primitives/button';
 import { Download, Share2, MessageCircle } from 'lucide-react';
-import { AuditResult, getClassificationInfo, getPillarDiagnosis } from '@/modules/kosmos-score/lib/auditQuestions';
+import {
+  AuditResult,
+  getProfileInfo,
+  getPillarDiagnosis,
+  getStageMessage,
+  getLucroLabel,
+  WORKSHOP_DATE,
+} from '@/modules/kosmos-score/lib/auditQuestionsV2';
 import { cn } from '@/design-system/lib/utils';
 
 interface ResultScreenProps {
@@ -11,19 +18,12 @@ interface ResultScreenProps {
 }
 
 export function ResultScreen({ result, onDownloadPDF, onShare, onJoinGroup }: ResultScreenProps) {
-  const classificationInfo = getClassificationInfo(result.classification);
-  const causaDiagnosis = getPillarDiagnosis('causa', result.scoreCausa);
-  const culturaDiagnosis = getPillarDiagnosis('cultura', result.scoreCultura);
+  const profileInfo = getProfileInfo(result.resultProfile);
+  const movimentoDiagnosis = getPillarDiagnosis('movimento', result.scoreMovimento);
+  const estruturaDiagnosis = getPillarDiagnosis('estrutura', result.scoreEstrutura);
   const economiaDiagnosis = getPillarDiagnosis('economia', result.scoreEconomia);
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
+  const stageMessage = getStageMessage(result.stage);
+  const lucroLabel = getLucroLabel(result.stage);
 
   const getScoreColor = (score: number) => {
     if (score <= 25) return 'text-score-red';
@@ -85,12 +85,12 @@ export function ResultScreen({ result, onDownloadPDF, onShare, onJoinGroup }: Re
 
             <div className="flex items-center justify-center gap-3 mb-4">
               <h3 className="font-display text-xl md:text-2xl font-bold text-kosmos-white">
-                {classificationInfo.title}
+                {profileInfo.title}
               </h3>
             </div>
 
             <p className="text-kosmos-gray max-w-lg mx-auto leading-relaxed">
-              {classificationInfo.description}
+              {profileInfo.description}
             </p>
           </div>
         </div>
@@ -106,39 +106,39 @@ export function ResultScreen({ result, onDownloadPDF, onShare, onJoinGroup }: Re
             </div>
 
             <div className="space-y-6">
-              {/* Causa */}
+              {/* Movimento (antigo Causa) */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-display text-kosmos-gray-light">CAUSA (Identidade)</span>
-                  <span className="text-sm font-display font-semibold text-kosmos-orange">{Math.round(result.scoreCausa)}/100</span>
+                  <span className="text-sm font-display text-kosmos-gray-light">MOVIMENTO (Identidade & Atração)</span>
+                  <span className="text-sm font-display font-semibold text-kosmos-orange">{Math.round(result.scoreMovimento)}/100</span>
                 </div>
                 <div className="h-1.5 bg-kosmos-black-light rounded-full overflow-hidden">
                   <div
-                    className={cn("h-full rounded-full transition-all duration-1000", getPillarColor(result.scoreCausa))}
-                    style={{ width: `${result.scoreCausa}%` }}
+                    className={cn("h-full rounded-full transition-all duration-1000", getPillarColor(result.scoreMovimento))}
+                    style={{ width: `${result.scoreMovimento}%` }}
                   />
                 </div>
                 <p className="text-sm text-kosmos-gray">
-                  <span className="font-medium text-kosmos-gray-light">{causaDiagnosis.status}.</span> {causaDiagnosis.message}
+                  <span className="font-medium text-kosmos-gray-light">{movimentoDiagnosis.status}.</span> {movimentoDiagnosis.message}
                 </p>
               </div>
 
               <div className="h-px bg-border/30" />
 
-              {/* Cultura */}
+              {/* Estrutura (antigo Cultura) */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-display text-kosmos-gray-light">CULTURA (Retenção)</span>
-                  <span className="text-sm font-display font-semibold text-kosmos-orange">{Math.round(result.scoreCultura)}/100</span>
+                  <span className="text-sm font-display text-kosmos-gray-light">ESTRUTURA (Retenção & Jornada)</span>
+                  <span className="text-sm font-display font-semibold text-kosmos-orange">{Math.round(result.scoreEstrutura)}/100</span>
                 </div>
                 <div className="h-1.5 bg-kosmos-black-light rounded-full overflow-hidden">
                   <div
-                    className={cn("h-full rounded-full transition-all duration-1000", getPillarColor(result.scoreCultura))}
-                    style={{ width: `${result.scoreCultura}%` }}
+                    className={cn("h-full rounded-full transition-all duration-1000", getPillarColor(result.scoreEstrutura))}
+                    style={{ width: `${result.scoreEstrutura}%` }}
                   />
                 </div>
                 <p className="text-sm text-kosmos-gray">
-                  <span className="font-medium text-kosmos-gray-light">{culturaDiagnosis.status}.</span> {culturaDiagnosis.message}
+                  <span className="font-medium text-kosmos-gray-light">{estruturaDiagnosis.status}.</span> {estruturaDiagnosis.message}
                 </p>
               </div>
 
@@ -147,7 +147,7 @@ export function ResultScreen({ result, onDownloadPDF, onShare, onJoinGroup }: Re
               {/* Economia */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-display text-kosmos-gray-light">ECONOMIA (Lucro)</span>
+                  <span className="text-sm font-display text-kosmos-gray-light">ECONOMIA (Lucro & Dados)</span>
                   <span className="text-sm font-display font-semibold text-kosmos-orange">{Math.round(result.scoreEconomia)}/100</span>
                 </div>
                 <div className="h-1.5 bg-kosmos-black-light rounded-full overflow-hidden">
@@ -172,50 +172,39 @@ export function ResultScreen({ result, onDownloadPDF, onShare, onJoinGroup }: Re
 
             <div className="relative p-8 md:p-10 text-center">
               <p className="text-kosmos-gray text-xs font-display uppercase tracking-[0.2em] mb-3">
-                {result.isBeginner ? 'SEU POTENCIAL DE PRIMEIRO CICLO' : 'ANÁLISE DE PERDAS'}
+                {lucroLabel}
               </p>
 
               <p className="text-kosmos-gray-light mb-6">
-                {result.isBeginner
-                  ? 'Com base no seu potencial, seu primeiro ciclo com Arquitetura KOSMOS pode gerar'
+                {result.stage === 'construindo'
+                  ? 'Com base no seu potencial, seu ecossistema pode gerar'
                   : 'Com base nos seus dados atuais, estimamos um Lucro Oculto de'
                 }
               </p>
 
               <div className="mb-6">
-                <span className="font-display text-5xl md:text-6xl font-bold text-kosmos-orange">
-                  {formatCurrency(result.lucroOculto)}
+                <span className="font-display text-4xl md:text-5xl font-bold text-kosmos-orange">
+                  {result.lucroOcultoDisplay}
                 </span>
-                <span className="text-kosmos-gray text-2xl md:text-3xl">/ano</span>
+                <span className="text-kosmos-gray text-xl md:text-2xl">/ano</span>
               </div>
 
-              <p className="text-kosmos-gray text-sm">
-                {result.isBeginner
-                  ? 'Cálculo baseado em benchmarks de mercado para iniciantes.'
-                  : 'não capturado devido a falhas na arquitetura de Ascensão.'
-                }
-              </p>
-
-              <p className="text-kosmos-gray/50 text-xs mt-4">
+              <p className="text-kosmos-gray/50 text-xs">
                 Cálculo baseado em benchmarks conservadores de mercado para o seu segmento.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Beginner Mode Message */}
-        {result.isBeginner && (
-          <div className="card-structural animate-fade-in" style={{ animationDelay: '250ms' }}>
-            <div className="p-6 md:p-8 relative">
-              <div className="absolute left-0 top-6 bottom-6 w-1 bg-kosmos-orange/50 rounded-r" />
-              <p className="text-kosmos-gray-light text-center italic pl-4">
-                "Você está começando com a vantagem de quem já conhece a Arquitetura certa.
-                A maioria dos negócios digitais leva 2-3 anos para descobrir o que você vai aprender no dia 26.
-                Você não vai construir como Inquilino — vai começar direto como Arquiteto."
-              </p>
-            </div>
+        {/* Stage-based Message */}
+        <div className="card-structural animate-fade-in" style={{ animationDelay: '250ms' }}>
+          <div className="p-6 md:p-8 relative">
+            <div className="absolute left-0 top-6 bottom-6 w-1 bg-kosmos-orange/50 rounded-r" />
+            <p className="text-kosmos-gray-light text-center italic pl-4">
+              "{stageMessage}"
+            </p>
           </div>
-        )}
+        </div>
 
         {/* CTA Section */}
         <div className="card-structural animate-fade-in" style={{ animationDelay: '300ms' }}>
@@ -229,7 +218,7 @@ export function ResultScreen({ result, onDownloadPDF, onShare, onJoinGroup }: Re
                 <div className="w-8 h-px bg-kosmos-orange/50" />
               </div>
               <p className="text-kosmos-gray text-sm">
-                No Workshop do dia 26/Fev, entregaremos o Blueprint para corrigir essas falhas estruturais.
+                No Workshop do dia {WORKSHOP_DATE}, entregaremos o Blueprint para corrigir essas falhas estruturais.
               </p>
             </div>
 

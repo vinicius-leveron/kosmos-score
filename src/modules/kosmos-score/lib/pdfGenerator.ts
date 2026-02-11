@@ -1,18 +1,31 @@
-import { AuditResult, getClassificationInfo, getPillarDiagnosis } from './auditQuestions';
+import {
+  AuditResult,
+  getProfileInfo,
+  getPillarDiagnosis,
+  getStageMessage,
+  getLucroLabel,
+  WORKSHOP_DATE,
+} from './auditQuestionsV2';
 
 export function generatePDF(result: AuditResult) {
-  const classificationInfo = getClassificationInfo(result.classification);
-  const causaDiagnosis = getPillarDiagnosis('causa', result.scoreCausa);
-  const culturaDiagnosis = getPillarDiagnosis('cultura', result.scoreCultura);
+  const profileInfo = getProfileInfo(result.resultProfile);
+  const movimentoDiagnosis = getPillarDiagnosis('movimento', result.scoreMovimento);
+  const estruturaDiagnosis = getPillarDiagnosis('estrutura', result.scoreEstrutura);
   const economiaDiagnosis = getPillarDiagnosis('economia', result.scoreEconomia);
+  const lucroLabel = getLucroLabel(result.stage);
+  const stageMessage = getStageMessage(result.stage);
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
+  const getScoreColor = (score: number) => {
+    if (score <= 25) return '#EF4444';
+    if (score <= 50) return '#F97316';
+    if (score <= 75) return '#EAB308';
+    return '#22C55E';
+  };
+
+  const getPillarColor = (score: number) => {
+    if (score < 40) return '#EF4444';
+    if (score < 70) return '#EAB308';
+    return '#22C55E';
   };
 
   // Create HTML content for PDF
@@ -72,7 +85,7 @@ export function generatePDF(result: AuditResult) {
         .score-value {
           font-size: 72px;
           font-weight: bold;
-          color: ${result.kosmosAssetScore <= 25 ? '#EF4444' : result.kosmosAssetScore <= 50 ? '#F97316' : result.kosmosAssetScore <= 75 ? '#EAB308' : '#22C55E'};
+          color: ${getScoreColor(result.kosmosAssetScore)};
         }
         .score-max {
           font-size: 24px;
@@ -82,7 +95,7 @@ export function generatePDF(result: AuditResult) {
           font-size: 20px;
           font-weight: bold;
           margin-top: 20px;
-          color: ${result.kosmosAssetScore <= 25 ? '#EF4444' : result.kosmosAssetScore <= 50 ? '#F97316' : result.kosmosAssetScore <= 75 ? '#EAB308' : '#22C55E'};
+          color: ${getScoreColor(result.kosmosAssetScore)};
         }
         .classification-desc {
           color: #A0A0A0;
@@ -156,7 +169,7 @@ export function generatePDF(result: AuditResult) {
           margin-bottom: 15px;
         }
         .financial-value {
-          font-size: 48px;
+          font-size: 36px;
           font-weight: bold;
           background: linear-gradient(135deg, #D4621B 0%, #E8854A 100%);
           -webkit-background-clip: text;
@@ -170,6 +183,18 @@ export function generatePDF(result: AuditResult) {
           color: #A0A0A0;
           font-size: 12px;
           margin-top: 20px;
+        }
+        .stage-message {
+          background: #1A1A1A;
+          padding: 30px;
+          border-radius: 12px;
+          margin-bottom: 30px;
+          border-left: 4px solid #D4621B;
+        }
+        .stage-message p {
+          color: #C0C0C0;
+          font-style: italic;
+          text-align: center;
         }
         .footer {
           text-align: center;
@@ -202,60 +227,64 @@ export function generatePDF(result: AuditResult) {
             <span class="score-value">${Math.round(result.kosmosAssetScore)}</span>
             <span class="score-max">/100</span>
           </div>
-          <div class="classification">${classificationInfo.emoji} ${classificationInfo.title}</div>
-          <div class="classification-desc">${classificationInfo.description}</div>
+          <div class="classification">${profileInfo.emoji} ${profileInfo.title}</div>
+          <div class="classification-desc">${profileInfo.description}</div>
         </div>
 
         <div class="pillars-section">
           <div class="pillars-title">DIAGNÓSTICO POR PILAR</div>
-          
+
           <div class="pillar">
             <div class="pillar-header">
-              <span class="pillar-name">CAUSA (Identidade)</span>
-              <span class="pillar-score">${Math.round(result.scoreCausa)}/100</span>
+              <span class="pillar-name">MOVIMENTO (Identidade & Atração)</span>
+              <span class="pillar-score">${Math.round(result.scoreMovimento)}/100</span>
             </div>
             <div class="pillar-bar">
-              <div class="pillar-fill" style="width: ${result.scoreCausa}%; background: ${result.scoreCausa < 40 ? '#EF4444' : result.scoreCausa < 70 ? '#EAB308' : '#22C55E'};"></div>
+              <div class="pillar-fill" style="width: ${result.scoreMovimento}%; background: ${getPillarColor(result.scoreMovimento)};"></div>
             </div>
-            <div class="pillar-diagnosis"><strong>${causaDiagnosis.status}.</strong> ${causaDiagnosis.message}</div>
+            <div class="pillar-diagnosis"><strong>${movimentoDiagnosis.status}.</strong> ${movimentoDiagnosis.message}</div>
           </div>
 
           <div class="pillar">
             <div class="pillar-header">
-              <span class="pillar-name">CULTURA (Retenção)</span>
-              <span class="pillar-score">${Math.round(result.scoreCultura)}/100</span>
+              <span class="pillar-name">ESTRUTURA (Retenção & Jornada)</span>
+              <span class="pillar-score">${Math.round(result.scoreEstrutura)}/100</span>
             </div>
             <div class="pillar-bar">
-              <div class="pillar-fill" style="width: ${result.scoreCultura}%; background: ${result.scoreCultura < 40 ? '#EF4444' : result.scoreCultura < 70 ? '#EAB308' : '#22C55E'};"></div>
+              <div class="pillar-fill" style="width: ${result.scoreEstrutura}%; background: ${getPillarColor(result.scoreEstrutura)};"></div>
             </div>
-            <div class="pillar-diagnosis"><strong>${culturaDiagnosis.status}.</strong> ${culturaDiagnosis.message}</div>
+            <div class="pillar-diagnosis"><strong>${estruturaDiagnosis.status}.</strong> ${estruturaDiagnosis.message}</div>
           </div>
 
           <div class="pillar">
             <div class="pillar-header">
-              <span class="pillar-name">ECONOMIA (Lucro)</span>
+              <span class="pillar-name">ECONOMIA (Lucro & Dados)</span>
               <span class="pillar-score">${Math.round(result.scoreEconomia)}/100</span>
             </div>
             <div class="pillar-bar">
-              <div class="pillar-fill" style="width: ${result.scoreEconomia}%; background: ${result.scoreEconomia < 40 ? '#EF4444' : result.scoreEconomia < 70 ? '#EAB308' : '#22C55E'};"></div>
+              <div class="pillar-fill" style="width: ${result.scoreEconomia}%; background: ${getPillarColor(result.scoreEconomia)};"></div>
             </div>
             <div class="pillar-diagnosis"><strong>${economiaDiagnosis.status}.</strong> ${economiaDiagnosis.message}</div>
           </div>
         </div>
 
         <div class="financial-section">
-          <div class="financial-label">${result.isBeginner ? 'SEU POTENCIAL DE PRIMEIRO CICLO' : 'LUCRO OCULTO ANUAL'}</div>
-          <div class="financial-value">${formatCurrency(result.lucroOculto)}<span class="financial-period">/ano</span></div>
+          <div class="financial-label">${lucroLabel.toUpperCase()}</div>
+          <div class="financial-value">${result.lucroOcultoDisplay}<span class="financial-period">/ano</span></div>
           <div class="financial-note">Cálculo baseado em benchmarks conservadores de mercado para o seu segmento.</div>
         </div>
 
+        <div class="stage-message">
+          <p>"${stageMessage}"</p>
+        </div>
+
         <div class="cta">
-          Workshop 26/Fev - A Arquitetura do Ativo de Comunidade
+          Workshop ${WORKSHOP_DATE} - A Arquitetura do Ativo de Comunidade
         </div>
 
         <div class="footer">
           <p>© 2026 KOSMOS. Todos os direitos reservados.</p>
-          <p>Este relatório foi gerado em ${new Date().toLocaleDateString('pt-BR')} para ${result.email}</p>
+          <p>Este relatório foi gerado em ${new Date().toLocaleDateString('pt-BR')}</p>
         </div>
       </div>
     </body>
@@ -267,7 +296,7 @@ export function generatePDF(result: AuditResult) {
   if (printWindow) {
     printWindow.document.write(htmlContent);
     printWindow.document.close();
-    
+
     // Wait for content to load then trigger print
     printWindow.onload = () => {
       printWindow.print();

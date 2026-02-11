@@ -2,11 +2,18 @@ import { useState } from 'react';
 import { WelcomeScreen } from './WelcomeScreen';
 import { QuestionScreen } from './QuestionScreen';
 import { ResultScreen } from './ResultScreen';
-import { questions, AuditAnswers, calculateAuditResult, AuditResult } from '@/modules/kosmos-score/lib/auditQuestions';
+import {
+  questions,
+  AuditAnswers,
+  AuditAnswer,
+  AuditResult,
+  calculateAuditResult,
+  getAnswerValue,
+  getAnswerNumericValue,
+} from '@/modules/kosmos-score/lib/auditQuestionsV2';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { generatePDF } from '@/modules/kosmos-score/lib/pdfGenerator';
-import type { TablesInsert } from '@/integrations/supabase/types';
 
 type AuditStep = 'welcome' | 'questions' | 'result';
 
@@ -24,11 +31,11 @@ export function AuditFlow() {
     setStep('questions');
   };
 
-  const handleAnswer = (value: string, numericValue: number) => {
+  const handleAnswer = (answer: AuditAnswer) => {
     const questionId = questions[currentQuestionIndex].id;
     setAnswers((prev) => ({
       ...prev,
-      [questionId]: { value, numericValue },
+      [questionId]: answer,
     }));
   };
 
@@ -53,39 +60,71 @@ export function AuditFlow() {
   const saveAuditResult = async (auditResult: AuditResult) => {
     setIsSaving(true);
     try {
-      const insertData: TablesInsert<'audit_results'> = {
+      // Build insert data for V2
+      const insertData = {
         email: auditResult.email,
-        // Quantitative data
-        base_size: answers[1]?.value || '',
-        base_value: answers[1]?.numericValue || 0,
-        ticket_medio: answers[2]?.value || '',
-        ticket_value: answers[2]?.numericValue || 0,
-        num_ofertas: answers[3]?.value || '',
-        ofertas_multiplier: answers[3]?.numericValue || 1,
-        frequencia_comunicacao: answers[4]?.value || '',
-        comunicacao_multiplier: answers[4]?.numericValue || 0.5,
-        // Causa
-        razao_compra: answers[5]?.value || '',
-        razao_compra_score: answers[5]?.numericValue || 0,
-        identidade_comunidade: answers[6]?.value || '',
-        identidade_score: answers[6]?.numericValue || 0,
-        // Cultura
-        autonomia_comunidade: answers[7]?.value || '',
-        autonomia_score: answers[7]?.numericValue || 0,
-        rituais_jornada: answers[8]?.value || '',
-        rituais_score: answers[8]?.numericValue || 0,
-        // Economia
-        oferta_ascensao: answers[9]?.value || '',
-        ascensao_score: answers[9]?.numericValue || 0,
-        recorrencia: answers[10]?.value || '',
-        recorrencia_score: answers[10]?.numericValue || 0,
-        // Calculated scores
-        score_causa: auditResult.scoreCausa,
-        score_cultura: auditResult.scoreCultura,
+        version: 2,
+
+        // BLOCO 1: Perfil
+        business_category: auditResult.businessCategory,
+        stage: auditResult.stage,
+        niche: auditResult.niche,
+        instagram_handle: auditResult.instagramHandle,
+        time_selling: auditResult.timeSelling,
+
+        // BLOCO 2: Quantitativo
+        base_size: getAnswerValue(answers[6]),
+        base_value: auditResult.baseValue,
+        ticket_medio: getAnswerValue(answers[7]),
+        ticket_value: auditResult.ticketValue,
+        num_ofertas: getAnswerValue(answers[8]),
+        ofertas_multiplier: getAnswerNumericValue(answers[8]) / 100, // Normalize
+        monthly_revenue: getAnswerValue(answers[9]),
+        monthly_revenue_value: auditResult.monthlyRevenue,
+
+        // BLOCO 3: Movimento (antigo Causa)
+        referral_perception: getAnswerValue(answers[10]),
+        referral_perception_score: getAnswerNumericValue(answers[10]),
+        mission_identification: getAnswerValue(answers[11]),
+        mission_identification_score: getAnswerNumericValue(answers[11]),
+
+        // BLOCO 4: Estrutura (antigo Cultura)
+        frequencia_comunicacao: getAnswerValue(answers[12]),
+        comunicacao_multiplier: getAnswerNumericValue(answers[12]) / 100,
+        member_interactions: getAnswerValue(answers[13]),
+        member_interactions_score: getAnswerNumericValue(answers[13]),
+        rituals_multi: answers[14]?.type === 'multi' ? answers[14].values : [],
+        rituals_multi_score: getAnswerNumericValue(answers[14]),
+
+        // BLOCO 5: Economia
+        oferta_ascensao: getAnswerValue(answers[15]),
+        ascensao_score: getAnswerNumericValue(answers[15]),
+        recorrencia: getAnswerValue(answers[16]),
+        recorrencia_score: getAnswerNumericValue(answers[16]),
+
+        // BLOCO 6: Voz do Cliente
+        main_obstacle: auditResult.mainObstacle,
+        workshop_motivation: auditResult.workshopMotivation,
+
+        // Scores calculados
+        score_movimento: auditResult.scoreMovimento,
+        score_estrutura: auditResult.scoreEstrutura,
         score_economia: auditResult.scoreEconomia,
         kosmos_asset_score: auditResult.kosmosAssetScore,
-        lucro_oculto: auditResult.lucroOculto,
-        is_beginner: auditResult.isBeginner,
+
+        // V1 compatibility (map to old columns)
+        score_causa: auditResult.scoreMovimento,
+        score_cultura: auditResult.scoreEstrutura,
+
+        // Resultado
+        result_profile: auditResult.resultProfile,
+        lucro_oculto_min: auditResult.lucroOcultoMin,
+        lucro_oculto_max: auditResult.lucroOcultoMax,
+        lucro_oculto_display: auditResult.lucroOcultoDisplay,
+        lucro_oculto: auditResult.lucroOcultoMax, // V1 compatibility
+
+        // Flags
+        is_beginner: auditResult.stage === 'construindo',
       };
 
       const { error } = await supabase.from('audit_results').insert(insertData);
