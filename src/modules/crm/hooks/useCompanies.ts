@@ -10,7 +10,6 @@ import type {
   PaginationParams,
   PaginatedResult,
 } from '../types';
-import { KOSMOS_ORG_ID } from '@/core/auth';
 
 const DEFAULT_PER_PAGE = 20;
 
@@ -21,13 +20,23 @@ interface UseCompaniesParams {
 }
 
 export function useCompanies({
-  organizationId = KOSMOS_ORG_ID,
+  organizationId,
   filters = {},
   pagination = { page: 1, per_page: DEFAULT_PER_PAGE },
 }: UseCompaniesParams = {}) {
   return useQuery({
     queryKey: ['companies', organizationId, filters, pagination],
     queryFn: async (): Promise<PaginatedResult<CompanyListItem>> => {
+      if (!organizationId) {
+        return {
+          data: [],
+          total: 0,
+          page: pagination.page,
+          per_page: pagination.per_page,
+          total_pages: 0,
+        };
+      }
+      
       let query = supabase
         .from('companies')
         .select('*', { count: 'exact' })

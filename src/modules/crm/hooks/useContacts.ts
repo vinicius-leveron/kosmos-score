@@ -8,7 +8,6 @@ import type {
   PaginatedResult,
   ContactFormData,
 } from '../types';
-import { KOSMOS_ORG_ID } from '@/core/auth';
 const DEFAULT_PER_PAGE = 20;
 
 interface UseContactsParams {
@@ -19,7 +18,7 @@ interface UseContactsParams {
 }
 
 export function useContacts({
-  organizationId = KOSMOS_ORG_ID,
+  organizationId,
   filters = {},
   sort = { field: 'created_at', direction: 'desc' },
   pagination = { page: 1, per_page: DEFAULT_PER_PAGE },
@@ -27,6 +26,16 @@ export function useContacts({
   return useQuery({
     queryKey: ['contacts', organizationId, filters, sort, pagination],
     queryFn: async (): Promise<PaginatedResult<ContactListItem>> => {
+      if (!organizationId) {
+        return {
+          data: [],
+          total: 0,
+          page: pagination.page,
+          per_page: pagination.per_page,
+          total_pages: 0,
+        };
+      }
+      
       // Build the query with tags included to avoid N+1
       let query = supabase
         .from('contact_orgs')

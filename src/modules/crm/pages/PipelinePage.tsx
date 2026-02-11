@@ -22,7 +22,7 @@ export function PipelinePage() {
     }
   }, [defaultPipeline, selectedPipeline]);
 
-  const { data: boardData } = usePipelineBoard(selectedPipeline?.id);
+  const { data: boardData } = usePipelineBoard(selectedPipeline?.id, organizationId);
 
   const handleSelectPipeline = (pipeline: Pipeline) => {
     setSelectedPipeline(pipeline);

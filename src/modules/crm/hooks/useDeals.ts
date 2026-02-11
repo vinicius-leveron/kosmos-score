@@ -13,7 +13,6 @@ import type {
   PaginationParams,
   PaginatedResult,
 } from '../types';
-import { KOSMOS_ORG_ID } from '@/core/auth';
 
 const DEFAULT_PER_PAGE = 20;
 
@@ -24,13 +23,23 @@ interface UseDealsParams {
 }
 
 export function useDeals({
-  organizationId = KOSMOS_ORG_ID,
+  organizationId,
   filters = {},
   pagination = { page: 1, per_page: DEFAULT_PER_PAGE },
 }: UseDealsParams = {}) {
   return useQuery({
     queryKey: ['deals', organizationId, filters, pagination],
     queryFn: async (): Promise<PaginatedResult<DealListItem>> => {
+      if (!organizationId) {
+        return {
+          data: [],
+          total: 0,
+          page: pagination.page,
+          per_page: pagination.per_page,
+          total_pages: 0,
+        };
+      }
+      
       let query = supabase
         .from('deals')
         .select(`
@@ -134,10 +143,20 @@ export function useDeals({
   });
 }
 
-export function useDealBoard(pipelineId: string, organizationId: string = KOSMOS_ORG_ID) {
+export function useDealBoard(pipelineId: string, organizationId: string | null) {
   return useQuery({
     queryKey: ['deal-board', pipelineId, organizationId],
     queryFn: async (): Promise<DealBoardData> => {
+      if (!organizationId) {
+        return {
+          pipeline_id: pipelineId,
+          pipeline_name: '',
+          columns: [],
+          total_value: 0,
+          total_deals: 0,
+        };
+      }
+      
       // Get pipeline stages
       const { data: stages, error: stagesError } = await supabase
         .from('pipeline_stages')

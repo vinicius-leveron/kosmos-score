@@ -8,11 +8,11 @@ import type {
   PipelineBoardColumn,
 } from '../types';
 
-export function usePipelineBoard(pipelineId: string | undefined) {
+export function usePipelineBoard(pipelineId: string | undefined, organizationId: string | null) {
   return useQuery({
-    queryKey: ['pipeline-board', pipelineId],
+    queryKey: ['pipeline-board', pipelineId, organizationId],
     queryFn: async (): Promise<PipelineBoardData | null> => {
-      if (!pipelineId) return null;
+      if (!pipelineId || !organizationId) return null;
 
       // Get pipeline
       const { data: pipeline, error: pipelineError } = await supabase
@@ -44,6 +44,7 @@ export function usePipelineBoard(pipelineId: string | undefined) {
             id,
             score,
             status,
+            organization_id,
             contacts!inner (
               email,
               full_name
@@ -51,6 +52,7 @@ export function usePipelineBoard(pipelineId: string | undefined) {
           )
         `)
         .eq('pipeline_id', pipelineId)
+        .eq('contact_orgs.organization_id', organizationId)
         .eq('contact_orgs.status', 'active');
 
       if (positionsError) throw positionsError;
@@ -116,7 +118,7 @@ export function usePipelineBoard(pipelineId: string | undefined) {
         totalContacts,
       };
     },
-    enabled: !!pipelineId,
+    enabled: !!pipelineId && !!organizationId,
     staleTime: 30 * 1000,
   });
 }

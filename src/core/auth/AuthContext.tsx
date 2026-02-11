@@ -162,39 +162,130 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // TEMPORARY: Skip profile/memberships fetch - just authenticate
-    // The queries are hanging for unknown reasons
-    console.log('[Auth] Setting authenticated state immediately (skipping DB queries)');
+    try {
+      // Fetch user profile with timeout
+      const profilePromise = supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      const profileTimeout = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
+      );
+      
+      const { data: profile, error: profileError } = await Promise.race([
+        profilePromise,
+        profileTimeout
+      ]).catch(err => ({ data: null, error: err })) as any;
 
-    // Create a basic profile from user data
-    const basicProfile: UserProfile = {
-      id: user.id,
-      email: user.email || '',
-      full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-      avatar_url: user.user_metadata?.avatar_url || null,
-      phone: null,
-      preferences: {},
-    };
+      if (profileError) {
+        console.warn('[Auth] Profile fetch failed:', profileError);
+      }
 
-    // Create a default KOSMOS membership
-    const defaultMembership: OrgMembership = {
-      organization_id: KOSMOS_ORG_ID,
-      organization_name: 'KOSMOS',
-      organization_slug: 'kosmos',
-      organization_type: 'master',
-      role: 'owner',
-    };
+      // Fetch user memberships with timeout
+      const membershipsPromise = supabase
+        .from('org_members')
+        .select(`
+          organizations (
+            id,
+            organization_name,
+            organization_slug,
+            organization_type
+          ),
+          role
+        `)
+        .eq('profile_id', user.id);
+      
+      const membershipsTimeout = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Memberships fetch timeout')), 5000)
+      );
+      
+      const { data: membershipData, error: membershipError } = await Promise.race([
+        membershipsPromise,
+        membershipsTimeout
+      ]).catch(err => ({ data: null, error: err })) as any;
 
-    setState({
-      user,
-      profile: basicProfile,
-      memberships: [defaultMembership],
-      currentOrg: defaultMembership,
-      isLoading: false,
-      isAuthenticated: true,
-    });
+      if (membershipError) {
+        console.warn('[Auth] Memberships fetch failed:', membershipError);
+      }
 
-    console.log('[Auth] Auth state set successfully');
+      // Process memberships
+      const memberships: OrgMembership[] = membershipData?.map((m: any) => ({
+        organization_id: m.organizations.id,
+        organization_name: m.organizations.organization_name,
+        organization_slug: m.organizations.organization_slug,
+        organization_type: m.organizations.organization_type,
+        role: m.role,
+      })) || [];
+
+      // If no memberships, create default KOSMOS membership
+      if (memberships.length === 0) {
+        memberships.push({
+          organization_id: KOSMOS_ORG_ID,
+          organization_name: 'KOSMOS',
+          organization_slug: 'kosmos',
+          organization_type: 'master',
+          role: 'owner',
+        });
+      }
+
+      // Set current organization
+      const savedOrgId = localStorage.getItem(CURRENT_ORG_KEY);
+      const currentOrg = savedOrgId
+        ? memberships.find((m) => m.organization_id === savedOrgId) || memberships[0]
+        : getDefaultOrg(memberships);
+
+      // Use fetched profile or create basic one
+      const userProfile: UserProfile = profile || {
+        id: user.id,
+        email: user.email || '',
+        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+        avatar_url: user.user_metadata?.avatar_url || null,
+        phone: null,
+        preferences: {},
+      };
+
+      setState({
+        user,
+        profile: userProfile,
+        memberships,
+        currentOrg,
+        isLoading: false,
+        isAuthenticated: true,
+      });
+
+      console.log('[Auth] Auth state initialized with org:', currentOrg?.organization_name);
+    } catch (error) {
+      console.error('[Auth] Critical error during initialization:', error);
+      
+      // Fallback to basic auth
+      const basicProfile: UserProfile = {
+        id: user.id,
+        email: user.email || '',
+        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+        avatar_url: user.user_metadata?.avatar_url || null,
+        phone: null,
+        preferences: {},
+      };
+
+      const defaultMembership: OrgMembership = {
+        organization_id: KOSMOS_ORG_ID,
+        organization_name: 'KOSMOS',
+        organization_slug: 'kosmos',
+        organization_type: 'master',
+        role: 'owner',
+      };
+
+      setState({
+        user,
+        profile: basicProfile,
+        memberships: [defaultMembership],
+        currentOrg: defaultMembership,
+        isLoading: false,
+        isAuthenticated: true,
+      });
+    }
   }, []);
 
   // Listen for auth state changes
