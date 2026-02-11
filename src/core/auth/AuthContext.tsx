@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Add timeout to prevent infinite hang
     const timeoutPromise = new Promise<OrgMembership[]>((_, reject) => {
-      setTimeout(() => reject(new Error('Memberships fetch timeout after 5s')), 5000);
+      setTimeout(() => reject(new Error('Memberships fetch timeout after 15s')), 15000);
     });
 
     const fetchPromise = (async () => {
@@ -171,7 +171,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single();
       
       const profileTimeout = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 15000)
       );
       
       const { data: profile, error: profileError } = await Promise.race([
@@ -198,7 +198,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .eq('profile_id', user.id);
       
       const membershipsTimeout = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Memberships fetch timeout')), 5000)
+        setTimeout(() => reject(new Error('Memberships fetch timeout')), 15000)
       );
       
       const { data: membershipData, error: membershipError } = await Promise.race([
