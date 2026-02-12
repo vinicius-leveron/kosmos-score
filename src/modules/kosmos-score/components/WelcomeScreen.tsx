@@ -64,9 +64,9 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
 
             {/* Headline */}
             <h1 className="font-display text-3xl md:text-4xl font-bold text-kosmos-white text-center mb-4 leading-tight">
-              Descubra quanto dinheiro está{' '}
-              <span className="text-kosmos-orange">dormindo</span>{' '}
-              na sua base
+              Descubra o valor{' '}
+              <span className="text-kosmos-orange">oculto</span>{' '}
+              da sua base de clientes
             </h1>
 
             {/* Subheadline */}
