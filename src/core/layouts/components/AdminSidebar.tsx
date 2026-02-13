@@ -14,6 +14,13 @@ import {
   BarChart3,
   TrendingUp,
   Target,
+  DollarSign,
+  ArrowDownLeft,
+  ArrowUpRight,
+  FileText,
+  FolderTree,
+  Landmark,
+  GitCompareArrows,
 } from 'lucide-react';
 import { useAuth, useOrganization } from '@/core/auth';
 import {
@@ -79,6 +86,20 @@ const navigationGroups: NavGroup[] = [
       { title: 'Empresas', href: '/admin/crm/companies', icon: Building2 },
       { title: 'Deals', href: '/admin/crm/deals/board', icon: Target },
       { title: 'Pipeline', href: '/admin/crm/pipeline', icon: Kanban },
+    ],
+  },
+  {
+    label: 'Financeiro',
+    icon: DollarSign,
+    items: [
+      { title: 'Dashboard', href: '/admin/financial', icon: BarChart3 },
+      { title: 'Contas a Receber', href: '/admin/financial/receivables', icon: ArrowDownLeft },
+      { title: 'Contas a Pagar', href: '/admin/financial/payables', icon: ArrowUpRight },
+      { title: 'Fluxo de Caixa', href: '/admin/financial/cashflow', icon: TrendingUp },
+      { title: 'DRE', href: '/admin/financial/dre', icon: FileText },
+      { title: 'Categorias', href: '/admin/financial/categories', icon: FolderTree },
+      { title: 'Contas Bancárias', href: '/admin/financial/accounts', icon: Landmark },
+      { title: 'Conciliação', href: '/admin/financial/reconciliation', icon: GitCompareArrows },
     ],
   },
   {
