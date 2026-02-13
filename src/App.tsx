@@ -47,6 +47,16 @@ const AdminBenchmarksPage = lazy(() => import("./modules/benchmarking").then(m =
 const AdminBenchmarkFormPage = lazy(() => import("./modules/benchmarking").then(m => ({ default: m.AdminBenchmarkFormPage })));
 const ClientBenchmarkPage = lazy(() => import("./modules/benchmarking").then(m => ({ default: m.ClientBenchmarkPage })));
 
+// Financial module pages - Lazy loaded
+const FinancialDashboardPage = lazy(() => import("./modules/financial/pages").then(m => ({ default: m.FinancialDashboardPage })));
+const ReceivablesPage = lazy(() => import("./modules/financial/pages").then(m => ({ default: m.ReceivablesPage })));
+const PayablesPage = lazy(() => import("./modules/financial/pages").then(m => ({ default: m.PayablesPage })));
+const CashFlowPage = lazy(() => import("./modules/financial/pages").then(m => ({ default: m.CashFlowPage })));
+const DrePage = lazy(() => import("./modules/financial/pages").then(m => ({ default: m.DrePage })));
+const FinancialCategoriesPage = lazy(() => import("./modules/financial/pages").then(m => ({ default: m.CategoriesPage })));
+const FinancialAccountsPage = lazy(() => import("./modules/financial/pages").then(m => ({ default: m.AccountsPage })));
+const ReconciliationPage = lazy(() => import("./modules/financial/pages").then(m => ({ default: m.ReconciliationPage })));
+
 // Loading component for lazy loaded pages
 import { PageLoader } from "@/design-system/components/PageLoader";
 
@@ -97,6 +107,15 @@ const App = () => (
               <Route path="benchmarks" element={<Suspense fallback={<PageLoader />}><AdminBenchmarksPage /></Suspense>} />
               <Route path="benchmarks/new" element={<Suspense fallback={<PageLoader />}><AdminBenchmarkFormPage /></Suspense>} />
               <Route path="benchmarks/:id/edit" element={<Suspense fallback={<PageLoader />}><AdminBenchmarkFormPage /></Suspense>} />
+              {/* Financial module */}
+              <Route path="financial" element={<Suspense fallback={<PageLoader />}><FinancialDashboardPage /></Suspense>} />
+              <Route path="financial/receivables" element={<Suspense fallback={<PageLoader />}><ReceivablesPage /></Suspense>} />
+              <Route path="financial/payables" element={<Suspense fallback={<PageLoader />}><PayablesPage /></Suspense>} />
+              <Route path="financial/cashflow" element={<Suspense fallback={<PageLoader />}><CashFlowPage /></Suspense>} />
+              <Route path="financial/dre" element={<Suspense fallback={<PageLoader />}><DrePage /></Suspense>} />
+              <Route path="financial/categories" element={<Suspense fallback={<PageLoader />}><FinancialCategoriesPage /></Suspense>} />
+              <Route path="financial/accounts" element={<Suspense fallback={<PageLoader />}><FinancialAccountsPage /></Suspense>} />
+              <Route path="financial/reconciliation" element={<Suspense fallback={<PageLoader />}><ReconciliationPage /></Suspense>} />
             </Route>
 
             {/* CLIENT PORTAL */}
