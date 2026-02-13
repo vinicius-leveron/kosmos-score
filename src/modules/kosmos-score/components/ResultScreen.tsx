@@ -2,6 +2,9 @@ import { Button } from '@/design-system/primitives/button';
 import { Download, Share2, MessageCircle } from 'lucide-react';
 import { AuditResult, getClassificationInfo, getPillarDiagnosis } from '@/modules/kosmos-score/lib/auditQuestions';
 import { cn } from '@/design-system/lib/utils';
+import { useMarketBenchmarks, useIndividualPercentile } from '@/modules/kosmos-score/hooks/useMarketBenchmarks';
+import { hasMarketData } from '@/modules/kosmos-score/lib/benchmarkTypes';
+import { BenchmarkComparisonSection } from './BenchmarkComparisonSection';
 
 interface ResultScreenProps {
   result: AuditResult;
@@ -15,6 +18,17 @@ export function ResultScreen({ result, onDownloadPDF, onShare, onJoinGroup }: Re
   const causaDiagnosis = getPillarDiagnosis('causa', result.scoreCausa);
   const culturaDiagnosis = getPillarDiagnosis('cultura', result.scoreCultura);
   const economiaDiagnosis = getPillarDiagnosis('economia', result.scoreEconomia);
+
+  // Fetch benchmark data
+  const { data: marketData } = useMarketBenchmarks();
+  const { data: percentileData } = useIndividualPercentile(
+    result.scoreCausa,
+    result.scoreCultura,
+    result.scoreEconomia,
+    result.kosmosAssetScore,
+  );
+
+  const hasBenchmarkData = marketData && hasMarketData(marketData) && percentileData?.percentile_total != null;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -163,6 +177,15 @@ export function ResultScreen({ result, onDownloadPDF, onShare, onJoinGroup }: Re
             </div>
           </div>
         </div>
+
+        {/* Benchmark Comparison - "Como você se compara" */}
+        {hasBenchmarkData && (
+          <BenchmarkComparisonSection
+            result={result}
+            market={marketData}
+            percentiles={percentileData}
+          />
+        )}
 
         {/* Financial Result */}
         <div className="relative animate-fade-in" style={{ animationDelay: '200ms' }}>
