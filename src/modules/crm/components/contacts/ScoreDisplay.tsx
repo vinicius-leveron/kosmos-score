@@ -17,8 +17,8 @@ interface ScoreDisplayProps {
 }
 
 const PILLAR_COLORS = {
-  causa: '#FF4500',
-  cultura: '#A855F7',
+  movimento: '#FF4500',
+  estrutura: '#A855F7',
   economia: '#3B82F6',
 };
 
@@ -50,10 +50,10 @@ function PillarBar({ label, value, color }: PillarBarProps) {
   );
 }
 
-function ScoreRadar({ causa, cultura, economia }: { causa: number; cultura: number; economia: number }) {
+function ScoreRadar({ movimento, estrutura, economia }: { movimento: number; estrutura: number; economia: number }) {
   const chartData = [
-    { pillar: 'Causa', score: Math.round(causa), fullMark: 100 },
-    { pillar: 'Cultura', score: Math.round(cultura), fullMark: 100 },
+    { pillar: 'Movimento', score: Math.round(movimento), fullMark: 100 },
+    { pillar: 'Estrutura', score: Math.round(estrutura), fullMark: 100 },
     { pillar: 'Economia', score: Math.round(economia), fullMark: 100 },
   ];
 
@@ -95,11 +95,14 @@ function ScoreRadar({ causa, cultura, economia }: { causa: number; cultura: numb
 }
 
 export function ScoreDisplay({ scoreBreakdown, className, showRadar = true }: ScoreDisplayProps) {
-  const causa = scoreBreakdown.causa ?? 0;
-  const cultura = scoreBreakdown.cultura ?? 0;
+  // V2 names with V1 fallback
+  const movimento = scoreBreakdown.movimento ?? scoreBreakdown.causa ?? 0;
+  const estrutura = scoreBreakdown.estrutura ?? scoreBreakdown.cultura ?? 0;
   const economia = scoreBreakdown.economia ?? 0;
 
   const hasPillars =
+    scoreBreakdown.movimento !== undefined ||
+    scoreBreakdown.estrutura !== undefined ||
     scoreBreakdown.causa !== undefined ||
     scoreBreakdown.cultura !== undefined ||
     scoreBreakdown.economia !== undefined;
@@ -108,28 +111,33 @@ export function ScoreDisplay({ scoreBreakdown, className, showRadar = true }: Sc
     return null;
   }
 
+  const lucroDisplay = scoreBreakdown.lucro_oculto_display
+    ?? (scoreBreakdown.lucro_oculto !== undefined
+      ? `R$ ${scoreBreakdown.lucro_oculto.toLocaleString('pt-BR')}`
+      : null);
+
   return (
     <div className={cn('space-y-4', className)}>
       <h4 className="text-sm font-medium">Score por Pilar</h4>
 
-      {showRadar && (causa > 0 || cultura > 0 || economia > 0) && (
-        <ScoreRadar causa={causa} cultura={cultura} economia={economia} />
+      {showRadar && (movimento > 0 || estrutura > 0 || economia > 0) && (
+        <ScoreRadar movimento={movimento} estrutura={estrutura} economia={economia} />
       )}
 
       <div className="space-y-3">
         <PillarBar
-          label="Causa"
-          value={scoreBreakdown.causa}
-          color={PILLAR_COLORS.causa}
+          label="Movimento"
+          value={movimento}
+          color={PILLAR_COLORS.movimento}
         />
         <PillarBar
-          label="Cultura"
-          value={scoreBreakdown.cultura}
-          color={PILLAR_COLORS.cultura}
+          label="Estrutura"
+          value={estrutura}
+          color={PILLAR_COLORS.estrutura}
         />
         <PillarBar
           label="Economia"
-          value={scoreBreakdown.economia}
+          value={economia}
           color={PILLAR_COLORS.economia}
         />
       </div>
@@ -144,15 +152,24 @@ export function ScoreDisplay({ scoreBreakdown, className, showRadar = true }: Sc
             </span>
           </div>
         )}
-        {scoreBreakdown.lucro_oculto !== undefined && (
+        {lucroDisplay && (
           <div className="text-sm">
             <span className="text-muted-foreground">Lucro Oculto:</span>
             <span className="ml-2 font-medium text-green-500">
-              R$ {scoreBreakdown.lucro_oculto.toLocaleString('pt-BR')}
+              {lucroDisplay}
             </span>
           </div>
         )}
       </div>
+
+      {scoreBreakdown.result_profile && (
+        <div className="text-sm">
+          <span className="text-muted-foreground">Perfil:</span>
+          <span className="ml-2 font-medium capitalize">
+            {scoreBreakdown.result_profile.replace(/_/g, ' ')}
+          </span>
+        </div>
+      )}
 
       {scoreBreakdown.is_beginner && (
         <div className="text-sm text-muted-foreground italic">
