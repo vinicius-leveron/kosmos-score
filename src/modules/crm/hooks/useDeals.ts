@@ -37,7 +37,7 @@ export function useDeals({
         .from('deals')
         .select(`
           *,
-          companies (
+          companies!company_id (
             id,
             name,
             domain,
@@ -175,7 +175,7 @@ export function useDealBoard(pipelineId: string, organizationId: string | null) 
           status,
           stage_id,
           entered_stage_at,
-          companies (
+          companies!company_id (
             id,
             name,
             domain,
@@ -257,7 +257,7 @@ export function useDealDetail(dealId: string) {
         .from('deals')
         .select(`
           *,
-          companies (
+          companies!company_id (
             id,
             name,
             domain,
