@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { WelcomeScreen } from './WelcomeScreen';
 import { QuestionScreen } from './QuestionScreen';
 import { ResultScreen } from './ResultScreen';
@@ -14,6 +14,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { generatePDF } from '@/modules/kosmos-score/lib/pdfGenerator';
+import { useEmbedMessaging } from '../hooks/useEmbedMessaging';
 
 type AuditStep = 'welcome' | 'questions' | 'result';
 
@@ -25,10 +26,17 @@ export function AuditFlow() {
   const [result, setResult] = useState<AuditResult | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+  const { isEmbed, notifyStep, notifyComplete } = useEmbedMessaging();
+
+  // Notify parent of initial step
+  useEffect(() => {
+    notifyStep('welcome');
+  }, [notifyStep]);
 
   const handleStart = (userEmail: string) => {
     setEmail(userEmail);
     setStep('questions');
+    notifyStep('questions');
   };
 
   const handleAnswer = (answer: AuditAnswer) => {
@@ -48,6 +56,12 @@ export function AuditFlow() {
       setResult(auditResult);
       await saveAuditResult(auditResult);
       setStep('result');
+      notifyStep('result');
+      notifyComplete({
+        email: auditResult.email,
+        score: Math.round(auditResult.kosmosAssetScore),
+        profile: auditResult.resultProfile,
+      });
     }
   };
 
@@ -157,15 +171,16 @@ export function AuditFlow() {
   const handleShare = () => {
     if (result) {
       const shareText = `Meu KOSMOS Asset Score é ${Math.round(result.kosmosAssetScore)}/100. E o seu? Faça sua Auditoria de Lucro Oculto:`;
-      const shareUrl = window.location.href;
+      const shareUrl = isEmbed
+        ? `${window.location.origin}/#/quiz/kosmos-score`
+        : window.location.href;
 
-      if (navigator.share) {
+      if (!isEmbed && navigator.share) {
         navigator.share({
           title: 'KOSMOS Asset Score',
           text: shareText,
           url: shareUrl,
         }).catch(() => {
-          // Fallback to clipboard
           copyToClipboard(shareText, shareUrl);
         });
       } else {
@@ -184,8 +199,8 @@ export function AuditFlow() {
   };
 
   const handleJoinGroup = () => {
-    // Replace with actual WhatsApp group link
-    window.open('https://chat.whatsapp.com/YOUR_GROUP_LINK', '_blank');
+    const url = 'https://chat.whatsapp.com/YOUR_GROUP_LINK';
+    window.open(url, isEmbed ? '_top' : '_blank');
   };
 
   if (step === 'welcome') {
