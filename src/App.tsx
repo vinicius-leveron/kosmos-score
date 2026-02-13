@@ -23,7 +23,7 @@ import Index from "./pages/Index"; // KOSMOS Score quiz
 import { EmbedKosmosScore } from "./pages/EmbedKosmosScore";
 
 // Admin pages
-import { DashboardPage, LeadMagnetsPage } from "./pages/admin";
+import { DashboardPage, LeadMagnetsPage, LeadMagnetAnalyticsPage } from "./pages/admin";
 
 // Admin module pages - Lazy loaded for performance
 const AdminResults = lazy(() => import("./modules/kosmos-score/pages").then(m => ({ default: m.AdminResults })));
@@ -90,6 +90,7 @@ const App = () => (
             >
               <Route index element={<DashboardPage />} />
               <Route path="lead-magnets" element={<LeadMagnetsPage />} />
+              <Route path="lead-magnets/:type/analytics" element={<LeadMagnetAnalyticsPage />} />
               <Route path="kosmos-score" element={<Suspense fallback={<PageLoader />}><KosmosScoreDashboard /></Suspense>} />
               <Route path="kosmos-score/results" element={<Suspense fallback={<PageLoader />}><AdminResults /></Suspense>} />
               <Route path="crm" element={<Suspense fallback={<PageLoader />}><CrmDashboardPage /></Suspense>} />
