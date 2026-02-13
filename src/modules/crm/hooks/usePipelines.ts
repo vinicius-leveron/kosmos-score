@@ -118,7 +118,8 @@ export function useDefaultPipeline(organizationId?: string | null) {
             .from('pipelines')
             .insert({
               organization_id: organizationId!,
-              name: 'Pipeline de Vendas',
+              name: 'sales',
+              display_name: 'Pipeline de Vendas',
               description: 'Pipeline padrão para gerenciar vendas',
               position: 0,
               is_default: true,
