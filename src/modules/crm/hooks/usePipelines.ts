@@ -131,11 +131,11 @@ export function useDefaultPipeline(organizationId?: string | null) {
 
           // Create default stages
           const defaultStages = [
-            { name: 'Novo', color: '#3B82F6', position: 0 },
-            { name: 'Qualificação', color: '#F59E0B', position: 1 },
-            { name: 'Proposta', color: '#8B5CF6', position: 2 },
-            { name: 'Negociação', color: '#EC4899', position: 3 },
-            { name: 'Fechado', color: '#10B981', position: 4 },
+            { name: 'novo', display_name: 'Novo', color: '#3B82F6', position: 0 },
+            { name: 'qualificacao', display_name: 'Qualificação', color: '#F59E0B', position: 1 },
+            { name: 'proposta', display_name: 'Proposta', color: '#8B5CF6', position: 2 },
+            { name: 'negociacao', display_name: 'Negociação', color: '#EC4899', position: 3 },
+            { name: 'fechado', display_name: 'Fechado', color: '#10B981', position: 4 },
           ];
 
           await supabase
@@ -189,6 +189,7 @@ export function useCreatePipeline() {
         .insert({
           organization_id: organizationId,
           name: data.name,
+          display_name: data.display_name || data.name,
           description: data.description || null,
           position,
           is_default: data.is_default || false,
@@ -205,6 +206,7 @@ export function useCreatePipeline() {
           pipeline_id: pipeline.id,
           organization_id: organizationId,
           name: stage.name,
+          display_name: stage.display_name || stage.name,
           color: stage.color,
           position: index,
         }));
