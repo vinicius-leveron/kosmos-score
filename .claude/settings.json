@@ -89,5 +89,6 @@
       "Bash(curl * | bash)",
       "Bash(wget * | bash)"
     ]
-  }
+  },
+  "language": "english"
 }
