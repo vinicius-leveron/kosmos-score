@@ -1,19 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { KOSMOS_ORG_ID } from '@/core/auth';
 import type { Pipeline, PipelineFormData, PipelineWithStages } from '../types';
 
-// Fixed version with proper fallback
 export function usePipelines(organizationId?: string | null) {
-  const orgId = organizationId || KOSMOS_ORG_ID;
-  
   return useQuery({
-    queryKey: ['pipelines', orgId],
+    queryKey: ['pipelines', organizationId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('pipelines')
         .select('*')
-        .eq('organization_id', orgId)
+        .eq('organization_id', organizationId!)
         .eq('is_active', true)
         .order('position', { ascending: true });
 
@@ -21,10 +17,11 @@ export function usePipelines(organizationId?: string | null) {
         console.error('[Pipelines] Error fetching:', error);
         throw error;
       }
-      
-      console.log('[Pipelines] Fetched:', data?.length || 0, 'pipelines for org:', orgId);
+
+      console.log('[Pipelines] Fetched:', data?.length || 0, 'pipelines for org:', organizationId);
       return data as Pipeline[];
     },
+    enabled: !!organizationId,
     staleTime: 5 * 60 * 1000,
     retry: 3,
   });
@@ -83,16 +80,14 @@ export function usePipelineWithStages(pipelineId: string | undefined) {
 }
 
 export function useDefaultPipeline(organizationId?: string | null) {
-  const orgId = organizationId || KOSMOS_ORG_ID;
-  
   return useQuery({
-    queryKey: ['default-pipeline', orgId],
+    queryKey: ['default-pipeline', organizationId],
     queryFn: async () => {
       // Try to get default pipeline
       const { data, error } = await supabase
         .from('pipelines')
         .select('*')
-        .eq('organization_id', orgId)
+        .eq('organization_id', organizationId!)
         .eq('is_default', true)
         .eq('is_active', true)
         .single();
@@ -107,7 +102,7 @@ export function useDefaultPipeline(organizationId?: string | null) {
       const { data: firstPipeline, error: firstError } = await supabase
         .from('pipelines')
         .select('*')
-        .eq('organization_id', orgId)
+        .eq('organization_id', organizationId!)
         .eq('is_active', true)
         .order('position', { ascending: true })
         .limit(1)
@@ -115,14 +110,14 @@ export function useDefaultPipeline(organizationId?: string | null) {
 
       if (firstError) {
         console.error('[Pipeline] Error getting first pipeline:', firstError);
-        
+
         // If still no pipeline, create a default one
         if (firstError.code === 'PGRST116') {
           console.log('[Pipeline] No pipelines found, creating default');
           const { data: newPipeline, error: createError } = await supabase
             .from('pipelines')
             .insert({
-              organization_id: orgId,
+              organization_id: organizationId!,
               name: 'Pipeline de Vendas',
               description: 'Pipeline padrão para gerenciar vendas',
               position: 0,
@@ -131,9 +126,9 @@ export function useDefaultPipeline(organizationId?: string | null) {
             })
             .select()
             .single();
-          
+
           if (createError) throw createError;
-          
+
           // Create default stages
           const defaultStages = [
             { name: 'Novo', color: '#3B82F6', position: 0 },
@@ -142,25 +137,26 @@ export function useDefaultPipeline(organizationId?: string | null) {
             { name: 'Negociação', color: '#EC4899', position: 3 },
             { name: 'Fechado', color: '#10B981', position: 4 },
           ];
-          
+
           await supabase
             .from('pipeline_stages')
             .insert(
               defaultStages.map(stage => ({
                 pipeline_id: newPipeline.id,
-                organization_id: orgId,
+                organization_id: organizationId!,
                 ...stage,
               }))
             );
-          
+
           return newPipeline as Pipeline;
         }
-        
+
         throw firstError;
       }
-      
+
       return firstPipeline as Pipeline;
     },
+    enabled: !!organizationId,
     staleTime: 5 * 60 * 1000,
   });
 }
