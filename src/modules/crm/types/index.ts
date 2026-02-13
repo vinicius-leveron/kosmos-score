@@ -77,13 +77,26 @@ export interface ContactOrg {
 }
 
 export interface ScoreBreakdown {
+  // V2 pillar names (primary)
+  movimento?: number;
+  estrutura?: number;
+  economia?: number;
+  // V1 compat keys
   causa?: number;
   cultura?: number;
-  economia?: number;
+  // Financial
   base_value?: number;
   ticket_value?: number;
   lucro_oculto?: number;
+  lucro_oculto_min?: number;
+  lucro_oculto_max?: number;
+  lucro_oculto_display?: string;
+  // Profile
+  result_profile?: string;
   is_beginner?: boolean;
+  stage?: string;
+  version?: number;
+  // Forms computed data
   computed?: Record<string, unknown>;
 }
 
