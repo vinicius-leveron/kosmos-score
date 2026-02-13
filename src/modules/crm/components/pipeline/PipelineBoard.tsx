@@ -28,8 +28,8 @@ interface PendingMove {
 }
 
 export function PipelineBoard({ pipelineId }: PipelineBoardProps) {
-  const { data, isLoading, error } = usePipelineBoard(pipelineId);
-  const { isKosmosMaster } = useOrganization();
+  const { organizationId, isKosmosMaster } = useOrganization();
+  const { data, isLoading, error } = usePipelineBoard(pipelineId, organizationId);
   const moveContact = useMoveContactInPipeline();
   const [selectedContact, setSelectedContact] = useState<ContactListItem | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
