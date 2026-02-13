@@ -37,9 +37,9 @@ export function PipelinePage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)]">
-      {/* Header fixo */}
-      <div className="flex-shrink-0 border-b bg-background px-6 py-4">
+    <div className="flex flex-col h-[calc(100vh-64px)] overflow-hidden">
+      {/* Header fixo - não faz scroll */}
+      <div className="flex-shrink-0 border-b bg-background px-6 py-4 sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-primary/10">
@@ -52,15 +52,15 @@ export function PipelinePage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <PipelineSelector
               pipelines={pipelines || []}
               selectedPipeline={selectedPipeline}
               onSelect={handleSelectPipeline}
               isLoading={pipelinesLoading}
             />
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               onClick={() => setIsCreatePipelineOpen(true)}
               disabled={!organizationId}
             >
@@ -77,8 +77,8 @@ export function PipelinePage() {
         </div>
       </div>
 
-      {/* Board com scroll */}
-      <div className="flex-1 overflow-hidden">
+      {/* Board com scroll horizontal apenas nas colunas */}
+      <div className="flex-1 min-h-0">
         <PipelineBoard pipelineId={selectedPipeline?.id} />
       </div>
 
