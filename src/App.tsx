@@ -20,6 +20,7 @@ import NotFound from "./pages/NotFound";
 
 // Public pages
 import Index from "./pages/Index"; // KOSMOS Score quiz
+import { EmbedKosmosScore } from "./pages/EmbedKosmosScore";
 
 // Admin pages
 import { DashboardPage, LeadMagnetsPage } from "./pages/admin";
@@ -64,6 +65,7 @@ const App = () => (
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/quiz/kosmos-score" element={<Index />} />
+            <Route path="/embed/kosmos-score" element={<EmbedKosmosScore />} />
             <Route path="/f/:slug" element={<FormPublicPage />} />
             <Route path="/invite/:token" element={<AcceptInvitePage />} />
 

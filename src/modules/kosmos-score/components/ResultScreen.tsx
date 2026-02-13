@@ -9,6 +9,7 @@ import {
   WORKSHOP_DATE,
 } from '@/modules/kosmos-score/lib/auditQuestionsV2';
 import { cn } from '@/design-system/lib/utils';
+import { useEmbed } from '../contexts/EmbedContext';
 
 interface ResultScreenProps {
   result: AuditResult;
@@ -18,6 +19,7 @@ interface ResultScreenProps {
 }
 
 export function ResultScreen({ result, onDownloadPDF, onShare, onJoinGroup }: ResultScreenProps) {
+  const { isEmbed } = useEmbed();
   const profileInfo = getProfileInfo(result.resultProfile);
   const movimentoDiagnosis = getPillarDiagnosis('movimento', result.scoreMovimento);
   const estruturaDiagnosis = getPillarDiagnosis('estrutura', result.scoreEstrutura);
@@ -39,14 +41,21 @@ export function ResultScreen({ result, onDownloadPDF, onShare, onJoinGroup }: Re
   };
 
   return (
-    <div className="min-h-screen bg-kosmos-black blueprint-grid px-4 py-8 md:py-12 relative">
+    <div className={cn(
+      "bg-kosmos-black blueprint-grid px-4 relative",
+      isEmbed ? "min-h-0 py-4" : "min-h-screen py-8 md:py-12"
+    )}>
       {/* Structural Lines */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
 
       {/* Corner Accents - subtle on results page */}
-      <div className="absolute top-6 left-6 w-8 h-8 border-l border-t border-kosmos-orange/20 hidden md:block" />
-      <div className="absolute top-6 right-6 w-8 h-8 border-r border-t border-kosmos-orange/20 hidden md:block" />
+      {!isEmbed && (
+        <>
+          <div className="absolute top-6 left-6 w-8 h-8 border-l border-t border-kosmos-orange/20 hidden md:block" />
+          <div className="absolute top-6 right-6 w-8 h-8 border-r border-t border-kosmos-orange/20 hidden md:block" />
+        </>
+      )}
 
       <div className="w-full max-w-3xl mx-auto space-y-6 relative z-10">
         {/* Header */}
@@ -255,13 +264,15 @@ export function ResultScreen({ result, onDownloadPDF, onShare, onJoinGroup }: Re
         </div>
 
         {/* Footer */}
-        <div className="text-center py-4">
-          <div className="inline-flex items-center gap-2 text-kosmos-gray/40 text-xs">
-            <div className="w-4 h-px bg-kosmos-gray/20" />
-            <span>© 2026 KOSMOS</span>
-            <div className="w-4 h-px bg-kosmos-gray/20" />
+        {!isEmbed && (
+          <div className="text-center py-4">
+            <div className="inline-flex items-center gap-2 text-kosmos-gray/40 text-xs">
+              <div className="w-4 h-px bg-kosmos-gray/20" />
+              <span>© 2026 KOSMOS</span>
+              <div className="w-4 h-px bg-kosmos-gray/20" />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

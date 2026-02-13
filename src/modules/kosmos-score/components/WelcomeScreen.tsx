@@ -2,12 +2,15 @@ import { useState } from 'react';
 import { Button } from '@/design-system/primitives/button';
 import { Input } from '@/design-system/primitives/input';
 import { ArrowRight } from 'lucide-react';
+import { cn } from '@/design-system/lib/utils';
+import { useEmbed } from '../contexts/EmbedContext';
 
 interface WelcomeScreenProps {
   onStart: (email: string) => void;
 }
 
 export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
+  const { isEmbed } = useEmbed();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
 
@@ -30,15 +33,22 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
   };
 
   return (
-    <div className="min-h-screen bg-kosmos-black blueprint-grid flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
+    <div className={cn(
+      "bg-kosmos-black blueprint-grid flex flex-col items-center justify-center px-4 relative overflow-hidden",
+      isEmbed ? "min-h-0 py-6" : "min-h-screen py-12"
+    )}>
       {/* Structural Lines - Top */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
 
       {/* Corner Accents */}
-      <div className="absolute top-8 left-8 w-12 h-12 border-l-2 border-t-2 border-kosmos-orange/40" />
-      <div className="absolute top-8 right-8 w-12 h-12 border-r-2 border-t-2 border-kosmos-orange/40" />
-      <div className="absolute bottom-8 left-8 w-12 h-12 border-l-2 border-b-2 border-kosmos-orange/40" />
-      <div className="absolute bottom-8 right-8 w-12 h-12 border-r-2 border-b-2 border-kosmos-orange/40" />
+      {!isEmbed && (
+        <>
+          <div className="absolute top-8 left-8 w-12 h-12 border-l-2 border-t-2 border-kosmos-orange/40" />
+          <div className="absolute top-8 right-8 w-12 h-12 border-r-2 border-t-2 border-kosmos-orange/40" />
+          <div className="absolute bottom-8 left-8 w-12 h-12 border-l-2 border-b-2 border-kosmos-orange/40" />
+          <div className="absolute bottom-8 right-8 w-12 h-12 border-r-2 border-b-2 border-kosmos-orange/40" />
+        </>
+      )}
 
       <div className="w-full max-w-xl animate-fade-in relative z-10">
         {/* Logo/Brand */}
@@ -123,13 +133,15 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-12">
-          <div className="inline-flex items-center gap-2 text-kosmos-gray/40 text-xs">
-            <div className="w-4 h-px bg-kosmos-gray/20" />
-            <span>© 2026 KOSMOS</span>
-            <div className="w-4 h-px bg-kosmos-gray/20" />
+        {!isEmbed && (
+          <div className="text-center mt-12">
+            <div className="inline-flex items-center gap-2 text-kosmos-gray/40 text-xs">
+              <div className="w-4 h-px bg-kosmos-gray/20" />
+              <span>© 2026 KOSMOS</span>
+              <div className="w-4 h-px bg-kosmos-gray/20" />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Structural Lines - Bottom */}

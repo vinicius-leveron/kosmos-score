@@ -6,6 +6,7 @@ import { Textarea } from '@/design-system/primitives/textarea';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Question, AuditAnswer, getBlockLabel, getPillarLabel } from '@/modules/kosmos-score/lib/auditQuestionsV2';
 import { cn } from '@/design-system/lib/utils';
+import { useEmbed } from '../contexts/EmbedContext';
 
 interface QuestionScreenProps {
   question: Question;
@@ -28,6 +29,7 @@ export function QuestionScreen({
   onPrevious,
   canGoBack,
 }: QuestionScreenProps) {
+  const { isEmbed } = useEmbed();
   const progress = ((currentIndex + 1) / totalQuestions) * 100;
   const isLastQuestion = currentIndex === totalQuestions - 1;
 
@@ -198,7 +200,10 @@ export function QuestionScreen({
   };
 
   return (
-    <div className="min-h-screen bg-kosmos-black blueprint-grid flex flex-col px-4 py-6 md:py-12 relative">
+    <div className={cn(
+      "bg-kosmos-black blueprint-grid flex flex-col px-4 relative",
+      isEmbed ? "min-h-0 py-4" : "min-h-screen py-6 md:py-12"
+    )}>
       {/* Structural Lines */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/20 to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/20 to-transparent" />

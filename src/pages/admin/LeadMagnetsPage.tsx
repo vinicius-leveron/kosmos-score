@@ -12,6 +12,7 @@ import {
   Plus,
   ExternalLink,
 } from 'lucide-react';
+import { EmbedCodeDialog } from '@/modules/kosmos-score/components/EmbedCodeDialog';
 
 interface LeadMagnet {
   id: string;
@@ -129,10 +130,15 @@ export function LeadMagnetsPage() {
                   </Button>
                   {lm.publicUrl && (
                     <Button variant="outline" size="icon" asChild>
-                      <a href={`#${lm.publicUrl}`} target="_blank" rel="noopener noreferrer">
+                      <a href={`#${lm.publicUrl}`} target="_blank" rel="noopener noreferrer" aria-label="Abrir link publico">
                         <ExternalLink className="h-4 w-4" />
                       </a>
                     </Button>
+                  )}
+                  {lm.id === 'kosmos-score' && (
+                    <EmbedCodeDialog
+                      quizUrl={`${window.location.origin}/#/embed/kosmos-score`}
+                    />
                   )}
                 </div>
               </CardContent>
