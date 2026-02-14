@@ -1,13 +1,16 @@
 import { useState } from 'react';
-import { ArrowLeft, Loader2, Settings, Plus } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useJourneyProject, useUpdateProject } from '../hooks';
 import { Button } from '@/design-system/primitives/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/primitives/card';
 import { Badge } from '@/design-system/primitives/badge';
-import { ScoreGauge, ScoreBar } from './ScoreGauge';
-import { StageCard } from './StageCard';
-import { JourneyMap } from './JourneyMap';
-import type { JourneyProjectWithStages } from '../types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/primitives/tabs';
+import { OverviewTab } from './dt-tabs/OverviewTab';
+import { EmpathizeTab } from './dt-tabs/EmpathizeTab';
+import { DefineTab } from './dt-tabs/DefineTab';
+import { IdeateTab } from './dt-tabs/IdeateTab';
+import { PrototypeTab } from './dt-tabs/PrototypeTab';
+import { TestTab } from './dt-tabs/TestTab';
+import type { JourneyProjectWithStages, DTMode } from '../types';
 
 interface ProjectDetailProps {
   projectId: string;
@@ -17,7 +20,7 @@ interface ProjectDetailProps {
 export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
   const { data: project, isLoading } = useJourneyProject(projectId);
   const updateProject = useUpdateProject();
-  const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('overview');
 
   if (isLoading) {
     return (
@@ -30,10 +33,8 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
   if (!project) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">Projeto não encontrado</p>
-        <Button variant="link" onClick={onBack}>
-          Voltar
-        </Button>
+        <p className="text-muted-foreground">Projeto nao encontrado</p>
+        <Button variant="link" onClick={onBack}>Voltar</Button>
       </div>
     );
   }
@@ -44,25 +45,22 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
 
   const getStatusLabel = (status: JourneyProjectWithStages['status']) => {
     switch (status) {
-      case 'draft':
-        return 'Rascunho';
-      case 'in_progress':
-        return 'Em andamento';
-      case 'completed':
-        return 'Concluído';
-      default:
-        return status;
+      case 'draft': return 'Rascunho';
+      case 'in_progress': return 'Em andamento';
+      case 'completed': return 'Concluido';
+      default: return status;
     }
   };
 
-  const selectedStage = project.stages?.find((s) => s.id === selectedStageId);
+  const dtMode = ((project as Record<string, unknown>).dt_mode as DTMode) || 'full';
+  const isSimplified = dtMode === 'simplified';
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={onBack}>
+          <Button variant="ghost" size="icon" onClick={onBack} aria-label="Voltar">
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
@@ -74,12 +72,15 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {isSimplified && (
+            <Badge variant="outline">Simplificado</Badge>
+          )}
           <Badge variant={project.status === 'completed' ? 'default' : 'secondary'}>
             {getStatusLabel(project.status)}
           </Badge>
           {project.status === 'draft' && (
             <Button variant="outline" size="sm" onClick={() => handleStatusChange('in_progress')}>
-              Iniciar Análise
+              Iniciar Analise
             </Button>
           )}
           {project.status === 'in_progress' && (
@@ -90,53 +91,42 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
         </div>
       </div>
 
-      {/* Score Overview */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg">Visão Geral</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-8">
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-2">Score Geral</p>
-              <ScoreGauge score={project.overall_score} size="lg" />
-            </div>
-            <div className="flex-1 space-y-3">
-              {project.stages?.map((stage) => (
-                <ScoreBar
-                  key={stage.id}
-                  score={stage.score}
-                  label={stage.display_name}
-                />
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* DT Phase Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="w-full justify-start overflow-x-auto">
+          <TabsTrigger value="overview">Visao Geral</TabsTrigger>
+          {!isSimplified && <TabsTrigger value="empathize">Empatia</TabsTrigger>}
+          <TabsTrigger value="define">{isSimplified ? 'Mapear' : 'Definir'}</TabsTrigger>
+          <TabsTrigger value="ideate">Idear</TabsTrigger>
+          {!isSimplified && <TabsTrigger value="prototype">Prototipar</TabsTrigger>}
+          {!isSimplified && <TabsTrigger value="test">Testar</TabsTrigger>}
+        </TabsList>
 
-      {/* Journey Map */}
-      <JourneyMap
-        stages={project.stages || []}
-        onStageClick={setSelectedStageId}
-        selectedStageId={selectedStageId}
-      />
-
-      {/* Stage Detail */}
-      {selectedStage ? (
-        <StageCard
-          stage={selectedStage}
-          projectId={project.id}
-          onClose={() => setSelectedStageId(null)}
-        />
-      ) : (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-8">
-            <p className="text-muted-foreground mb-2">
-              Clique em uma etapa acima para ver os touchpoints
-            </p>
-          </CardContent>
-        </Card>
-      )}
+        <TabsContent value="overview">
+          <OverviewTab project={project} />
+        </TabsContent>
+        {!isSimplified && (
+          <TabsContent value="empathize">
+            <EmpathizeTab projectId={project.id} />
+          </TabsContent>
+        )}
+        <TabsContent value="define">
+          <DefineTab project={project} />
+        </TabsContent>
+        <TabsContent value="ideate">
+          <IdeateTab projectId={project.id} />
+        </TabsContent>
+        {!isSimplified && (
+          <TabsContent value="prototype">
+            <PrototypeTab projectId={project.id} />
+          </TabsContent>
+        )}
+        {!isSimplified && (
+          <TabsContent value="test">
+            <TestTab projectId={project.id} />
+          </TabsContent>
+        )}
+      </Tabs>
     </div>
   );
 }

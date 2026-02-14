@@ -30,6 +30,7 @@ export function CreateProjectDialog({ open, onOpenChange, organizationId }: Crea
     description: '',
     client_name: '',
     client_email: '',
+    dt_mode: 'full' as 'full' | 'simplified',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,6 +52,7 @@ export function CreateProjectDialog({ open, onOpenChange, organizationId }: Crea
         description: formData.description.trim() || null,
         client_name: formData.client_name.trim(),
         client_email: formData.client_email.trim() || null,
+        dt_mode: formData.dt_mode,
       });
 
       toast({
@@ -58,7 +60,7 @@ export function CreateProjectDialog({ open, onOpenChange, organizationId }: Crea
         description: 'A análise foi criada com as etapas padrão.',
       });
 
-      setFormData({ name: '', description: '', client_name: '', client_email: '' });
+      setFormData({ name: '', description: '', client_name: '', client_email: '', dt_mode: 'full' });
       onOpenChange(false);
     } catch (error) {
       toast({
@@ -116,7 +118,37 @@ export function CreateProjectDialog({ open, onOpenChange, organizationId }: Crea
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Descrição</Label>
+              <Label>Modo de Analise</Label>
+              <div className="flex gap-3">
+                <label className={`flex-1 cursor-pointer rounded-lg border-2 p-3 text-center transition-colors ${formData.dt_mode === 'full' ? 'border-primary bg-primary/5' : 'border-muted'}`}>
+                  <input
+                    type="radio"
+                    name="dt_mode"
+                    value="full"
+                    checked={formData.dt_mode === 'full'}
+                    onChange={() => setFormData((prev) => ({ ...prev, dt_mode: 'full' }))}
+                    className="sr-only"
+                  />
+                  <p className="font-medium text-sm">Completa</p>
+                  <p className="text-xs text-muted-foreground">5 fases do Design Thinking</p>
+                </label>
+                <label className={`flex-1 cursor-pointer rounded-lg border-2 p-3 text-center transition-colors ${formData.dt_mode === 'simplified' ? 'border-primary bg-primary/5' : 'border-muted'}`}>
+                  <input
+                    type="radio"
+                    name="dt_mode"
+                    value="simplified"
+                    checked={formData.dt_mode === 'simplified'}
+                    onChange={() => setFormData((prev) => ({ ...prev, dt_mode: 'simplified' }))}
+                    className="sr-only"
+                  />
+                  <p className="font-medium text-sm">Simplificada</p>
+                  <p className="text-xs text-muted-foreground">Analise rapida e guiada</p>
+                </label>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Descricao</Label>
               <Textarea
                 id="description"
                 placeholder="Descreva o objetivo desta análise..."
