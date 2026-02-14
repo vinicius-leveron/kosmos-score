@@ -51,6 +51,27 @@ const PROFILE_LABELS: Record<string, string> = {
   high: 'Ativo de Alta Performance (76-100)',
 };
 
+const LEAD_MAGNET_CONFIG: Record<string, { title: string; icon: typeof Target; color: string; publicUrl: string }> = {
+  kosmos_score: {
+    title: 'KOSMOS Score Analytics',
+    icon: Target,
+    color: 'bg-orange-500/10 text-orange-500',
+    publicUrl: '/quiz/kosmos-score',
+  },
+  application: {
+    title: 'Aplicação KOSMOS Analytics',
+    icon: Users,
+    color: 'bg-purple-500/10 text-purple-500',
+    publicUrl: '/f/aplicacao-kosmos',
+  },
+  forms: {
+    title: 'Formulários Analytics',
+    icon: BarChart3,
+    color: 'bg-blue-500/10 text-blue-500',
+    publicUrl: '',
+  },
+};
+
 function StatCard({
   title,
   value,
@@ -221,14 +242,16 @@ function TimelineChart({ data }: { data: Array<{ date: string; count: number }> 
   );
 }
 
-function RecentSubmissionsTable({ submissions }: {
+function RecentSubmissionsTable({ submissions, leadMagnetType }: {
   submissions: Array<{
     id: string;
     email: string;
     score: number;
     created_at: string;
     result_profile: string | null;
+    status?: string;
   }>;
+  leadMagnetType: string;
 }) {
   const getScoreColor = (score: number) => {
     if (score <= 25) return 'text-red-500';
@@ -242,6 +265,19 @@ function RecentSubmissionsTable({ submissions }: {
     if (score <= 50) return { label: 'Médio', className: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' };
     if (score <= 75) return { label: 'Bom', className: 'bg-blue-500/10 text-blue-500 border-blue-500/20' };
     return { label: 'Alto', className: 'bg-green-500/10 text-green-500 border-green-500/20' };
+  };
+
+  const getStatusBadge = (status?: string) => {
+    switch (status) {
+      case 'completed':
+        return { label: 'Completo', className: 'bg-green-500/10 text-green-500 border-green-500/20' };
+      case 'in_progress':
+        return { label: 'Em andamento', className: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' };
+      case 'abandoned':
+        return { label: 'Abandonado', className: 'bg-red-500/10 text-red-500 border-red-500/20' };
+      default:
+        return { label: 'Desconhecido', className: 'bg-gray-500/10 text-gray-500 border-gray-500/20' };
+    }
   };
 
   return (
@@ -261,7 +297,9 @@ function RecentSubmissionsTable({ submissions }: {
             </p>
           ) : (
             submissions.map((sub) => {
-              const badge = getScoreBadge(sub.score);
+              const scoreBadge = getScoreBadge(sub.score);
+              const statusBadge = getStatusBadge(sub.status);
+              const showStatus = leadMagnetType === 'application' && sub.status;
               return (
                 <div
                   key={sub.id}
@@ -284,12 +322,20 @@ function RecentSubmissionsTable({ submissions }: {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`text-lg font-bold ${getScoreColor(sub.score)}`}>
-                      {sub.score}
-                    </span>
-                    <Badge variant="outline" className={badge.className}>
-                      {badge.label}
-                    </Badge>
+                    {sub.status === 'completed' || !showStatus ? (
+                      <>
+                        <span className={`text-lg font-bold ${getScoreColor(sub.score)}`}>
+                          {sub.score}
+                        </span>
+                        <Badge variant="outline" className={scoreBadge.className}>
+                          {scoreBadge.label}
+                        </Badge>
+                      </>
+                    ) : (
+                      <Badge variant="outline" className={statusBadge.className}>
+                        {statusBadge.label}
+                      </Badge>
+                    )}
                   </div>
                 </div>
               );
@@ -299,8 +345,8 @@ function RecentSubmissionsTable({ submissions }: {
         {submissions.length > 0 && (
           <div className="mt-4 pt-4 border-t">
             <Button variant="outline" className="w-full" asChild>
-              <Link to="/admin/kosmos-score/results">
-                Ver Todos os Resultados
+              <Link to={leadMagnetType === 'kosmos_score' ? '/admin/kosmos-score/results' : '/admin/toolkit/forms'}>
+                {leadMagnetType === 'kosmos_score' ? 'Ver Todos os Resultados' : 'Ver Formulário'}
               </Link>
             </Button>
           </div>
@@ -313,6 +359,8 @@ function RecentSubmissionsTable({ submissions }: {
 export function LeadMagnetAnalyticsPage() {
   const { type } = useParams<{ type: string }>();
   const leadMagnetType = (type as 'kosmos_score' | 'application' | 'forms') || 'kosmos_score';
+  const config = LEAD_MAGNET_CONFIG[leadMagnetType] || LEAD_MAGNET_CONFIG.kosmos_score;
+  const Icon = config.icon;
 
   const { data: stats, isLoading, error } = useLeadMagnetStats(leadMagnetType);
 
@@ -347,11 +395,11 @@ export function LeadMagnetAnalyticsPage() {
             </Link>
           </Button>
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-orange-500/10">
-              <Target className="h-6 w-6 text-orange-500" />
+            <div className={`p-2 rounded-lg ${config.color.split(' ')[0]}`}>
+              <Icon className={`h-6 w-6 ${config.color.split(' ')[1]}`} />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold">KOSMOS Score Analytics</h1>
+              <h1 className="text-2xl font-semibold">{config.title}</h1>
               <p className="text-muted-foreground">
                 Métricas e insights do seu lead magnet
               </p>
@@ -360,17 +408,19 @@ export function LeadMagnetAnalyticsPage() {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" asChild>
-            <Link to="/admin/kosmos-score/results">
+            <Link to={leadMagnetType === 'kosmos_score' ? '/admin/kosmos-score/results' : '/admin/toolkit/forms'}>
               <Download className="h-4 w-4 mr-2" />
-              Exportar Dados
+              {leadMagnetType === 'kosmos_score' ? 'Exportar Dados' : 'Ver Formulário'}
             </Link>
           </Button>
-          <Button variant="outline" asChild>
-            <a href="#/quiz/kosmos-score" target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Ver Quiz
-            </a>
-          </Button>
+          {config.publicUrl && (
+            <Button variant="outline" asChild>
+              <a href={`#${config.publicUrl}`} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Ver {leadMagnetType === 'kosmos_score' ? 'Quiz' : 'Formulário'}
+              </a>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -388,9 +438,11 @@ export function LeadMagnetAnalyticsPage() {
       ) : stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
-            title="Total de Leads"
+            title="Total de Submissões"
             value={stats.total_submissions}
-            subtitle={`${stats.beginners_count} iniciantes, ${stats.experienced_count} experientes`}
+            subtitle={leadMagnetType === 'kosmos_score'
+              ? `${stats.beginners_count} iniciantes, ${stats.experienced_count} experientes`
+              : `${stats.status_distribution.completed} completas, ${stats.status_distribution.in_progress} em andamento`}
             icon={Users}
             color="bg-orange-500/10 text-orange-500"
             trend={stats.submissions_last_7_days > 0 ? {
@@ -405,20 +457,42 @@ export function LeadMagnetAnalyticsPage() {
             icon={Zap}
             color="bg-blue-500/10 text-blue-500"
           />
-          <StatCard
-            title="Lucro Oculto Total"
-            value={formatCurrency(stats.total_lucro_oculto)}
-            subtitle="potencial identificado"
-            icon={DollarSign}
-            color="bg-green-500/10 text-green-500"
-          />
-          <StatCard
-            title="Taxa de Alta Performance"
-            value={`${stats.conversion_rate}%`}
-            subtitle="leads com score > 75"
-            icon={TrendingUp}
-            color="bg-purple-500/10 text-purple-500"
-          />
+          {leadMagnetType === 'kosmos_score' ? (
+            <StatCard
+              title="Lucro Oculto Total"
+              value={formatCurrency(stats.total_lucro_oculto)}
+              subtitle="potencial identificado"
+              icon={DollarSign}
+              color="bg-green-500/10 text-green-500"
+            />
+          ) : (
+            <StatCard
+              title="Taxa de Conclusão"
+              value={`${stats.completion_rate}%`}
+              subtitle={`${stats.status_distribution.completed} de ${stats.total_submissions} formulários`}
+              icon={Activity}
+              color="bg-green-500/10 text-green-500"
+            />
+          )}
+          {leadMagnetType === 'kosmos_score' ? (
+            <StatCard
+              title="Taxa de Alta Performance"
+              value={`${stats.conversion_rate}%`}
+              subtitle="leads com score > 75"
+              icon={TrendingUp}
+              color="bg-purple-500/10 text-purple-500"
+            />
+          ) : (
+            <StatCard
+              title="Tempo Médio"
+              value={stats.avg_time_spent > 60
+                ? `${Math.round(stats.avg_time_spent / 60)} min`
+                : `${stats.avg_time_spent} seg`}
+              subtitle="para completar o formulário"
+              icon={Calendar}
+              color="bg-purple-500/10 text-purple-500"
+            />
+          )}
         </div>
       )}
 
@@ -544,7 +618,7 @@ export function LeadMagnetAnalyticsPage() {
           </TabsContent>
 
           <TabsContent value="leads">
-            <RecentSubmissionsTable submissions={stats.recent_submissions} />
+            <RecentSubmissionsTable submissions={stats.recent_submissions} leadMagnetType={leadMagnetType} />
           </TabsContent>
         </Tabs>
       )}

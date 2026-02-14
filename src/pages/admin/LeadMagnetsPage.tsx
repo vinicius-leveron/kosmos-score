@@ -54,7 +54,7 @@ const leadMagnetsConfig: LeadMagnetConfig[] = [
     href: '/admin/toolkit/forms',
     analyticsHref: '/admin/lead-magnets/application/analytics',
     publicUrl: '/f/aplicacao-kosmos',
-    status: 'draft',
+    status: 'active',
   },
   {
     id: 'forms',
