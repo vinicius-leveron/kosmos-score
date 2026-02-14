@@ -7,3 +7,4 @@ export * from './useProblemStatements';
 export * from './useIdeas';
 export * from './useTests';
 export * from './useProjectDT';
+export * from './useClientAccess';

@@ -37,6 +37,7 @@ const StakeholdersListPage = lazy(() => import("./modules/stakeholder-analysis/p
 const StakeholderDetailPage = lazy(() => import("./modules/stakeholder-analysis/pages/StakeholderDetailPage").then(m => ({ default: m.StakeholderDetailPage })));
 const StakeholderDashboardPage = lazy(() => import("./modules/stakeholder-analysis/pages/StakeholderDashboardPage").then(m => ({ default: m.StakeholderDashboardPage })));
 const JourneyAnalyzerPage = lazy(() => import("./modules/journey-analyzer").then(m => ({ default: m.JourneyAnalyzerPage })));
+const JourneyClientPage = lazy(() => import("./modules/journey-analyzer").then(m => ({ default: m.JourneyClientPage })));
 const FormsListPage = lazy(() => import("./modules/toolkit").then(m => ({ default: m.FormsListPage })));
 const FormEditorPage = lazy(() => import("./modules/toolkit").then(m => ({ default: m.FormEditorPage })));
 const FormAnalyticsPage = lazy(() => import("./modules/toolkit").then(m => ({ default: m.FormAnalyticsPage })));
@@ -77,6 +78,7 @@ const App = () => (
             <Route path="/quiz/kosmos-score" element={<Index />} />
             <Route path="/embed/kosmos-score" element={<EmbedKosmosScore />} />
             <Route path="/f/:slug" element={<FormPublicPage />} />
+            <Route path="/journey/client/:token" element={<Suspense fallback={<PageLoader />}><JourneyClientPage /></Suspense>} />
             <Route path="/invite/:token" element={<AcceptInvitePage />} />
 
             {/* ADMIN PORTAL */}

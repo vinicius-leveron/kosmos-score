@@ -238,3 +238,22 @@ export const TEST_METHODS = [
   { value: 'prototype', label: 'Protótipo' },
   { value: 'other', label: 'Outro' },
 ] as const;
+
+// ============================================================================
+// Client Portal Types (token-based access)
+// ============================================================================
+
+export interface ClientProjectData {
+  project: JourneyProject & {
+    dt_mode: DTMode;
+    current_phase: DTPhaseId;
+    phase_progress: PhaseProgress;
+  };
+  stages: (JourneyProjectStage & { touchpoints: JourneyTouchpoint[] })[];
+  personas: JourneyPersona[];
+  empathy_maps: JourneyEmpathyMap[];
+  problem_statements: JourneyProblemStatement[];
+  ideas: JourneyIdea[];
+  tests: JourneyTest[];
+  actions: JourneyAction[];
+}
