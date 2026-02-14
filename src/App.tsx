@@ -32,6 +32,7 @@ import { JourneyAnalyzerPage } from "./modules/journey-analyzer";
 import { FormsListPage, FormEditorPage, FormAnalyticsPage, FormPublicPage } from "./modules/toolkit";
 import { TeamPage, ClientsPage, AcceptInvitePage } from "./modules/settings";
 import { AdminBenchmarksPage, AdminBenchmarkFormPage, ClientBenchmarkPage } from "./modules/benchmarking";
+import { CompetitorListPage, CompetitorDetailPage } from "./modules/competitor-intelligence";
 
 const queryClient = new QueryClient();
 
@@ -79,6 +80,8 @@ const App = () => (
               <Route path="benchmarks" element={<AdminBenchmarksPage />} />
               <Route path="benchmarks/new" element={<AdminBenchmarkFormPage />} />
               <Route path="benchmarks/:id/edit" element={<AdminBenchmarkFormPage />} />
+              <Route path="competitors" element={<CompetitorListPage />} />
+              <Route path="competitors/:id" element={<CompetitorDetailPage />} />
             </Route>
 
             {/* CLIENT PORTAL */}
@@ -93,6 +96,8 @@ const App = () => (
               <Route index element={<ClientDashboard />} />
               <Route path="benchmark" element={<ClientBenchmarkPage />} />
               <Route path="benchmark/:id" element={<ClientBenchmarkPage />} />
+              <Route path="competitors" element={<CompetitorListPage />} />
+              <Route path="competitors/:id" element={<CompetitorDetailPage />} />
             </Route>
 
             {/* 404 */}

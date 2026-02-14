@@ -14,6 +14,7 @@ import {
   BarChart3,
   TrendingUp,
   Target,
+  Search,
 } from 'lucide-react';
 import { useAuth, useOrganization } from '@/core/auth';
 import {
@@ -85,6 +86,7 @@ const navigationGroups: NavGroup[] = [
     icon: Wrench,
     items: [
       { title: 'Benchmarking', href: '/admin/benchmarks', icon: BarChart3 },
+      { title: 'Concorrentes', href: '/admin/competitors', icon: Search },
       { title: 'Análise de Jornada', href: '/admin/journey', icon: Map },
       { title: 'Stakeholders', href: '/admin/stakeholders', icon: Network },
     ],
