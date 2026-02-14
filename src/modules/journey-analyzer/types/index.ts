@@ -256,4 +256,5 @@ export interface ClientProjectData {
   ideas: JourneyIdea[];
   tests: JourneyTest[];
   actions: JourneyAction[];
+  voted_idea_ids: string[];
 }

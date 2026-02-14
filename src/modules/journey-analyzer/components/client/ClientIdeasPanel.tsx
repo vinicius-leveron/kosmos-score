@@ -23,7 +23,7 @@ const STATUS_COLORS: Record<IdeaStatus, string> = {
 
 export function ClientIdeasPanel() {
   const { token, data } = useClientContext();
-  const { ideas } = data;
+  const { ideas, voted_idea_ids = [] } = data;
   const voteIdea = useClientVoteIdea(token);
   const { toast } = useToast();
 
@@ -82,13 +82,18 @@ export function ClientIdeasPanel() {
                     </div>
                     <Button
                       size="sm"
-                      variant="outline"
+                      variant={voted_idea_ids.includes(idea.id) ? 'default' : 'outline'}
                       onClick={() => handleVote(idea.id)}
-                      disabled={voteIdea.isPending}
-                      aria-label={`Votar em ${idea.title}`}
+                      disabled={voteIdea.isPending || voted_idea_ids.includes(idea.id)}
+                      aria-label={voted_idea_ids.includes(idea.id) ? `Ja votou em ${idea.title}` : `Votar em ${idea.title}`}
                     >
                       {voteIdea.isPending ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : voted_idea_ids.includes(idea.id) ? (
+                        <>
+                          <ThumbsUp className="h-4 w-4 mr-1" />
+                          Votado
+                        </>
                       ) : (
                         <>
                           <ThumbsUp className="h-4 w-4 mr-1" />

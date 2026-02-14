@@ -73,32 +73,22 @@ export function useAddEmpathyMapItem() {
       id,
       quadrant,
       item,
+      projectId,
     }: {
       id: string;
       quadrant: EmpathyQuadrant;
       item: string;
+      projectId: string;
     }) => {
-      // Fetch current map
-      const { data: current, error: fetchError } = await supabase
-        .from('journey_empathy_maps')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      const currentItems = (current[quadrant] as string[]) || [];
-      const updatedItems = [...currentItems, item];
-
-      const { data, error } = await supabase
-        .from('journey_empathy_maps')
-        .update({ [quadrant]: updatedItems })
-        .eq('id', id)
-        .select()
-        .single();
+      // Atomic append via DB function - prevents race conditions
+      const { data, error } = await supabase.rpc('empathy_map_add_item', {
+        p_map_id: id,
+        p_quadrant: quadrant,
+        p_item: item,
+      });
 
       if (error) throw error;
-      return data as JourneyEmpathyMap;
+      return { ...(data as unknown as JourneyEmpathyMap), project_id: projectId };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY, data.project_id] });
@@ -114,31 +104,22 @@ export function useRemoveEmpathyMapItem() {
       id,
       quadrant,
       index,
+      projectId,
     }: {
       id: string;
       quadrant: EmpathyQuadrant;
       index: number;
+      projectId: string;
     }) => {
-      const { data: current, error: fetchError } = await supabase
-        .from('journey_empathy_maps')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      const currentItems = (current[quadrant] as string[]) || [];
-      const updatedItems = currentItems.filter((_, i) => i !== index);
-
-      const { data, error } = await supabase
-        .from('journey_empathy_maps')
-        .update({ [quadrant]: updatedItems })
-        .eq('id', id)
-        .select()
-        .single();
+      // Atomic remove via DB function - prevents race conditions
+      const { data, error } = await supabase.rpc('empathy_map_remove_item', {
+        p_map_id: id,
+        p_quadrant: quadrant,
+        p_index: index,
+      });
 
       if (error) throw error;
-      return data as JourneyEmpathyMap;
+      return { ...(data as unknown as JourneyEmpathyMap), project_id: projectId };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY, data.project_id] });

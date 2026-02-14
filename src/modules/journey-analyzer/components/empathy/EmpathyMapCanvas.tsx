@@ -65,7 +65,7 @@ export function EmpathyMapCanvas({ projectId, empathyMaps, personas }: EmpathyMa
     if (!value || !activeMap) return;
 
     try {
-      await addItem.mutateAsync({ id: activeMap.id, quadrant, item: value });
+      await addItem.mutateAsync({ id: activeMap.id, quadrant, item: value, projectId });
       setInputs((prev) => ({ ...prev, [quadrant]: '' }));
     } catch {
       toast({ title: 'Erro', description: 'Nao foi possivel adicionar o item.', variant: 'destructive' });
@@ -75,7 +75,7 @@ export function EmpathyMapCanvas({ projectId, empathyMaps, personas }: EmpathyMa
   const handleRemoveItem = async (quadrant: EmpathyQuadrant, index: number) => {
     if (!activeMap) return;
     try {
-      await removeItem.mutateAsync({ id: activeMap.id, quadrant, index });
+      await removeItem.mutateAsync({ id: activeMap.id, quadrant, index, projectId });
     } catch {
       toast({ title: 'Erro', description: 'Nao foi possivel remover o item.', variant: 'destructive' });
     }
