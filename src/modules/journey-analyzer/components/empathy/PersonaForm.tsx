@@ -14,6 +14,7 @@ import {
 } from '@/design-system/primitives/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCreatePersona, useUpdatePersona } from '../../hooks';
+import { personaSchema } from '../../schemas';
 import type { JourneyPersona } from '../../types';
 
 interface PersonaFormProps {
@@ -87,8 +88,16 @@ export function PersonaForm({ open, onOpenChange, projectId, persona }: PersonaF
   }, []);
 
   const handleSubmit = async () => {
-    if (!name.trim()) {
-      toast({ title: 'Nome obrigatorio', description: 'Informe o nome da persona.', variant: 'destructive' });
+    const parsed = personaSchema.safeParse({
+      name: name.trim(),
+      role: role.trim() || undefined,
+      age_range: ageRange.trim() || undefined,
+      bio: bio.trim() || undefined,
+      ...tags,
+    });
+    if (!parsed.success) {
+      const firstError = parsed.error.errors[0]?.message || 'Dados invalidos';
+      toast({ title: firstError, variant: 'destructive' });
       return;
     }
 

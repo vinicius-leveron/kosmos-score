@@ -9,6 +9,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/design-system/primitives/dialog';
 import { useCreateIdea, useUpdateIdea } from '../../hooks';
+import { ideaSchema } from '../../schemas';
 import { useToast } from '@/hooks/use-toast';
 import type { JourneyIdea } from '../../types';
 
@@ -48,7 +49,17 @@ export function IdeaForm({ open, onOpenChange, projectId, idea }: IdeaFormProps)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    const parsed = ideaSchema.safeParse({
+      title: title.trim(),
+      description: description.trim() || undefined,
+      category: category.trim() || undefined,
+      impact: impact[0],
+      effort: effort[0],
+    });
+    if (!parsed.success) {
+      toast({ title: parsed.error.errors[0]?.message || 'Dados invalidos', variant: 'destructive' });
+      return;
+    }
 
     try {
       if (idea) {

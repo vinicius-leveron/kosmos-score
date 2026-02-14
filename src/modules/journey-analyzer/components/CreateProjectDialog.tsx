@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useCreateProject } from '../hooks';
+import { createProjectSchema } from '../schemas';
 import { Button } from '@/design-system/primitives/button';
 import { Input } from '@/design-system/primitives/input';
 import { Textarea } from '@/design-system/primitives/textarea';
@@ -36,12 +37,16 @@ export function CreateProjectDialog({ open, onOpenChange, organizationId }: Crea
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name.trim() || !formData.client_name.trim()) {
-      toast({
-        title: 'Campos obrigatórios',
-        description: 'Preencha o nome do projeto e do cliente.',
-        variant: 'destructive',
-      });
+    const parsed = createProjectSchema.safeParse({
+      ...formData,
+      name: formData.name.trim(),
+      client_name: formData.client_name.trim(),
+      client_email: formData.client_email.trim() || undefined,
+      description: formData.description.trim() || undefined,
+    });
+    if (!parsed.success) {
+      const firstError = parsed.error.errors[0]?.message || 'Dados invalidos';
+      toast({ title: firstError, variant: 'destructive' });
       return;
     }
 

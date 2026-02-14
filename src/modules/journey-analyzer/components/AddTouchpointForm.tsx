@@ -11,6 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/design-system/primitives/select';
+import { useToast } from '@/hooks/use-toast';
+import { touchpointSchema } from '../schemas';
 import type { TouchpointType } from '../types';
 
 const TOUCHPOINT_TYPE_OPTIONS: { value: TouchpointType; label: string }[] = [
@@ -30,13 +32,22 @@ interface AddTouchpointFormProps {
 }
 
 export function AddTouchpointForm({ onAdd, isAdding }: AddTouchpointFormProps) {
+  const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [type, setType] = useState<TouchpointType>('other');
 
   const handleSubmit = async () => {
-    if (!name.trim()) return;
+    const parsed = touchpointSchema.safeParse({
+      name: name.trim(),
+      description: description.trim() || undefined,
+      type,
+    });
+    if (!parsed.success) {
+      toast({ title: parsed.error.errors[0]?.message || 'Dados invalidos', variant: 'destructive' });
+      return;
+    }
     await onAdd({ name: name.trim(), description: description.trim(), type });
     setName('');
     setDescription('');

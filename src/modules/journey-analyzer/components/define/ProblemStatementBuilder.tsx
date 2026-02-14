@@ -6,6 +6,7 @@ import { Textarea } from '@/design-system/primitives/textarea';
 import { Badge } from '@/design-system/primitives/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/design-system/primitives/select';
 import { useCreateProblemStatement, useUpdateProblemStatement, useDeleteProblemStatement } from '../../hooks';
+import { problemStatementSchema } from '../../schemas';
 import { useToast } from '@/hooks/use-toast';
 import type { JourneyProblemStatement, JourneyPersona } from '../../types';
 
@@ -31,7 +32,15 @@ export function ProblemStatementBuilder({
   const [personaId, setPersonaId] = useState<string>('');
 
   const handleCreate = async () => {
-    if (!statement.trim()) return;
+    const parsed = problemStatementSchema.safeParse({
+      statement: statement.trim(),
+      context: context.trim() || undefined,
+      persona_id: personaId || undefined,
+    });
+    if (!parsed.success) {
+      toast({ title: parsed.error.errors[0]?.message || 'Dados invalidos', variant: 'destructive' });
+      return;
+    }
     try {
       await createStatement.mutateAsync({
         project_id: projectId,

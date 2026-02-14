@@ -9,6 +9,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/design-system/primitives/dialog';
 import { useCreateTest, useUpdateTest } from '../../hooks';
+import { testPlanSchema } from '../../schemas';
 import { useToast } from '@/hooks/use-toast';
 import type { JourneyTest, JourneyIdea } from '../../types';
 import { TEST_METHODS } from '../../types';
@@ -50,7 +51,17 @@ export function TestPlanForm({ open, onOpenChange, projectId, test, ideas }: Tes
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!hypothesis.trim()) return;
+    const parsed = testPlanSchema.safeParse({
+      hypothesis: hypothesis.trim(),
+      method: method || undefined,
+      success_metric: successMetric.trim() || undefined,
+      target_audience: targetAudience.trim() || undefined,
+      idea_id: ideaId || undefined,
+    });
+    if (!parsed.success) {
+      toast({ title: parsed.error.errors[0]?.message || 'Dados invalidos', variant: 'destructive' });
+      return;
+    }
 
     try {
       if (test) {
