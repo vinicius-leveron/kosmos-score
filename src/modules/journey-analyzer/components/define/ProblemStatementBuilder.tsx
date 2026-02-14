@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2, Star } from 'lucide-react';
+import { Plus, Trash2, Star, HelpCircle } from 'lucide-react';
 import { Button } from '@/design-system/primitives/button';
 import { Input } from '@/design-system/primitives/input';
 import { Textarea } from '@/design-system/primitives/textarea';
@@ -59,6 +59,20 @@ export function ProblemStatementBuilder({
 
   return (
     <div className="space-y-3">
+      {problemStatements.length === 0 && !showForm && (
+        <div className="flex flex-col items-center py-8 text-center">
+          <HelpCircle className="h-8 w-8 text-muted-foreground mb-2" />
+          <p className="text-sm font-medium mb-1">Nenhum HMW definido</p>
+          <p className="text-xs text-muted-foreground max-w-sm mb-4">
+            Transforme as dores identificadas em perguntas "How Might We" para guiar a ideacao
+          </p>
+          <Button variant="outline" size="sm" onClick={() => setShowForm(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Criar Primeiro HMW
+          </Button>
+        </div>
+      )}
+
       {problemStatements.map((ps) => (
         <div key={ps.id} className="flex items-start gap-3 p-3 rounded-lg border">
           <button

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Trash2, Loader2, ExternalLink } from 'lucide-react';
 import { Badge } from '@/design-system/primitives/badge';
 import { Button } from '@/design-system/primitives/button';
@@ -32,7 +32,7 @@ interface ExperimentCardProps {
   isDeleting: boolean;
 }
 
-export function ExperimentCard({
+export const ExperimentCard = memo(function ExperimentCard({
   test,
   onStatusChange,
   onResultChange,
@@ -173,4 +173,4 @@ export function ExperimentCard({
       )}
     </div>
   );
-}
+});

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { ThumbsUp, GripVertical } from 'lucide-react';
 import { Button } from '@/design-system/primitives/button';
 import { Badge } from '@/design-system/primitives/badge';
@@ -9,7 +10,7 @@ interface IdeaCardProps {
   onVote: (id: string) => void;
 }
 
-export function IdeaCard({ idea, onEdit, onVote }: IdeaCardProps) {
+export const IdeaCard = memo(function IdeaCard({ idea, onEdit, onVote }: IdeaCardProps) {
   return (
     <div
       draggable
@@ -61,4 +62,4 @@ export function IdeaCard({ idea, onEdit, onVote }: IdeaCardProps) {
       </div>
     </div>
   );
-}
+});

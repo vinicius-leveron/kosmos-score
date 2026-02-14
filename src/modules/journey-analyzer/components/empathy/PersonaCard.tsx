@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { User, Pencil, Trash2, Target, AlertTriangle } from 'lucide-react';
 import { cn } from '@/design-system/lib/utils';
 import { Button } from '@/design-system/primitives/button';
@@ -17,7 +18,7 @@ interface PersonaCardProps {
  * PersonaCard - Displays a persona summary in a compact card format.
  * Shows name, role, age range, plus goals and pain points as badges.
  */
-export function PersonaCard({ persona, onEdit, onDelete }: PersonaCardProps) {
+export const PersonaCard = memo(function PersonaCard({ persona, onEdit, onDelete }: PersonaCardProps) {
   return (
     <div className="group relative rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/30">
       {/* Header: Avatar + Info */}
@@ -118,4 +119,4 @@ export function PersonaCard({ persona, onEdit, onDelete }: PersonaCardProps) {
       )}
     </div>
   );
-}
+});

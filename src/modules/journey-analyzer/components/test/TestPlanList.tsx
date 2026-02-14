@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, FlaskConical } from 'lucide-react';
 import { Button } from '@/design-system/primitives/button';
 import { Badge } from '@/design-system/primitives/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/design-system/primitives/select';
@@ -69,9 +69,17 @@ export function TestPlanList({ projectId, tests, ideas }: TestPlanListProps) {
       </div>
 
       {tests.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-8">
-          Nenhum teste criado ainda
-        </p>
+        <div className="flex flex-col items-center py-8 text-center">
+          <FlaskConical className="h-8 w-8 text-muted-foreground mb-2" />
+          <p className="text-sm font-medium mb-1">Nenhum teste criado</p>
+          <p className="text-xs text-muted-foreground max-w-sm mb-4">
+            Crie testes para validar hipoteses sobre as ideias selecionadas
+          </p>
+          <Button variant="outline" size="sm" onClick={() => { setEditingTest(undefined); setShowForm(true); }}>
+            <Plus className="h-4 w-4 mr-2" />
+            Criar Primeiro Teste
+          </Button>
+        </div>
       ) : (
         tests.map((test) => (
           <div key={test.id} className="p-4 rounded-lg border space-y-2">
