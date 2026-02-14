@@ -1,5 +1,5 @@
 import { Outlet, Link } from 'react-router-dom';
-import { LogOut, Home } from 'lucide-react';
+import { LogOut, Home, Search } from 'lucide-react';
 import { useAuth } from '@/core/auth';
 import { Button } from '@/design-system/primitives/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/design-system/primitives/avatar';
@@ -38,7 +38,13 @@ export function ClientLayout() {
             <Button variant="ghost" size="sm" asChild>
               <Link to="/app">
                 <Home className="h-4 w-4 mr-2" />
-                Início
+                Inicio
+              </Link>
+            </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/app/competitors">
+                <Search className="h-4 w-4 mr-2" />
+                Concorrentes
               </Link>
             </Button>
 

@@ -49,6 +49,10 @@ const AdminBenchmarksPage = lazy(() => import("./modules/benchmarking").then(m =
 const AdminBenchmarkFormPage = lazy(() => import("./modules/benchmarking").then(m => ({ default: m.AdminBenchmarkFormPage })));
 const ClientBenchmarkPage = lazy(() => import("./modules/benchmarking").then(m => ({ default: m.ClientBenchmarkPage })));
 
+// Competitor Intelligence module - Lazy loaded
+const CompetitorListPage = lazy(() => import("./modules/competitor-intelligence").then(m => ({ default: m.CompetitorListPage })));
+const CompetitorDetailPage = lazy(() => import("./modules/competitor-intelligence").then(m => ({ default: m.CompetitorDetailPage })));
+
 // Financial module pages - Lazy loaded
 const FinancialDashboardPage = lazy(() => import("./modules/financial/pages").then(m => ({ default: m.FinancialDashboardPage })));
 const ReceivablesPage = lazy(() => import("./modules/financial/pages").then(m => ({ default: m.ReceivablesPage })));
@@ -112,6 +116,9 @@ const App = () => (
               <Route path="benchmarks" element={<Suspense fallback={<PageLoader />}><AdminBenchmarksPage /></Suspense>} />
               <Route path="benchmarks/new" element={<Suspense fallback={<PageLoader />}><AdminBenchmarkFormPage /></Suspense>} />
               <Route path="benchmarks/:id/edit" element={<Suspense fallback={<PageLoader />}><AdminBenchmarkFormPage /></Suspense>} />
+              {/* Competitor Intelligence module */}
+              <Route path="competitors" element={<Suspense fallback={<PageLoader />}><CompetitorListPage /></Suspense>} />
+              <Route path="competitors/:id" element={<Suspense fallback={<PageLoader />}><CompetitorDetailPage /></Suspense>} />
               {/* Financial module */}
               <Route path="financial" element={<Suspense fallback={<PageLoader />}><FinancialDashboardPage /></Suspense>} />
               <Route path="financial/receivables" element={<Suspense fallback={<PageLoader />}><ReceivablesPage /></Suspense>} />
@@ -135,6 +142,8 @@ const App = () => (
               <Route index element={<ClientDashboard />} />
               <Route path="benchmark" element={<ClientBenchmarkPage />} />
               <Route path="benchmark/:id" element={<ClientBenchmarkPage />} />
+              <Route path="competitors" element={<CompetitorListPage />} />
+              <Route path="competitors/:id" element={<CompetitorDetailPage />} />
             </Route>
 
             {/* 404 */}

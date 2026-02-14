@@ -10,6 +10,9 @@ import {
 } from '@/modules/kosmos-score/lib/auditQuestionsV2';
 import { cn } from '@/design-system/lib/utils';
 import { useEmbed } from '../contexts/EmbedContext';
+import { useMarketBenchmarks, useIndividualPercentile } from '@/modules/kosmos-score/hooks/useMarketBenchmarks';
+import { hasMarketData } from '@/modules/kosmos-score/lib/benchmarkTypes';
+import { BenchmarkComparisonSection } from './BenchmarkComparisonSection';
 
 interface ResultScreenProps {
   result: AuditResult;
@@ -26,6 +29,26 @@ export function ResultScreen({ result, onDownloadPDF, onShare, onJoinGroup }: Re
   const economiaDiagnosis = getPillarDiagnosis('economia', result.scoreEconomia);
   const stageMessage = getStageMessage(result.stage);
   const lucroLabel = getLucroLabel(result.stage);
+
+  // Fetch benchmark data
+  const { data: marketData } = useMarketBenchmarks();
+  const { data: percentileData } = useIndividualPercentile(
+    result.scoreCausa,
+    result.scoreCultura,
+    result.scoreEconomia,
+    result.kosmosAssetScore,
+  );
+
+  const hasBenchmarkData = marketData && hasMarketData(marketData) && percentileData?.percentile_total != null;
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
 
   const getScoreColor = (score: number) => {
     if (score <= 25) return 'text-score-red';
@@ -172,6 +195,15 @@ export function ResultScreen({ result, onDownloadPDF, onShare, onJoinGroup }: Re
             </div>
           </div>
         </div>
+
+        {/* Benchmark Comparison - "Como você se compara" */}
+        {hasBenchmarkData && (
+          <BenchmarkComparisonSection
+            result={result}
+            market={marketData}
+            percentiles={percentileData}
+          />
+        )}
 
         {/* Financial Result */}
         <div className="relative animate-fade-in" style={{ animationDelay: '200ms' }}>
