@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Loader2, MoreVertical, Trash2, ExternalLink } from 'lucide-react';
+import { Plus, Loader2, MoreVertical, Trash2, ExternalLink, Sparkles } from 'lucide-react';
 import { useJourneyProjects, useDeleteProject } from '../hooks';
 import { Button } from '@/design-system/primitives/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/design-system/primitives/card';
@@ -19,6 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/design-system/primitives/alert-dialog';
+import { Badge } from '@/design-system/primitives/badge';
 import { CreateProjectDialog } from './CreateProjectDialog';
 import { ScoreGauge } from './ScoreGauge';
 import type { JourneyProject } from '../types';
@@ -117,7 +118,7 @@ export function ProjectList({ organizationId, onSelectProject }: ProjectListProp
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Opcoes do projeto">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -145,9 +146,14 @@ export function ProjectList({ organizationId, onSelectProject }: ProjectListProp
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
-                  <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(project.status)}`}>
-                    {getStatusLabel(project.status)}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(project.status)}`}>
+                      {getStatusLabel(project.status)}
+                    </span>
+                    {(project as Record<string, unknown>).dt_mode === 'simplified' && (
+                      <Badge variant="outline" className="text-xs">Simplificado</Badge>
+                    )}
+                  </div>
                   {project.overall_score !== null && (
                     <ScoreGauge score={project.overall_score} size="sm" />
                   )}

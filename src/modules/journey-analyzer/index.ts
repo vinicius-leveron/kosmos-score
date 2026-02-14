@@ -9,3 +9,4 @@ export * from './types';
 
 // Pages
 export { JourneyAnalyzerPage } from './pages/JourneyAnalyzerPage';
+export { JourneyClientPage } from './pages/JourneyClientPage';
