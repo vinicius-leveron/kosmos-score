@@ -336,9 +336,10 @@ export function useAuth() {
 export function useOrganization() {
   const { organizationId, organizationName, currentOrg } = useAuth();
   const isKosmosMaster = currentOrg?.organization_type === 'master';
-  return { 
-    organizationId, 
+  return {
+    organizationId,
     organizationName,
     isKosmosMaster,
+    currentOrg,
   };
 }
