@@ -131,9 +131,9 @@ export function useWebhooks() {
 
     await fetchWebhooks();
 
-    // Return the full webhook URL
-    const baseUrl = import.meta.env.VITE_SUPABASE_URL;
-    return { url: `${baseUrl}/functions/v1/webhook-receiver/${endpointPath}` };
+    // Return the full webhook URL using the app domain
+    const baseUrl = window.location.origin;
+    return { url: `${baseUrl}/webhooks/${endpointPath}` };
   };
 
   const updateWebhook = async (id: string, updates: Partial<CreateWebhookInput & { is_active: boolean }>) => {
@@ -163,8 +163,8 @@ export function useWebhooks() {
   };
 
   const getWebhookUrl = (webhook: Webhook): string => {
-    const baseUrl = import.meta.env.VITE_SUPABASE_URL;
-    return `${baseUrl}/functions/v1/webhook-receiver/${webhook.endpoint_path}`;
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/webhooks/${webhook.endpoint_path}`;
   };
 
   return {

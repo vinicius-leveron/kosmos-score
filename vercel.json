@@ -1,5 +1,13 @@
 {
   "rewrites": [
+    {
+      "source": "/api/v1/:path*",
+      "destination": "https://peegicizxybjgvuutegc.supabase.co/functions/v1/crm-api/v1/:path*"
+    },
+    {
+      "source": "/webhooks/:path*",
+      "destination": "https://peegicizxybjgvuutegc.supabase.co/functions/v1/webhook-receiver/:path*"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
