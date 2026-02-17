@@ -45,6 +45,8 @@ const FormPublicPage = lazy(() => import("./modules/toolkit").then(m => ({ defau
 const TeamPage = lazy(() => import("./modules/settings").then(m => ({ default: m.TeamPage })));
 const ClientsPage = lazy(() => import("./modules/settings").then(m => ({ default: m.ClientsPage })));
 const AcceptInvitePage = lazy(() => import("./modules/settings").then(m => ({ default: m.AcceptInvitePage })));
+const ApiKeysPage = lazy(() => import("./modules/settings").then(m => ({ default: m.ApiKeysPage })));
+const WebhooksPage = lazy(() => import("./modules/settings").then(m => ({ default: m.WebhooksPage })));
 const AdminBenchmarksPage = lazy(() => import("./modules/benchmarking").then(m => ({ default: m.AdminBenchmarksPage })));
 const AdminBenchmarkFormPage = lazy(() => import("./modules/benchmarking").then(m => ({ default: m.AdminBenchmarkFormPage })));
 const ClientBenchmarkPage = lazy(() => import("./modules/benchmarking").then(m => ({ default: m.ClientBenchmarkPage })));
@@ -113,6 +115,8 @@ const App = () => (
               <Route path="journey" element={<Suspense fallback={<PageLoader />}><JourneyAnalyzerPage /></Suspense>} />
               <Route path="settings/team" element={<Suspense fallback={<PageLoader />}><TeamPage /></Suspense>} />
               <Route path="settings/clients" element={<Suspense fallback={<PageLoader />}><ClientsPage /></Suspense>} />
+              <Route path="settings/api-keys" element={<Suspense fallback={<PageLoader />}><ApiKeysPage /></Suspense>} />
+              <Route path="settings/webhooks" element={<Suspense fallback={<PageLoader />}><WebhooksPage /></Suspense>} />
               <Route path="benchmarks" element={<Suspense fallback={<PageLoader />}><AdminBenchmarksPage /></Suspense>} />
               <Route path="benchmarks/new" element={<Suspense fallback={<PageLoader />}><AdminBenchmarkFormPage /></Suspense>} />
               <Route path="benchmarks/:id/edit" element={<Suspense fallback={<PageLoader />}><AdminBenchmarkFormPage /></Suspense>} />
