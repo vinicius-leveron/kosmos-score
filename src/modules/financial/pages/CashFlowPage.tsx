@@ -61,7 +61,7 @@ function getDefaultDates() {
 /** Loading skeleton for the cash flow page */
 function CashFlowSkeleton() {
   return (
-    <div className="container py-6 space-y-6">
+    <div className="max-w-6xl mx-auto px-6 py-6 space-y-6">
       <Skeleton className="h-8 w-64 mb-2" />
       <Skeleton className="h-4 w-48" />
       <div className="flex gap-4">
@@ -102,7 +102,7 @@ export function CashFlowPage() {
     return (
       <div className="min-h-screen bg-background">
         <div className="border-b">
-          <div className="container py-6">
+          <div className="max-w-6xl mx-auto px-6 py-6">
             <CashFlowSkeleton />
           </div>
         </div>
@@ -114,7 +114,7 @@ export function CashFlowPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b">
-        <div className="container py-6">
+        <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex items-center gap-3">
             <TrendingUp className="h-7 w-7 text-primary" />
             <div>
@@ -128,7 +128,7 @@ export function CashFlowPage() {
       </div>
 
       {/* Main Content */}
-      <div className="container py-6 space-y-6">
+      <div className="max-w-6xl mx-auto px-6 py-6 space-y-6">
         {/* Filters */}
         <div className="flex flex-wrap items-end gap-4">
           <div className="space-y-1">

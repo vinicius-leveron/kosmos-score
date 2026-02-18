@@ -468,7 +468,7 @@ export function TransactionListPage({ config }: { config: TransactionPageConfig 
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b">
-        <div className="container py-6 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-primary/10">
               <Icon className="h-6 w-6 text-primary" />
@@ -487,7 +487,7 @@ export function TransactionListPage({ config }: { config: TransactionPageConfig 
 
       {/* Filters */}
       <div className="border-b">
-        <div className="container py-4">
+        <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative flex-1 min-w-[200px] max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -552,7 +552,7 @@ export function TransactionListPage({ config }: { config: TransactionPageConfig 
       </div>
 
       {/* Table Content */}
-      <div className="container py-6">
+      <div className="max-w-7xl mx-auto px-6 py-6">
         {!isLoading && items.length === 0 ? (
           <EmptyState
             icon={config.icon}

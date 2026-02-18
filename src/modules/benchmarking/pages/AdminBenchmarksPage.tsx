@@ -131,7 +131,7 @@ export function AdminBenchmarksPage() {
 
   if (error) {
     return (
-      <div className="container mx-auto py-8 px-4">
+      <div className="max-w-6xl mx-auto px-6 mx-auto py-8 px-4">
         <Card className="bg-red-500/10 border-red-500/20">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
@@ -151,7 +151,7 @@ export function AdminBenchmarksPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="max-w-6xl mx-auto px-6 mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-kosmos-white">Benchmarks</h1>

@@ -76,7 +76,7 @@ export function AccountsPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="border-b">
-        <div className="container py-6 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Landmark className="h-6 w-6 text-muted-foreground" />
             <div>
@@ -92,7 +92,7 @@ export function AccountsPage() {
         </div>
       </div>
 
-      <div className="container py-6">
+      <div className="max-w-6xl mx-auto px-6 py-6">
         {isLoading ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => <AccountCardSkeleton key={i} />)}

@@ -206,7 +206,7 @@ export function ClientBenchmarkPage() {
       <div className="min-h-screen bg-kosmos-black">
         {/* Header */}
         <header className="border-b border-kosmos-gray-800 bg-kosmos-gray-900/50 backdrop-blur-sm sticky top-0 z-10">
-          <div className="container mx-auto px-4 py-4">
+          <div className="max-w-6xl mx-auto px-6 mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Button
@@ -240,7 +240,7 @@ export function ClientBenchmarkPage() {
         </header>
 
         {/* Content */}
-        <main className="container mx-auto px-4 py-8">
+        <main className="max-w-6xl mx-auto px-6 mx-auto px-4 py-8">
           <BenchmarkDashboard benchmark={benchmark} />
         </main>
       </div>
@@ -250,7 +250,7 @@ export function ClientBenchmarkPage() {
   // List view
   return (
     <div className="min-h-screen bg-kosmos-black">
-      <div className="container mx-auto py-8 px-4">
+      <div className="max-w-6xl mx-auto px-6 mx-auto py-8 px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-kosmos-white">Meus Benchmarks</h1>
           <p className="text-kosmos-gray-400 mt-1">

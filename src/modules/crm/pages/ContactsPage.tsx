@@ -42,7 +42,7 @@ export function ContactsPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b">
-        <div className="container py-6">
+        <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-primary/10">
@@ -72,7 +72,7 @@ export function ContactsPage() {
       </div>
 
       {/* Content */}
-      <div className="container py-6">
+      <div className="max-w-7xl mx-auto px-6 py-6">
         <ContactsList onSelectContact={handleSelectContact} />
       </div>
 

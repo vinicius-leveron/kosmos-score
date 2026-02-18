@@ -267,7 +267,7 @@ export function AdminBenchmarkFormPage() {
     <div className="min-h-screen bg-kosmos-black">
       {/* Header */}
       <header className="border-b border-kosmos-gray-800 bg-kosmos-gray-900/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
+        <div className="max-w-6xl mx-auto px-6 mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button
@@ -310,7 +310,7 @@ export function AdminBenchmarkFormPage() {
 
       {/* Steps indicator */}
       <div className="border-b border-kosmos-gray-800 bg-kosmos-gray-900/30">
-        <div className="container mx-auto px-4 py-4">
+        <div className="max-w-6xl mx-auto px-6 mx-auto px-4 py-4">
           <div className="flex items-center justify-between max-w-2xl mx-auto">
             {STEPS.map((step, index) => (
               <div
@@ -356,7 +356,7 @@ export function AdminBenchmarkFormPage() {
       </div>
 
       {/* Form content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-6 mx-auto px-4 py-8">
         <FormProvider {...methods}>
           <form onSubmit={(e) => e.preventDefault()}>
             <Card className="max-w-3xl mx-auto bg-kosmos-gray-900 border-kosmos-gray-800">

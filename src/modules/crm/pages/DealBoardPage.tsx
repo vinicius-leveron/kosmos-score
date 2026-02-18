@@ -81,7 +81,7 @@ export function DealBoardPage() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <div className="border-b shrink-0">
-        <div className="container py-6">
+        <div className="max-w-full px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-primary/10">
@@ -113,7 +113,7 @@ export function DealBoardPage() {
 
       {/* Pipeline Selector + Stats */}
       <div className="border-b shrink-0">
-        <div className="container py-4">
+        <div className="max-w-full px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Select
@@ -162,7 +162,7 @@ export function DealBoardPage() {
       {/* Board */}
       <div className="flex-1 overflow-hidden">
         {isLoading ? (
-          <div className="container py-6">
+          <div className="max-w-full px-6 py-6">
             <div className="flex gap-4">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="w-72 h-96 bg-muted rounded-lg animate-pulse" />
@@ -170,7 +170,7 @@ export function DealBoardPage() {
             </div>
           </div>
         ) : !boardData || boardData.columns.length === 0 ? (
-          <div className="container py-12 text-center">
+          <div className="max-w-full px-6 py-12 text-center">
             <Target className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
             <h3 className="text-lg font-medium mb-2">Nenhum estágio configurado</h3>
             <p className="text-muted-foreground mb-4">
@@ -179,7 +179,7 @@ export function DealBoardPage() {
           </div>
         ) : (
           <div className="h-full overflow-x-auto">
-            <div className="container py-6 h-full">
+            <div className="max-w-full px-6 py-6 h-full">
               <div className="flex gap-4 min-w-max h-full">
                 {boardData.columns.map((column) => (
                   <DealBoardColumn

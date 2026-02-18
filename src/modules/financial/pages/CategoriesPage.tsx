@@ -255,7 +255,7 @@ export function CategoriesPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b">
-        <div className="container py-6">
+        <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-primary/10">
@@ -284,7 +284,7 @@ export function CategoriesPage() {
 
       {/* Filters */}
       <div className="border-b">
-        <div className="container py-4">
+        <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center gap-4">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -304,7 +304,7 @@ export function CategoriesPage() {
       </div>
 
       {/* Content */}
-      <div className="container py-6 pb-8">
+      <div className="max-w-6xl mx-auto px-6 py-6 pb-8">
         {isLoading ? (
           <div className="space-y-4">{[...Array(4)].map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
         ) : hasNoResults ? (

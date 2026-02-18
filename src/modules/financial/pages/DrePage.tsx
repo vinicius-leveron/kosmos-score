@@ -177,7 +177,7 @@ export function DrePage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b">
-        <div className="container py-6">
+        <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-primary/10">
               <FileText className="h-6 w-6 text-primary" />
@@ -196,7 +196,7 @@ export function DrePage() {
 
       {/* Filters */}
       <div className="border-b">
-        <div className="container py-4">
+        <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex flex-wrap items-end gap-4">
             <div className="space-y-1">
               <Label htmlFor="dre-start">Inicio</Label>
@@ -238,7 +238,7 @@ export function DrePage() {
       </div>
 
       {/* DRE Table */}
-      <div className="container py-6 pb-8">
+      <div className="max-w-6xl mx-auto px-6 py-6 pb-8">
         {isLoading ? (
           <DreSkeleton />
         ) : (

@@ -65,7 +65,7 @@ export function ReconciliationPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b">
-        <div className="container py-6">
+        <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-primary/10">
               <GitCompareArrows className="h-6 w-6 text-primary" />
@@ -84,7 +84,7 @@ export function ReconciliationPage() {
       </div>
 
       {/* Content */}
-      <div className="container py-6 pb-8 space-y-6">
+      <div className="max-w-6xl mx-auto px-6 py-6 pb-8 space-y-6">
         {/* Info banner */}
         <div
           className={cn(
