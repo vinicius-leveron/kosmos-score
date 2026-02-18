@@ -22,6 +22,8 @@ import {
   Landmark,
   GitCompareArrows,
   Search,
+  Key,
+  Webhook,
 } from 'lucide-react';
 import { useAuth, useOrganization } from '@/core/auth';
 import {
@@ -237,6 +239,18 @@ export function AdminSidebar() {
                   <Link to="/admin/settings/clients" className="flex items-center">
                     <Building2 className="h-4 w-4 mr-2" />
                     Clientes
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/admin/settings/api-keys" className="flex items-center">
+                    <Key className="h-4 w-4 mr-2" />
+                    API Keys
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/admin/settings/webhooks" className="flex items-center">
+                    <Webhook className="h-4 w-4 mr-2" />
+                    Webhooks
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
