@@ -44,7 +44,7 @@ export function CompetitorDetailPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-40 rounded-lg" />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -59,7 +59,7 @@ export function CompetitorDetailPage() {
   // Error state
   if (error || !competitor) {
     return (
-      <div className="space-y-4">
+      <div className="max-w-6xl mx-auto space-y-4">
         <Button variant="ghost" onClick={() => navigate(basePath)}>
           <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
           Voltar
@@ -79,7 +79,7 @@ export function CompetitorDetailPage() {
     && competitor.latest_run.status !== 'failed';
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       {/* Navigation */}
       <div className="flex items-center justify-between">
         <Button variant="ghost" onClick={() => navigate(basePath)}>

@@ -261,7 +261,7 @@ export function StakeholderDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         <Button variant="ghost" onClick={() => navigate('/admin/stakeholders')}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Voltar
@@ -283,7 +283,7 @@ export function StakeholderDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       {/* Back Button */}
       <Button variant="ghost" onClick={() => navigate('/admin/stakeholders')}>
         <ArrowLeft className="h-4 w-4 mr-2" />

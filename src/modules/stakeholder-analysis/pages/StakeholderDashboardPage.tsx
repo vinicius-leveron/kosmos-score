@@ -392,7 +392,7 @@ export function StakeholderDashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
           <p className="text-muted-foreground">
@@ -406,7 +406,7 @@ export function StakeholderDashboardPage() {
 
   if (!data || data.totalStakeholders === 0) {
     return (
-      <div className="space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
           <p className="text-muted-foreground">
@@ -423,7 +423,7 @@ export function StakeholderDashboardPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
