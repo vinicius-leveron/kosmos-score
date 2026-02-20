@@ -124,7 +124,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
               <Button
                 type="submit"
                 size="lg"
-                className="w-full h-14 text-base font-display font-semibold bg-kosmos-orange hover:bg-cyan-600 text-white transition-all duration-300"
+                className="w-full h-14 text-base font-display font-semibold bg-kosmos-orange hover:bg-kosmos-orange-glow glow-orange-subtle hover:glow-orange text-white transition-all duration-300"
               >
                 Calcular Minha Transicao
                 <ArrowRight className="w-5 h-5 ml-2" />
