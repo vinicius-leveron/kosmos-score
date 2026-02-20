@@ -22,6 +22,12 @@ import NotFound from "./pages/NotFound";
 import Index from "./pages/Index"; // KOSMOS Score quiz
 import { EmbedKosmosScore } from "./pages/EmbedKosmosScore";
 
+// Lead Magnet pages - Lazy loaded
+const EcosystemCalculatorPage = lazy(() => import("./modules/ecosystem-calculator").then(m => ({ default: m.EcosystemCalculatorPage })));
+const HTReadinessPage = lazy(() => import("./modules/ht-readiness").then(m => ({ default: m.HTReadinessPage })));
+const HTTemplatePage = lazy(() => import("./modules/ht-template").then(m => ({ default: m.HTTemplatePage })));
+const TransitionCalculatorPage = lazy(() => import("./modules/transition-calculator").then(m => ({ default: m.TransitionCalculatorPage })));
+
 // Admin pages
 import { DashboardPage, LeadMagnetsPage, LeadMagnetAnalyticsPage } from "./pages/admin";
 
@@ -83,6 +89,18 @@ const App = () => (
             <Route path="/login" element={<LoginPage />} />
             <Route path="/quiz/kosmos-score" element={<Index />} />
             <Route path="/embed/kosmos-score" element={<EmbedKosmosScore />} />
+            {/* Ecosystem Calculator Lead Magnet */}
+            <Route path="/quiz/ecosystem-calculator" element={<Suspense fallback={<PageLoader />}><EcosystemCalculatorPage /></Suspense>} />
+            <Route path="/embed/ecosystem-calculator" element={<Suspense fallback={<PageLoader />}><EcosystemCalculatorPage embed /></Suspense>} />
+            {/* HT Readiness Diagnostic Lead Magnet */}
+            <Route path="/quiz/ht-readiness" element={<Suspense fallback={<PageLoader />}><HTReadinessPage /></Suspense>} />
+            <Route path="/embed/ht-readiness" element={<Suspense fallback={<PageLoader />}><HTReadinessPage embed /></Suspense>} />
+            {/* HT Template Lead Magnet */}
+            <Route path="/quiz/ht-template" element={<Suspense fallback={<PageLoader />}><HTTemplatePage /></Suspense>} />
+            <Route path="/embed/ht-template" element={<Suspense fallback={<PageLoader />}><HTTemplatePage embed /></Suspense>} />
+            {/* Transition Calculator Lead Magnet */}
+            <Route path="/quiz/transition-calculator" element={<Suspense fallback={<PageLoader />}><TransitionCalculatorPage /></Suspense>} />
+            <Route path="/embed/transition-calculator" element={<Suspense fallback={<PageLoader />}><TransitionCalculatorPage embed /></Suspense>} />
             <Route path="/f/:slug" element={<FormPublicPage />} />
             <Route path="/journey/client/:token" element={<Suspense fallback={<PageLoader />}><JourneyClientPage /></Suspense>} />
             <Route path="/invite/:token" element={<AcceptInvitePage />} />
