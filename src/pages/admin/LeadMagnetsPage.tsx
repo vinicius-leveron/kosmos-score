@@ -14,12 +14,16 @@ import {
   TrendingUp,
   Clock,
   Zap,
+  Leaf,
+  Award,
+  FileCheck,
+  RefreshCw,
 } from 'lucide-react';
 import { EmbedCodeDialog } from '@/modules/kosmos-score/components/EmbedCodeDialog';
 import { useLeadMagnetSummary } from '@/modules/kosmos-score/hooks/useLeadMagnetStats';
 
 interface LeadMagnetConfig {
-  id: 'kosmos_score' | 'application' | 'forms';
+  id: 'kosmos_score' | 'application' | 'forms' | 'ecosystem_calculator' | 'ht_readiness' | 'ht_template' | 'transition_calculator';
   name: string;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -66,6 +70,54 @@ const leadMagnetsConfig: LeadMagnetConfig[] = [
     href: '/admin/toolkit/forms',
     analyticsHref: '/admin/lead-magnets/forms/analytics',
     status: 'draft',
+  },
+  {
+    id: 'ecosystem_calculator',
+    name: 'Calculadora de Ecossistema',
+    description: 'Mostra o potencial de faturamento com modelo de ecossistema vs. modelo atual',
+    icon: Leaf,
+    color: 'text-emerald-500',
+    bgColor: 'bg-emerald-500/10',
+    href: '/admin/lead-magnets/ecosystem-calculator',
+    analyticsHref: '/admin/lead-magnets/ecosystem-calculator/analytics',
+    publicUrl: '/quiz/ecosystem-calculator',
+    status: 'active',
+  },
+  {
+    id: 'ht_readiness',
+    name: 'Diagnóstico High Ticket',
+    description: 'Avalia se o creator está pronto para ofertas high ticket e onde melhorar',
+    icon: Award,
+    color: 'text-amber-500',
+    bgColor: 'bg-amber-500/10',
+    href: '/admin/lead-magnets/ht-readiness',
+    analyticsHref: '/admin/lead-magnets/ht-readiness/analytics',
+    publicUrl: '/quiz/ht-readiness',
+    status: 'active',
+  },
+  {
+    id: 'ht_template',
+    name: 'Template High Ticket',
+    description: 'Wizard interativo para estruturar uma oferta high ticket completa',
+    icon: FileCheck,
+    color: 'text-violet-500',
+    bgColor: 'bg-violet-500/10',
+    href: '/admin/lead-magnets/ht-template',
+    analyticsHref: '/admin/lead-magnets/ht-template/analytics',
+    publicUrl: '/quiz/ht-template',
+    status: 'active',
+  },
+  {
+    id: 'transition_calculator',
+    name: 'Calculadora de Transição',
+    description: 'Calcula o breakeven da transição de lançamento para recorrência',
+    icon: RefreshCw,
+    color: 'text-cyan-500',
+    bgColor: 'bg-cyan-500/10',
+    href: '/admin/lead-magnets/transition-calculator',
+    analyticsHref: '/admin/lead-magnets/transition-calculator/analytics',
+    publicUrl: '/quiz/transition-calculator',
+    status: 'active',
   },
 ];
 
@@ -178,7 +230,7 @@ export function LeadMagnetsPage() {
                 <Clock className="h-5 w-5 text-purple-500" />
               </div>
               <div>
-                <div className="text-2xl font-bold">1</div>
+                <div className="text-2xl font-bold">{leadMagnetsConfig.filter(lm => lm.status === 'active').length}</div>
                 <div className="text-sm text-muted-foreground">Lead Magnets Ativos</div>
               </div>
             </CardContent>
@@ -251,9 +303,9 @@ export function LeadMagnetsPage() {
                       </a>
                     </Button>
                   )}
-                  {lm.id === 'kosmos_score' && (
+                  {lm.publicUrl && lm.status === 'active' && (
                     <EmbedCodeDialog
-                      quizUrl={`${window.location.origin}/#/embed/kosmos-score`}
+                      quizUrl={`${window.location.origin}/#/embed${lm.publicUrl.replace('/quiz', '')}`}
                     />
                   )}
                 </div>

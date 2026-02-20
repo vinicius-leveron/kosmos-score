@@ -318,6 +318,26 @@ export function useLeadMagnetSummary() {
 
       const completedApplications = applicationData.filter(r => r.status === 'completed');
 
+      // Fetch lead magnet results for new calculators
+      const { data: leadMagnetResults } = await supabase
+        .from('lead_magnet_results')
+        .select('id, lead_magnet_type, total_score, created_at')
+        .order('created_at', { ascending: false });
+
+      const lmResults = leadMagnetResults || [];
+
+      // Helper to compute stats for a specific lead magnet type
+      const getLeadMagnetStats = (type: string) => {
+        const filtered = lmResults.filter(r => r.lead_magnet_type === type);
+        return {
+          total: filtered.length,
+          recent: filtered.filter(r => r.created_at >= last7Days).length,
+          avgScore: filtered.length > 0
+            ? Math.round(filtered.reduce((sum, r) => sum + (r.total_score || 0), 0) / filtered.length)
+            : 0,
+        };
+      };
+
       return {
         kosmos_score: {
           total: kosmosData.length,
@@ -337,6 +357,10 @@ export function useLeadMagnetSummary() {
             : 0,
         },
         forms: { total: 0, recent: 0, avgScore: 0 },
+        ecosystem_calculator: getLeadMagnetStats('ecosystem-calculator'),
+        ht_readiness: getLeadMagnetStats('ht-readiness'),
+        ht_template: getLeadMagnetStats('ht-template'),
+        transition_calculator: getLeadMagnetStats('transition-calculator'),
       };
     },
     staleTime: 60 * 1000,
