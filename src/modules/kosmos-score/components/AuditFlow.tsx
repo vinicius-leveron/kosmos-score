@@ -21,6 +21,7 @@ type AuditStep = 'welcome' | 'questions' | 'result';
 export function AuditFlow() {
   const [step, setStep] = useState<AuditStep>('welcome');
   const [email, setEmail] = useState('');
+  const [fullName, setFullName] = useState('');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<AuditAnswers>({});
   const [result, setResult] = useState<AuditResult | null>(null);
@@ -33,8 +34,9 @@ export function AuditFlow() {
     notifyStep('welcome');
   }, [notifyStep]);
 
-  const handleStart = (userEmail: string) => {
+  const handleStart = (userEmail: string, userName?: string) => {
     setEmail(userEmail);
+    setFullName(userName || '');
     setStep('questions');
     notifyStep('questions');
   };
@@ -77,6 +79,7 @@ export function AuditFlow() {
       // Build insert data for V2
       const insertData = {
         email: auditResult.email,
+        full_name: fullName || null,
         version: 2,
 
         // BLOCO 1: Perfil

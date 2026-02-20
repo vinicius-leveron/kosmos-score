@@ -6,12 +6,13 @@ import { cn } from '@/design-system/lib/utils';
 import { useEmbed } from '../contexts/EmbedContext';
 
 interface WelcomeScreenProps {
-  onStart: (email: string) => void;
+  onStart: (email: string, name?: string) => void;
 }
 
 export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
   const { isEmbed } = useEmbed();
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -29,7 +30,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
     }
 
     setError('');
-    onStart(email.trim());
+    onStart(email.trim(), name.trim() || undefined);
   };
 
   return (
@@ -97,8 +98,16 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
               </div>
             </div>
 
-            {/* Email Form */}
+            {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
+              <Input
+                type="text"
+                placeholder="Seu nome (opcional)"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="h-12 text-base bg-kosmos-black border-border focus:border-kosmos-orange focus:ring-kosmos-orange/20 placeholder:text-kosmos-gray/50 text-kosmos-white"
+              />
+
               <div>
                 <Input
                   type="email"
@@ -108,7 +117,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
                     setEmail(e.target.value);
                     if (error) setError('');
                   }}
-                  className="h-14 text-base bg-kosmos-black border-border focus:border-kosmos-orange focus:ring-kosmos-orange/20 placeholder:text-kosmos-gray/50 text-kosmos-white"
+                  className="h-12 text-base bg-kosmos-black border-border focus:border-kosmos-orange focus:ring-kosmos-orange/20 placeholder:text-kosmos-gray/50 text-kosmos-white"
                 />
                 {error && (
                   <p className="text-destructive text-sm mt-2">{error}</p>
