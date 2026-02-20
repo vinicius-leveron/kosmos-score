@@ -1,0 +1,291 @@
+# Perfis ICP KOSMOS
+# 5 variações dentro do macro-perfil de creator digital
+
+perfis:
+  - id: professor-preso
+    nome: "Professor Preso"
+    emoji: "📚"
+
+    caracteristicas:
+      nicho_tipico:
+        - educação
+        - inglês
+        - concursos
+        - finanças pessoais
+
+      descricao: |
+        Conteúdo excelente, didática impecável, produto barato.
+        Sabe ensinar mas não sabe vender.
+        Curso vale R$ 5k mas vende por R$ 197 porque "não quer ser caro".
+        Aversão a marketing agressivo.
+
+    comunicacao:
+      copy_que_funciona:
+        - resultado com números
+        - prova social de alunos
+        - ROI racional
+        - sem urgência artificial
+
+      copy_que_repele:
+        - hype
+        - promessas grandiosas
+        - linguagem de vendedor
+        - pressão
+
+      tom: educativo, racional, sem pressão
+
+    barreira_principal: |
+      Identidade: "Eu sou professor, não vendedor"
+
+    oferta_que_converte:
+      primario: sala fechada
+      secundario: consultoria (após educação)
+      motivo: precisa ser educado antes de comprar
+
+    canal_preferido: email ou DM educativa (não WhatsApp frio)
+
+    porta_emocional_principal: aliviio
+    objecoes_comuns:
+      - "Eu não sou vendedor"
+      - "Meus alunos não podem pagar caro"
+      - "Cobrar muito parece ganância"
+
+  - id: lancador-cansado
+    nome: "Lançador Cansado"
+    emoji: "😮‍💨"
+
+    caracteristicas:
+      nicho_tipico:
+        - marketing digital
+        - negócios
+        - desenvolvimento pessoal
+
+      descricao: |
+        Já fez 10+ lançamentos. Sabe o jogo.
+        Exausto emocionalmente do ciclo de 45-60 dias.
+        Cada ciclo é montanha-russa que consome tudo.
+        Quer sair do modelo mas não sabe como substituir receita.
+
+    comunicacao:
+      copy_que_funciona:
+        - previsibilidade
+        - recorrência
+        - "nunca mais lançar"
+        - anti-guru
+
+      copy_que_repele:
+        - mais um método
+        - promessas de 6 dígitos
+        - lançamento como solução
+
+      tom: direto, anti-guru, foco em previsibilidade
+
+    barreira_principal: |
+      Medo de perder receita na transição: "Se eu parar de lançar, o que acontece com o caixa?"
+
+    oferta_que_converte:
+      primario: call direto
+      secundario: consultoria
+      motivo: não precisa de educação, precisa de solução
+
+    canal_preferido: DM Instagram ou WhatsApp (rápido pra decidir)
+
+    porta_emocional_principal: esgotamento
+    objecoes_comuns:
+      - "E se o caixa secar na transição?"
+      - "Lançamento ainda dá dinheiro"
+      - "Já investi demais nesse modelo"
+
+  - id: community-builder-frustrado
+    nome: "Community Builder Frustrado"
+    emoji: "🏚️"
+
+    caracteristicas:
+      nicho_tipico:
+        - qualquer (já tentou comunidade)
+
+      descricao: |
+        Abriu grupo, botou gente, engajamento morreu em 3 meses.
+        Acha que "comunidade não funciona pro nicho dele".
+        Na verdade não tinha estrutura, rituais, nem modelo de monetização.
+
+    comunicacao:
+      copy_que_funciona:
+        - diagnóstico do erro anterior
+        - "comunidade que você tentou não funcionou porque..."
+        - explicação clara do que faltou
+
+      copy_que_repele:
+        - "comunidade é fácil"
+        - ignorar a tentativa anterior
+        - promessas sem explicação
+
+      tom: diagnóstico, explicativo, empático
+
+    barreira_principal: |
+      Trauma do fracasso anterior: precisa de explicação clara de por que vai ser diferente
+
+    oferta_que_converte:
+      primario: sala fechada
+      secundario: consultoria
+      motivo: precisa VER que comunidade funciona antes de comprar
+
+    canal_preferido: conteúdo IG + sala fechada (observa antes de agir)
+
+    porta_emocional_principal: alivio
+    objecoes_comuns:
+      - "Comunidade não funciona pro meu nicho"
+      - "Já tentei e não deu certo"
+      - "Meu público não engaja"
+
+  - id: expert-tecnico
+    nome: "Expert Técnico"
+    emoji: "🔬"
+
+    caracteristicas:
+      nicho_tipico:
+        - saúde
+        - direito
+        - engenharia
+        - terapias
+        - nutrição
+
+      descricao: |
+        Muito bom tecnicamente, não se vê como "creator".
+        Tem audiência orgânica porque conteúdo é genuinamente útil.
+        Nunca fez lançamento formal.
+        Monetiza com consulta 1:1 ou curso barato.
+        Não sabe que poderia faturar 10x mais.
+
+    comunicacao:
+      copy_que_funciona:
+        - cases de experts técnicos similares
+        - linguagem sóbria, sem hype
+        - números e métricas
+        - profissionalismo
+
+      copy_que_repele:
+        - linguagem de marketing digital
+        - hype e promessas
+        - termos de "guru"
+        - emojis excessivos
+
+      tom: sóbrio, profissional, técnico
+
+    barreira_principal: |
+      Aversão ao "mundo do marketing digital" e tudo que parece guru
+
+    oferta_que_converte:
+      primario: diagnóstico gratuito com dados
+      secundario: consultoria
+      motivo: decide com razão, não emoção
+
+    canal_preferido: email profissional (acha DM de Instagram pouco sério)
+
+    porta_emocional_principal: inveja_estrategica
+    objecoes_comuns:
+      - "Isso é coisa de influenciador"
+      - "Meu público é diferente"
+      - "Não quero virar guru"
+
+  - id: creator-empresario-travado
+    nome: "Creator-Empresário Travado"
+    emoji: "📈"
+
+    caracteristicas:
+      nicho_tipico:
+        - negócios
+        - empreendedorismo
+        - SaaS
+        - tech
+
+      descricao: |
+        Pensa como empresário, já tem alguma estrutura (equipe, processos).
+        Fatura R$ 80-100k+/mês.
+        Modelo no limite, sabe que precisa de salto.
+        Não precisa aprender a vender - precisa de arquitetura.
+
+    comunicacao:
+      copy_que_funciona:
+        - linguagem de negócio
+        - métricas
+        - estrutura
+        - blueprint
+
+      copy_que_repele:
+        - motivacional
+        - história inspiracional
+        - promessas vagas
+        - falta de profundidade técnica
+
+      tom: linguagem de negócio, direto, técnico
+
+    barreira_principal: |
+      Acha que ninguém entende a complexidade do negócio dele
+
+    oferta_que_converte:
+      primario: call direto com proposta técnica
+      secundario: N/A
+      motivo: quer saber o "como"
+
+    canal_preferido: email ou LinkedIn, DM com conteúdo denso
+
+    porta_emocional_principal: inveja_estrategica
+    objecoes_comuns:
+      - "Meu negócio é muito específico"
+      - "Vocês entendem de tech?"
+      - "Preciso de algo personalizado"
+
+# Referência rápida
+portas_emocionais:
+  alivio:
+    descricao: "Finalmente alguém que entende"
+    perfis_principais: [professor-preso, community-builder-frustrado, expert-tecnico]
+    como_ativa: conteúdo que descreve realidade com precisão
+
+  inveja_estrategica:
+    descricao: "Ele conseguiu, eu também consigo"
+    perfis_principais: [lancador-cansado, creator-empresario-travado]
+    como_ativa: case de creator similar com números
+
+  esgotamento:
+    descricao: "Não aguento mais"
+    perfis_principais: [todos]
+    como_ativa: evento de ruptura (lançamento ruim, burnout, etc)
+    nota: porta abre sozinha, estar presente quando abrir
+
+camadas_dor:
+  1:
+    nome: "Frustração Financeira Silenciosa"
+    onde_aparece: ads, primeira DM
+    nivel: superficie
+
+  2:
+    nome: "Síndrome do Impostor Invertida"
+    onde_aparece: conteúdo educativo, sala fechada
+    nivel: admite_em_particular
+
+  3:
+    nome: "Dependência do Algoritmo"
+    onde_aparece: stories bastidores
+    nivel: ansiedade_cronica
+
+  4:
+    nome: "Solidão Estratégica"
+    onde_aparece: proposta de valor sala/imersão
+    nivel: isolamento
+
+  5:
+    nome: "Medo da Irrelevância"
+    onde_aparece: copy sobre futuro do creator
+    nivel: existencial
+
+  6:
+    nome: "Culpa com a Base"
+    onde_aparece: reframe high ticket
+    nivel: moral
+
+  7:
+    nome: "Ceticismo com Mercado"
+    onde_aparece: todo touchpoint (reduzir, não convencer)
+    nivel: desconfianca

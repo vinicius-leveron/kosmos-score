@@ -1,0 +1,37 @@
+name: "ad-copy-factory"
+version: 0.1.0
+description: "Squad especializada em criar copy de anuncios estaticos (Meta Ads) para lead magnets de topo de funil"
+author: "KOSMOS Team"
+license: MIT
+
+aios:
+  minVersion: "2.1.0"
+  type: squad
+
+components:
+  agents:
+    - agents/*.md
+  tasks:
+    - tasks/*.md
+  templates:
+    - templates/*.md
+  data:
+    - data/*.yaml
+
+dependencies:
+  - icp-specialist    # Linguagem e dores do ICP
+  - lead-magnet-factory  # Briefing do lead magnet
+  - copy-writer       # Revisao de microcopy
+
+keywords:
+  - aios
+  - squad
+  - ads
+  - copy
+  - meta-ads
+  - facebook
+  - instagram
+  - lead-magnet
+  - hooks
+  - cta
+  - kosmos

@@ -1,0 +1,32 @@
+name: "icp-specialist"
+version: 0.1.0
+description: "Squad especializada em aplicar conhecimento profundo do ICP KOSMOS para outbound e criação de conteúdo que ressoa"
+author: "KOSMOS Team"
+license: MIT
+
+aios:
+  minVersion: "2.1.0"
+  type: squad
+
+components:
+  agents:
+    - agents/*.md
+  tasks:
+    - tasks/*.md
+  templates:
+    - templates/*.md
+  data:
+    - data/*.md
+    - data/*.yaml
+
+dependencies:
+  - copy-writer  # Integração com agente de copy existente
+
+keywords:
+  - aios
+  - squad
+  - icp
+  - outbound
+  - content
+  - kosmos
+  - creator

@@ -1,0 +1,316 @@
+# Ad Swipe File - Referências de Anúncios
+# Exemplos de anúncios bem-sucedidos para inspiração
+
+---
+
+# Anúncios de Diagnóstico/Quiz
+
+diagnosticos:
+  - nome: "Quiz de Perfil de Investidor"
+    fonte: "XP Investimentos"
+    hook: "Você sabe qual é seu perfil de investidor?"
+    estrutura: pergunta_provocativa
+    por_que_funciona:
+      - Pergunta que gera curiosidade
+      - Promete autoconhecimento
+      - Resultado personalizado
+    metricas_referencia:
+      ctr: "2.1%"
+      tipo: "quiz"
+
+  - nome: "Diagnóstico de Marketing"
+    fonte: "RD Station"
+    hook: "Sua empresa está preparada para crescer?"
+    estrutura: pergunta_provocativa
+    por_que_funciona:
+      - Desafia o status quo
+      - Implica que pode haver problemas
+      - Oferece solução rápida
+    metricas_referencia:
+      ctr: "1.8%"
+      tipo: "diagnostico"
+
+  - nome: "Score de Crédito"
+    fonte: "Serasa"
+    hook: "Descubra seu score em 1 minuto"
+    estrutura: resultado_tempo
+    por_que_funciona:
+      - Tempo específico reduz atrito
+      - Benefício claro (saber o score)
+      - Gratuito e rápido
+    metricas_referencia:
+      ctr: "3.2%"
+      tipo: "score"
+
+---
+
+# Anúncios de Calculadora
+
+calculadoras:
+  - nome: "Calculadora de Aposentadoria"
+    fonte: "BTG Pactual"
+    hook: "Quanto você precisa para se aposentar?"
+    estrutura: pergunta_provocativa
+    por_que_funciona:
+      - Dor universal (aposentadoria)
+      - Número específico como resultado
+      - Personalizado
+    metricas_referencia:
+      ctr: "1.9%"
+      tipo: "calculadora"
+
+  - nome: "Simulador de Financiamento"
+    fonte: "Creditas"
+    hook: "Calcule sua parcela em 30 segundos"
+    estrutura: acao_tempo
+    por_que_funciona:
+      - Tempo ultra-específico
+      - Ação clara
+      - Resultado imediato
+    metricas_referencia:
+      ctr: "2.4%"
+      tipo: "simulador"
+
+  - nome: "Calculadora de Lucro"
+    fonte: "Conta Azul"
+    hook: "82% dos empresários não sabem seu lucro real"
+    estrutura: numero_especifico
+    por_que_funciona:
+      - Número cria autoridade
+      - Implica que você pode ser um dos 82%
+      - Gera insegurança positiva
+    metricas_referencia:
+      ctr: "1.7%"
+      tipo: "calculadora"
+
+---
+
+# Anúncios de Template/Framework
+
+templates:
+  - nome: "Planilha de Gastos"
+    fonte: "Me Poupe"
+    hook: "Pare de perder dinheiro todo mês"
+    estrutura: dor_direta
+    por_que_funciona:
+      - Dor universal (perder dinheiro)
+      - Implica solução simples
+      - Tom direto
+    metricas_referencia:
+      ctr: "2.0%"
+      tipo: "planilha"
+
+  - nome: "Template de Pitch"
+    fonte: "Endeavor"
+    hook: "O template que startups usam para captar milhões"
+    estrutura: resultado_social_proof
+    por_que_funciona:
+      - Social proof (startups de sucesso)
+      - Resultado específico (milhões)
+      - Ferramenta pronta
+    metricas_referencia:
+      ctr: "1.6%"
+      tipo: "template"
+
+  - nome: "Framework de Vendas"
+    fonte: "Resultados Digitais"
+    hook: "O método que dobrou nossas vendas em 6 meses"
+    estrutura: resultado_transformacao
+    por_que_funciona:
+      - Resultado específico (dobrar)
+      - Tempo definido (6 meses)
+      - Case próprio gera credibilidade
+    metricas_referencia:
+      ctr: "1.5%"
+      tipo: "framework"
+
+---
+
+# Hooks por Categoria
+
+hooks_referencia:
+
+  pergunta_provocativa:
+    - "Você sabe quanto está deixando na mesa?"
+    - "Quantos clientes você está perdendo?"
+    - "Já calculou o valor real do seu negócio?"
+    - "Sabe qual é seu ponto de equilíbrio?"
+    - "Quanto você poderia estar faturando?"
+
+  numero_especifico:
+    - "82% dos creators não sabem seu lucro oculto"
+    - "3 em cada 4 empresas quebram por isso"
+    - "Apenas 12% conseguem receita previsível"
+    - "67% está deixando dinheiro na mesa"
+    - "9 em 10 não calculam o custo de aquisição"
+
+  dor_direta:
+    - "Cansado de faturamento imprevisível?"
+    - "Outro mês de incerteza financeira?"
+    - "Ainda dependendo de lançamentos?"
+    - "Trabalhando 60h sem resultado?"
+    - "Mais um cliente que não fecha?"
+
+  desafio_crenca:
+    - "Esqueça o que te disseram sobre vendas"
+    - "Mais seguidores não é a resposta"
+    - "O problema não é falta de produto"
+    - "Você não precisa de mais tráfego"
+    - "Escala não é só sobre gastar mais"
+
+  resultado:
+    - "Como creators estão faturando sem lançamento"
+    - "De imprevisível para recorrente em 90 dias"
+    - "Descubra seu potencial em 3 minutos"
+    - "Transforme seguidores em clientes"
+    - "Saia da montanha-russa de receita"
+
+  curiosidade:
+    - "O que top creators sabem que você não"
+    - "Existe um lucro oculto no seu negócio"
+    - "Sua base atual pode gerar 3x mais"
+    - "O número que ninguém está olhando"
+    - "A métrica que separa amadores de profissionais"
+
+---
+
+# CTAs de Alta Conversão
+
+ctas_referencia:
+
+  diagnostico:
+    primarios:
+      - "Fazer meu diagnóstico"
+      - "Descobrir meu score"
+      - "Ver meu resultado"
+    suporte:
+      - "Gratuito, leva 3 minutos"
+      - "Resultado instantâneo"
+      - "Sem compromisso"
+
+  calculadora:
+    primarios:
+      - "Calcular meu potencial"
+      - "Ver minha projeção"
+      - "Simular meu cenário"
+    suporte:
+      - "Resultado em 60 segundos"
+      - "100% online"
+      - "Dados protegidos"
+
+  template:
+    primarios:
+      - "Baixar template grátis"
+      - "Pegar meu framework"
+      - "Acessar modelo"
+    suporte:
+      - "100% editável"
+      - "Pronto para usar"
+      - "Sem cadastro"
+
+---
+
+# Estruturas de Copy (PAS)
+
+estruturas_pas:
+
+  modelo_dor:
+    problema: |
+      Você trabalha [X] horas por semana, faz [ação estressante],
+      e no final do mês [resultado frustrante].
+
+      Pior: você sente que [tem potencial não realizado].
+    agitacao: |
+      E se você soubesse [verdade incômoda]?
+      Enquanto isso, [outros] estão [resultado melhor].
+    solucao: |
+      Criei [lead magnet] que [benefício principal].
+
+      Em [tempo], você descobre [resultado] - [sem objeção].
+
+  modelo_aspiracao:
+    problema: |
+      Imagine [cenário desejado].
+
+      [Realidade atual que impede].
+    agitacao: |
+      Não precisa ser assim.
+      [Possibilidade de mudança].
+    solucao: |
+      Com [lead magnet], você [ação simples].
+
+      [Benefício tangível] em [tempo].
+
+  modelo_urgencia:
+    problema: |
+      Todo dia que passa, [custo de não agir].
+
+      [Consequência específica].
+    agitacao: |
+      Enquanto você [estado atual], [outros] estão [avançando].
+    solucao: |
+      [Lead magnet] mostra [caminho].
+
+      [Ação] agora e [resultado imediato].
+
+---
+
+# Métricas de Referência
+
+benchmarks:
+
+  meta_ads:
+    ctr_medio: "0.9%"
+    ctr_bom: "1.5%"
+    ctr_excelente: "2.5%+"
+    cpl_diagnostico: "R$ 3-8"
+    cpl_template: "R$ 5-12"
+    cpl_calculadora: "R$ 4-10"
+
+  taxa_conversao:
+    landing_page: "25-40%"
+    quiz_completion: "60-80%"
+    calculadora_uso: "50-70%"
+
+  copy:
+    caracteres_ideal: "125-250"
+    linhas_ideal: "8-12"
+    tempo_leitura: "15-30s"
+
+---
+
+# Anti-Padrões (O que NÃO fazer)
+
+anti_padroes:
+
+  hooks_ruins:
+    - "Clique aqui para saber mais"
+    - "IMPERDÍVEL!!!"
+    - "Método secreto revelado"
+    - "Você não vai acreditar"
+    - "ÚLTIMA CHANCE"
+
+  ctas_ruins:
+    - "Saiba mais"
+    - "Clique aqui"
+    - "Cadastre-se"
+    - "Enviar"
+    - "Ver"
+
+  linguagem_evitar:
+    - "Fature 6 dígitos"
+    - "Método exclusivo/secreto"
+    - "Vagas limitadas" (se não for verdade)
+    - Emojis excessivos
+    - CAIXA ALTA
+    - "Descubra o segredo"
+    - "Única coisa que você precisa"
+    - "Hack/truque"
+    - "Garantido"
+
+  estruturas_ruins:
+    - Copy muito longa (>500 caracteres)
+    - Sem hook claro
+    - CTA genérico
+    - Múltiplos CTAs conflitantes
+    - Promessas irrealistas

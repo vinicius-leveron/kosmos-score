@@ -1,0 +1,35 @@
+name: "lead-magnet-factory"
+version: 0.1.0
+description: "Squad especializada em criar lead magnets de alta conversão: diagnósticos, templates/frameworks e calculadoras para topo de funil"
+author: "KOSMOS Team"
+license: MIT
+
+aios:
+  minVersion: "2.1.0"
+  type: squad
+
+components:
+  agents:
+    - agents/*.md
+  tasks:
+    - tasks/*.md
+  templates:
+    - templates/*.md
+  checklists:
+    - checklists/*.md
+  data:
+    - data/*.yaml
+
+dependencies:
+  - icp-specialist  # Integração com squad de ICP
+  - copy-writer     # Agente de copy existente
+
+keywords:
+  - aios
+  - squad
+  - lead-magnet
+  - diagnostic
+  - template
+  - calculator
+  - funnel
+  - kosmos

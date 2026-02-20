@@ -29,7 +29,7 @@ dist-ssr
 .aios-core/
 !.aios-core/install-manifest.yaml
 !.aios-core/version.json
-squads/
+# squads/ - Removed to version-control custom squads
 
 # Keep AIOS stories in git (documentation)
 !docs/stories/
