@@ -243,7 +243,7 @@ export const TEMPLATE_SECTIONS: TemplateSection[] = [
         id: 'subheadline',
         label: 'Subheadline',
         type: 'text',
-        placeholder: 'Ex: De 0 a 100k/mês em 90 dias com o Método KOSMOS',
+        placeholder: 'Ex: Saia da montanha-russa de lançamentos para receita previsível',
         helperText: 'Uma frase que resume a transformação',
       },
       {
@@ -279,9 +279,9 @@ export interface TemplateData {
 
 export const EXAMPLE_DATA: TemplateData = {
   transformacao: {
-    estado_atual: 'Criadores de conteúdo que faturam entre R$10-30k/mês com lançamentos, mas vivem em uma montanha-russa de receita, trabalham 60+ horas por semana e não conseguem escalar sem se matar.',
-    estado_desejado: 'Faturamento previsível de R$100k+/mês com modelo de recorrência, trabalhando 30h/semana com uma operação enxuta e escalável.',
-    tempo_transformacao: '90dias',
+    estado_atual: 'Criadores de conteúdo que faturam entre R$10-30k/mês com lançamentos, mas vivem em uma montanha-russa de receita, trabalham 60+ horas por semana e não conseguem escalar.',
+    estado_desejado: 'Faturamento previsível de R$30-50k/mês com modelo de recorrência, trabalhando 40h/semana com operação mais estruturada.',
+    tempo_transformacao: '6meses',
   },
   mecanismo: {
     nome_metodo: 'Método KOSMOS',
@@ -311,19 +311,19 @@ export const EXAMPLE_DATA: TemplateData = {
   },
   garantias: {
     tipo_garantia: 'condicional',
-    descricao_garantia: 'Se você aplicar o método, comparecer às sessões e não ver aumento de pelo menos 30% no faturamento em 90 dias, continuo trabalhando com você sem custo adicional até atingir.',
+    descricao_garantia: 'Se você aplicar o método, comparecer às sessões e não ver aumento de pelo menos 20% no faturamento em 6 meses, continuo trabalhando com você sem custo adicional até atingir.',
     risk_reversal: 'Além disso, se nas primeiras 2 semanas você sentir que não é pra você, devolvemos 100% do investimento.',
   },
   pricing: {
     investimento: 12000,
     parcelas: '12x de R$ 1.197 ou R$ 10.800 à vista (10% off)',
     ancora_valor: 35000,
-    justificativa_preco: 'Se você está faturando R$20k/mês e chegar a R$50k em 90 dias, são R$30k a mais POR MÊS. Em 12 meses, R$360k extras. O investimento se paga no primeiro mês de resultado.',
+    justificativa_preco: 'Se você aumentar seu faturamento em 30% nos próximos 6 meses (de R$20k para R$26k/mês), são R$6k extras por mês. Em 12 meses, R$72k extras. O investimento se paga em poucos meses.',
   },
   stack_valor: {
     headline_oferta: 'Programa KOSMOS de Aceleração',
-    subheadline: 'Transforme seu negócio de conteúdo em um ecossistema de R$100k+/mês em 90 dias',
-    publico_ideal: 'É PARA VOCÊ SE:\n- Já fatura R$10k+/mês com infoprodutos\n- Tem audiência engajada (10k+ seguidores)\n- Está disposto a implementar e não só aprender\n- Quer sair da montanha-russa de lançamentos\n\nNÃO É PARA VOCÊ SE:\n- Está começando do zero\n- Busca dinheiro rápido sem esforço\n- Não tem tempo para implementar (mínimo 10h/semana)',
+    subheadline: 'Saia da montanha-russa de lançamentos para um modelo de receita previsível em 6 meses',
+    publico_ideal: 'É PARA VOCÊ SE:\n- Já fatura R$10k+/mês com infoprodutos\n- Tem audiência engajada (10k+ seguidores)\n- Está disposto a implementar e não só aprender\n- Quer sair da montanha-russa de lançamentos\n\nNÃO É PARA VOCÊ SE:\n- Está começando do zero\n- Busca resultados imediatos sem esforço\n- Não tem tempo para implementar (mínimo 10h/semana)',
     cta_principal: 'Agendar Conversa Estratégica',
   },
 };

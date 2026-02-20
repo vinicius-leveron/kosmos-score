@@ -20,25 +20,25 @@ export const PREMISAS = {
     media: 1.2, // 4+ pessoas
   } as Record<string, number>,
 
-  // Potencial de monetização da audiência
+  // Potencial de monetização da audiência (valores conservadores)
   taxaConversaoAudiencia: {
-    min: 0.01, // 1% conversão mínima
-    media: 0.02, // 2% conversão média
-    max: 0.04, // 4% conversão otimista
+    min: 0.005, // 0.5% conversão mínima
+    media: 0.01, // 1% conversão média (realista)
+    max: 0.02, // 2% conversão otimista
   },
 
-  // Aumento de ticket médio com ecossistema
+  // Aumento de ticket médio com ecossistema (realista)
   aumentoTicketEcossistema: {
-    baixo: 1.3, // 30% de aumento
-    medio: 1.5, // 50% de aumento
-    alto: 2.0, // 100% de aumento
+    baixo: 1.1, // 10% de aumento
+    medio: 1.2, // 20% de aumento
+    alto: 1.4, // 40% de aumento
   },
 
-  // LTV multiplicador com modelo de ecossistema
-  ltvMultiplicador: 2.5, // Cliente vale 2.5x mais em ecossistema
+  // LTV multiplicador com modelo de ecossistema (conservador)
+  ltvMultiplicador: 1.5, // Cliente vale 1.5x mais em ecossistema
 
-  // Redução de horas trabalhadas com automação
-  eficienciaEcossistema: 0.7, // 30% menos horas para mesmo resultado
+  // Redução de horas trabalhadas com automação (conservador)
+  eficienciaEcossistema: 0.85, // 15% menos horas (não 30%)
 
   // Número médio de produtos em ecossistema
   produtosEcossistema: 4,

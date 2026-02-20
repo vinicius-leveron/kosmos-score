@@ -5,18 +5,18 @@
  */
 
 export const PREMISAS = {
-  // Taxa de conversão de lista para assinatura
+  // Taxa de conversão de lista para assinatura (conservadora)
   taxaConversaoLista: {
-    conservadora: 0.01, // 1%
-    moderada: 0.02, // 2%
-    otimista: 0.03, // 3%
+    conservadora: 0.005, // 0.5%
+    moderada: 0.01, // 1% (realista)
+    otimista: 0.015, // 1.5%
   },
 
-  // Crescimento mensal de assinantes (após período inicial)
+  // Crescimento mensal de assinantes (realista)
   crescimentoMensal: {
-    baixo: 0.05, // 5%
-    medio: 0.10, // 10%
-    alto: 0.15, // 15%
+    baixo: 0.02, // 2%
+    medio: 0.03, // 3% (realista, ~42% ao ano)
+    alto: 0.05, // 5%
   },
 
   // Churn mensal típico por faixa de ticket
@@ -33,10 +33,10 @@ export const PREMISAS = {
     afiliado: 0.3, // 30% de comissão
   },
 
-  // Margem de lucro por modelo
+  // Margem de lucro por modelo (realista)
   margem: {
-    lancamento: 0.35, // 35% após todos os custos
-    recorrencia: 0.60, // 60% margem maior na recorrência
+    lancamento: 0.30, // 30% após todos os custos
+    recorrencia: 0.45, // 45% margem na recorrência (não 60%)
   },
 
   // Meses para estabilização
