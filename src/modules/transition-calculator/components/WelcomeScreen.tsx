@@ -38,25 +38,25 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
       "bg-kosmos-black blueprint-grid flex flex-col items-center justify-center px-4 relative overflow-hidden",
       isEmbed ? "min-h-0 py-6" : "min-h-screen py-12"
     )}>
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
 
       {!isEmbed && (
         <>
-          <div className="absolute top-8 left-8 w-12 h-12 border-l-2 border-t-2 border-cyan-500/40" />
-          <div className="absolute top-8 right-8 w-12 h-12 border-r-2 border-t-2 border-cyan-500/40" />
-          <div className="absolute bottom-8 left-8 w-12 h-12 border-l-2 border-b-2 border-cyan-500/40" />
-          <div className="absolute bottom-8 right-8 w-12 h-12 border-r-2 border-b-2 border-cyan-500/40" />
+          <div className="absolute top-8 left-8 w-12 h-12 border-l-2 border-t-2 border-kosmos-orange/40" />
+          <div className="absolute top-8 right-8 w-12 h-12 border-r-2 border-t-2 border-kosmos-orange/40" />
+          <div className="absolute bottom-8 left-8 w-12 h-12 border-l-2 border-b-2 border-kosmos-orange/40" />
+          <div className="absolute bottom-8 right-8 w-12 h-12 border-r-2 border-b-2 border-kosmos-orange/40" />
         </>
       )}
 
       <div className="w-full max-w-xl animate-fade-in relative z-10">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-8 h-px bg-cyan-500" />
-            <span className="text-cyan-500 font-display font-semibold tracking-[0.3em] text-xs uppercase">
+            <div className="w-8 h-px bg-kosmos-orange" />
+            <span className="text-kosmos-orange font-display font-semibold tracking-[0.3em] text-xs uppercase">
               KOSMOS
             </span>
-            <div className="w-8 h-px bg-cyan-500" />
+            <div className="w-8 h-px bg-kosmos-orange" />
           </div>
           <p className="text-kosmos-gray text-sm tracking-wide">
             Calculadora de Transicao
@@ -65,17 +65,17 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
 
         <div className="relative">
           <div className="card-structural p-8 md:p-12">
-            <div className="absolute left-0 top-8 bottom-8 w-1 bg-cyan-500 rounded-r" />
+            <div className="absolute left-0 top-8 bottom-8 w-1 bg-kosmos-orange rounded-r" />
 
             <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                <RefreshCw className="w-8 h-8 text-cyan-500" />
+              <div className="w-16 h-16 rounded-2xl bg-kosmos-orange/10 border border-kosmos-orange/20 flex items-center justify-center">
+                <RefreshCw className="w-8 h-8 text-kosmos-orange" />
               </div>
             </div>
 
             <h1 className="font-display text-3xl md:text-4xl font-bold text-kosmos-white text-center mb-4 leading-tight">
               De{' '}
-              <span className="text-cyan-500">lancamento</span>{' '}
+              <span className="text-kosmos-orange">lancamento</span>{' '}
               para recorrencia
             </h1>
 
@@ -86,12 +86,12 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
 
             <div className="flex items-center justify-center gap-6 mb-8 text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-cyan-500" />
+                <div className="w-2 h-2 rounded-full bg-kosmos-orange" />
                 <span className="text-kosmos-gray-light">3 minutos</span>
               </div>
               <div className="w-px h-4 bg-border" />
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-cyan-500" />
+                <div className="w-2 h-2 rounded-full bg-kosmos-orange" />
                 <span className="text-kosmos-gray-light">Projecao 12 meses</span>
               </div>
             </div>
@@ -102,7 +102,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
                 placeholder="Seu nome (opcional)"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="h-12 text-base bg-kosmos-black border-border focus:border-cyan-500 focus:ring-cyan-500/20 placeholder:text-kosmos-gray/50 text-kosmos-white"
+                className="h-12 text-base bg-kosmos-black border-border focus:border-kosmos-orange focus:ring-kosmos-orange/20 placeholder:text-kosmos-gray/50 text-kosmos-white"
               />
 
               <div>
@@ -114,7 +114,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
                     setEmail(e.target.value);
                     if (error) setError('');
                   }}
-                  className="h-12 text-base bg-kosmos-black border-border focus:border-cyan-500 focus:ring-cyan-500/20 placeholder:text-kosmos-gray/50 text-kosmos-white"
+                  className="h-12 text-base bg-kosmos-black border-border focus:border-kosmos-orange focus:ring-kosmos-orange/20 placeholder:text-kosmos-gray/50 text-kosmos-white"
                 />
                 {error && (
                   <p className="text-destructive text-sm mt-2">{error}</p>
@@ -124,7 +124,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
               <Button
                 type="submit"
                 size="lg"
-                className="w-full h-14 text-base font-display font-semibold bg-cyan-500 hover:bg-cyan-600 text-white transition-all duration-300"
+                className="w-full h-14 text-base font-display font-semibold bg-kosmos-orange hover:bg-cyan-600 text-white transition-all duration-300"
               >
                 Calcular Minha Transicao
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -148,7 +148,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
         )}
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
     </div>
   );
 }

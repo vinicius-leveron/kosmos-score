@@ -35,13 +35,13 @@ export function QuestionScreen({
       "bg-kosmos-black blueprint-grid flex flex-col items-center justify-center px-4 relative overflow-hidden",
       isEmbed ? "min-h-0 py-6" : "min-h-screen py-12"
     )}>
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
 
       <div className="w-full max-w-xl animate-fade-in relative z-10">
         {/* Progress */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-amber-500 text-xs font-medium uppercase tracking-wider">
+            <span className="text-kosmos-orange text-xs font-medium uppercase tracking-wider">
               {category?.name}
             </span>
             <span className="text-kosmos-gray text-sm">
@@ -50,7 +50,7 @@ export function QuestionScreen({
           </div>
           <div className="h-2 bg-kosmos-black-light rounded-full overflow-hidden">
             <div
-              className="h-full bg-amber-500 transition-all duration-300"
+              className="h-full bg-kosmos-orange transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -78,7 +78,7 @@ export function QuestionScreen({
                 className={cn(
                   "w-full p-4 rounded-lg border text-left transition-all",
                   selectedAnswer === option.value
-                    ? "border-amber-500 bg-amber-500/10"
+                    ? "border-kosmos-orange bg-kosmos-orange/10"
                     : "border-border hover:border-kosmos-gray"
                 )}
               >
@@ -108,7 +108,7 @@ export function QuestionScreen({
               type="button"
               onClick={onNext}
               disabled={!selectedAnswer}
-              className="flex-1 h-12 bg-amber-500 hover:bg-amber-600 disabled:opacity-50"
+              className="flex-1 h-12 bg-kosmos-orange hover:bg-kosmos-orange-glow glow-orange-subtle hover:glow-orange disabled:opacity-50"
             >
               {currentIndex === totalQuestions - 1 ? 'Ver Resultado' : 'Proximo'}
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -117,7 +117,7 @@ export function QuestionScreen({
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
     </div>
   );
 }

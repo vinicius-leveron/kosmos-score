@@ -39,15 +39,15 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
       isEmbed ? "min-h-0 py-6" : "min-h-screen py-12"
     )}>
       {/* Structural Lines */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
 
       {/* Corner Accents */}
       {!isEmbed && (
         <>
-          <div className="absolute top-8 left-8 w-12 h-12 border-l-2 border-t-2 border-emerald-500/40" />
-          <div className="absolute top-8 right-8 w-12 h-12 border-r-2 border-t-2 border-emerald-500/40" />
-          <div className="absolute bottom-8 left-8 w-12 h-12 border-l-2 border-b-2 border-emerald-500/40" />
-          <div className="absolute bottom-8 right-8 w-12 h-12 border-r-2 border-b-2 border-emerald-500/40" />
+          <div className="absolute top-8 left-8 w-12 h-12 border-l-2 border-t-2 border-kosmos-orange/40" />
+          <div className="absolute top-8 right-8 w-12 h-12 border-r-2 border-t-2 border-kosmos-orange/40" />
+          <div className="absolute bottom-8 left-8 w-12 h-12 border-l-2 border-b-2 border-kosmos-orange/40" />
+          <div className="absolute bottom-8 right-8 w-12 h-12 border-r-2 border-b-2 border-kosmos-orange/40" />
         </>
       )}
 
@@ -55,11 +55,11 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
         {/* Logo/Brand */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-8 h-px bg-emerald-500" />
-            <span className="text-emerald-500 font-display font-semibold tracking-[0.3em] text-xs uppercase">
+            <div className="w-8 h-px bg-kosmos-orange" />
+            <span className="text-kosmos-orange font-display font-semibold tracking-[0.3em] text-xs uppercase">
               KOSMOS
             </span>
-            <div className="w-8 h-px bg-emerald-500" />
+            <div className="w-8 h-px bg-kosmos-orange" />
           </div>
           <p className="text-kosmos-gray text-sm tracking-wide">
             Calculadora de Potencial
@@ -70,19 +70,19 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
         <div className="relative">
           <div className="card-structural p-8 md:p-12">
             {/* Accent bar */}
-            <div className="absolute left-0 top-8 bottom-8 w-1 bg-emerald-500 rounded-r" />
+            <div className="absolute left-0 top-8 bottom-8 w-1 bg-kosmos-orange rounded-r" />
 
             {/* Icon */}
             <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                <Calculator className="w-8 h-8 text-emerald-500" />
+              <div className="w-16 h-16 rounded-2xl bg-kosmos-orange/10 border border-kosmos-orange/20 flex items-center justify-center">
+                <Calculator className="w-8 h-8 text-kosmos-orange" />
               </div>
             </div>
 
             {/* Headline */}
             <h1 className="font-display text-3xl md:text-4xl font-bold text-kosmos-white text-center mb-4 leading-tight">
               Quanto você poderia{' '}
-              <span className="text-emerald-500">faturar</span>{' '}
+              <span className="text-kosmos-orange">faturar</span>{' '}
               com um ecossistema?
             </h1>
 
@@ -95,12 +95,12 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
             {/* Stats */}
             <div className="flex items-center justify-center gap-6 mb-8 text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                <div className="w-2 h-2 rounded-full bg-kosmos-orange" />
                 <span className="text-kosmos-gray-light">2 minutos</span>
               </div>
               <div className="w-px h-4 bg-border" />
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                <div className="w-2 h-2 rounded-full bg-kosmos-orange" />
                 <span className="text-kosmos-gray-light">6 perguntas</span>
               </div>
             </div>
@@ -112,7 +112,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
                 placeholder="Seu nome (opcional)"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="h-12 text-base bg-kosmos-black border-border focus:border-emerald-500 focus:ring-emerald-500/20 placeholder:text-kosmos-gray/50 text-kosmos-white"
+                className="h-12 text-base bg-kosmos-black border-border focus:border-kosmos-orange focus:ring-kosmos-orange/20 placeholder:text-kosmos-gray/50 text-kosmos-white"
               />
 
               <div>
@@ -124,7 +124,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
                     setEmail(e.target.value);
                     if (error) setError('');
                   }}
-                  className="h-12 text-base bg-kosmos-black border-border focus:border-emerald-500 focus:ring-emerald-500/20 placeholder:text-kosmos-gray/50 text-kosmos-white"
+                  className="h-12 text-base bg-kosmos-black border-border focus:border-kosmos-orange focus:ring-kosmos-orange/20 placeholder:text-kosmos-gray/50 text-kosmos-white"
                 />
                 {error && (
                   <p className="text-destructive text-sm mt-2">{error}</p>
@@ -134,7 +134,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
               <Button
                 type="submit"
                 size="lg"
-                className="w-full h-14 text-base font-display font-semibold bg-emerald-500 hover:bg-emerald-600 text-white transition-all duration-300"
+                className="w-full h-14 text-base font-display font-semibold bg-kosmos-orange hover:bg-kosmos-orange-glow glow-orange-subtle hover:glow-orange text-white transition-all duration-300"
               >
                 Calcular Meu Potencial
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -160,7 +160,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
         )}
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
     </div>
   );
 }

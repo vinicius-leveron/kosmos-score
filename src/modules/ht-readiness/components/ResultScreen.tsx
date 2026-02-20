@@ -52,7 +52,7 @@ export function ResultScreen({ result, onShare, onCTA }: ResultScreenProps) {
       "bg-kosmos-black blueprint-grid flex flex-col items-center px-4 relative overflow-hidden",
       isEmbed ? "min-h-0 py-6" : "min-h-screen py-12"
     )}>
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
 
       <div className="w-full max-w-2xl animate-fade-in relative z-10">
         {/* Header */}
@@ -75,7 +75,7 @@ export function ResultScreen({ result, onShare, onCTA }: ResultScreenProps) {
             <p className="text-kosmos-gray text-sm uppercase tracking-wider mb-2">
               Seu Score de Prontidao
             </p>
-            <div className="text-6xl font-display font-bold text-amber-500 mb-2">
+            <div className="text-6xl font-display font-bold text-kosmos-orange mb-2">
               {result.totalScore}
               <span className="text-2xl text-kosmos-gray">/100</span>
             </div>
@@ -98,7 +98,7 @@ export function ResultScreen({ result, onShare, onCTA }: ResultScreenProps) {
                 <div key={cs.category}>
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-amber-500">
+                      <span className="text-kosmos-orange">
                         {CATEGORY_ICONS[cs.category]}
                       </span>
                       <span className="text-kosmos-white text-sm">
@@ -143,13 +143,13 @@ export function ResultScreen({ result, onShare, onCTA }: ResultScreenProps) {
           {result.weaknesses.length > 0 && (
             <div className="card-structural p-4">
               <div className="flex items-center gap-2 mb-3">
-                <AlertCircle className="w-5 h-5 text-amber-500" />
+                <AlertCircle className="w-5 h-5 text-kosmos-orange" />
                 <h3 className="font-medium text-kosmos-white">Pontos de Atencao</h3>
               </div>
               <ul className="space-y-2">
                 {result.weaknesses.map((weakness, i) => (
                   <li key={i} className="text-sm text-kosmos-gray flex items-start gap-2">
-                    <span className="text-amber-500 mt-1">!</span>
+                    <span className="text-kosmos-orange mt-1">!</span>
                     {weakness}
                   </li>
                 ))}
@@ -166,7 +166,7 @@ export function ResultScreen({ result, onShare, onCTA }: ResultScreenProps) {
           <ol className="space-y-3">
             {result.recommendations.map((rec, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 text-sm font-medium">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-kosmos-orange/10 border border-kosmos-orange/20 flex items-center justify-center text-kosmos-orange text-sm font-medium">
                   {i + 1}
                 </span>
                 <span className="text-kosmos-gray-light text-sm leading-relaxed pt-0.5">
@@ -182,7 +182,7 @@ export function ResultScreen({ result, onShare, onCTA }: ResultScreenProps) {
           <Button
             onClick={onCTA}
             size="lg"
-            className="w-full h-14 text-base font-display font-semibold bg-amber-500 hover:bg-amber-600 text-white"
+            className="w-full h-14 text-base font-display font-semibold bg-kosmos-orange hover:bg-kosmos-orange-glow glow-orange-subtle hover:glow-orange text-white"
           >
             Quero Estruturar Meu High Ticket
             <ArrowRight className="w-5 h-5 ml-2" />
@@ -210,7 +210,7 @@ export function ResultScreen({ result, onShare, onCTA }: ResultScreenProps) {
         )}
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
     </div>
   );
 }

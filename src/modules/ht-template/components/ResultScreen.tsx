@@ -50,14 +50,14 @@ export function ResultScreen({ data, onShare, onCTA }: ResultScreenProps) {
       "bg-kosmos-black blueprint-grid flex flex-col items-center px-4 relative overflow-hidden",
       isEmbed ? "min-h-0 py-6" : "min-h-screen py-8"
     )}>
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
 
       <div className="w-full max-w-3xl animate-fade-in relative z-10">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-violet-500/10 border border-violet-500/20 rounded-full mb-4">
-            <CheckCircle className="w-4 h-4 text-violet-500" />
-            <span className="text-violet-500 text-sm font-medium">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-kosmos-orange/10 border border-kosmos-orange/20 rounded-full mb-4">
+            <CheckCircle className="w-4 h-4 text-kosmos-orange" />
+            <span className="text-kosmos-orange text-sm font-medium">
               Template Completo
             </span>
           </div>
@@ -80,7 +80,7 @@ export function ResultScreen({ data, onShare, onCTA }: ResultScreenProps) {
                 className={cn(
                   "p-2 rounded-lg text-center text-xs",
                   hasData
-                    ? "bg-violet-500/10 border border-violet-500/20 text-violet-400"
+                    ? "bg-kosmos-orange/10 border border-kosmos-orange/20 text-kosmos-orange"
                     : "bg-kosmos-black-light text-kosmos-gray"
                 )}
               >
@@ -125,23 +125,23 @@ export function ResultScreen({ data, onShare, onCTA }: ResultScreenProps) {
         </div>
 
         {/* Tips */}
-        <div className="card-structural p-6 mb-6 border-l-4 border-l-violet-500">
+        <div className="card-structural p-6 mb-6 border-l-4 border-l-kosmos-orange">
           <h3 className="font-medium text-kosmos-white mb-3">Proximos Passos</h3>
           <ul className="space-y-2 text-sm text-kosmos-gray-light">
             <li className="flex items-start gap-2">
-              <span className="text-violet-500 mt-0.5">1.</span>
+              <span className="text-kosmos-orange mt-0.5">1.</span>
               Revise cada secao e ajuste a linguagem para seu publico
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-violet-500 mt-0.5">2.</span>
+              <span className="text-kosmos-orange mt-0.5">2.</span>
               Crie uma pagina de vendas ou apresentacao baseada neste template
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-violet-500 mt-0.5">3.</span>
+              <span className="text-kosmos-orange mt-0.5">3.</span>
               Teste sua oferta com 5-10 pessoas do seu publico ideal
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-violet-500 mt-0.5">4.</span>
+              <span className="text-kosmos-orange mt-0.5">4.</span>
               Itere com base no feedback antes de lancar oficialmente
             </li>
           </ul>
@@ -152,7 +152,7 @@ export function ResultScreen({ data, onShare, onCTA }: ResultScreenProps) {
           <Button
             onClick={onCTA}
             size="lg"
-            className="w-full h-14 text-base font-display font-semibold bg-violet-500 hover:bg-violet-600 text-white"
+            className="w-full h-14 text-base font-display font-semibold bg-kosmos-orange hover:bg-kosmos-orange-glow glow-orange-subtle hover:glow-orange text-white"
           >
             Quero Ajuda para Implementar
             <ArrowRight className="w-5 h-5 ml-2" />
@@ -180,7 +180,7 @@ export function ResultScreen({ data, onShare, onCTA }: ResultScreenProps) {
         )}
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
     </div>
   );
 }

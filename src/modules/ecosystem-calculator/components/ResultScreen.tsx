@@ -23,14 +23,14 @@ export function ResultScreen({ inputs, outputs, onShare, onCTA }: ResultScreenPr
       "bg-kosmos-black blueprint-grid flex flex-col items-center px-4 relative overflow-hidden",
       isEmbed ? "min-h-0 py-6" : "min-h-screen py-12"
     )}>
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
 
       <div className="w-full max-w-2xl animate-fade-in relative z-10">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full mb-4">
-            <TrendingUp className="w-4 h-4 text-emerald-500" />
-            <span className="text-emerald-500 text-sm font-medium">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-kosmos-orange/10 border border-kosmos-orange/20 rounded-full mb-4">
+            <TrendingUp className="w-4 h-4 text-kosmos-orange" />
+            <span className="text-kosmos-orange text-sm font-medium">
               Análise Completa
             </span>
           </div>
@@ -45,7 +45,7 @@ export function ResultScreen({ inputs, outputs, onShare, onCTA }: ResultScreenPr
             <p className="text-kosmos-gray text-sm uppercase tracking-wider mb-2">
               Potencial mensal com ecossistema
             </p>
-            <div className="text-5xl md:text-6xl font-display font-bold text-emerald-500 mb-2">
+            <div className="text-5xl md:text-6xl font-display font-bold text-kosmos-orange mb-2">
               {formatarMoeda(outputs.potencialMensal)}
             </div>
             <p className="text-kosmos-gray">
@@ -73,13 +73,13 @@ export function ResultScreen({ inputs, outputs, onShare, onCTA }: ResultScreenPr
             <div>
               <div className="flex justify-between text-sm mb-2">
                 <span className="text-kosmos-gray">Potencial Ecossistema</span>
-                <span className="text-emerald-500 font-medium">
+                <span className="text-kosmos-orange font-medium">
                   {formatarMoeda(outputs.potencialMensal)}
                 </span>
               </div>
               <div className="h-8 bg-kosmos-black-light rounded-lg overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-lg transition-all duration-1000 delay-300"
+                  className="h-full bg-gradient-to-r from-kosmos-orange to-kosmos-orange-glow rounded-lg transition-all duration-1000 delay-300"
                   style={{ width: `${potencialWidth}%` }}
                 />
               </div>
@@ -87,11 +87,11 @@ export function ResultScreen({ inputs, outputs, onShare, onCTA }: ResultScreenPr
           </div>
 
           {/* Gap Highlight */}
-          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-6 text-center">
+          <div className="bg-kosmos-orange/10 border border-kosmos-orange/20 rounded-xl p-6 text-center">
             <p className="text-kosmos-gray text-sm mb-2">
               Você está deixando na mesa
             </p>
-            <p className="text-3xl font-display font-bold text-emerald-500 mb-1">
+            <p className="text-3xl font-display font-bold text-kosmos-orange mb-1">
               {formatarMoeda(outputs.gapAtual)}/mês
             </p>
             <p className="text-kosmos-gray text-sm">
@@ -104,8 +104,8 @@ export function ResultScreen({ inputs, outputs, onShare, onCTA }: ResultScreenPr
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="card-structural p-4">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                <Clock className="w-5 h-5 text-emerald-500" />
+              <div className="w-10 h-10 rounded-lg bg-kosmos-orange/10 flex items-center justify-center">
+                <Clock className="w-5 h-5 text-kosmos-orange" />
               </div>
               <div>
                 <p className="text-xs text-kosmos-gray uppercase">Eficiência</p>
@@ -121,8 +121,8 @@ export function ResultScreen({ inputs, outputs, onShare, onCTA }: ResultScreenPr
 
           <div className="card-structural p-4">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                <DollarSign className="w-5 h-5 text-emerald-500" />
+              <div className="w-10 h-10 rounded-lg bg-kosmos-orange/10 flex items-center justify-center">
+                <DollarSign className="w-5 h-5 text-kosmos-orange" />
               </div>
               <div>
                 <p className="text-xs text-kosmos-gray uppercase">Crescimento</p>
@@ -160,7 +160,7 @@ export function ResultScreen({ inputs, outputs, onShare, onCTA }: ResultScreenPr
         </div>
 
         {/* Narrative */}
-        <div className="card-structural p-6 mb-6 border-l-4 border-l-emerald-500">
+        <div className="card-structural p-6 mb-6 border-l-4 border-l-kosmos-orange">
           <p className="text-kosmos-gray-light leading-relaxed">
             {outputs.narrative.mensagem}
           </p>
@@ -171,7 +171,7 @@ export function ResultScreen({ inputs, outputs, onShare, onCTA }: ResultScreenPr
           <Button
             onClick={onCTA}
             size="lg"
-            className="w-full h-14 text-base font-display font-semibold bg-emerald-500 hover:bg-emerald-600 text-white"
+            className="w-full h-14 text-base font-display font-semibold bg-kosmos-orange hover:bg-kosmos-orange-glow glow-orange-subtle hover:glow-orange text-white"
           >
             {outputs.narrative.ctaTexto}
             <ArrowRight className="w-5 h-5 ml-2" />
@@ -200,7 +200,7 @@ export function ResultScreen({ inputs, outputs, onShare, onCTA }: ResultScreenPr
         )}
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
     </div>
   );
 }

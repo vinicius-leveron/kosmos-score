@@ -73,13 +73,13 @@ export function SectionStep({
       "bg-kosmos-black blueprint-grid flex flex-col items-center px-4 relative overflow-hidden",
       isEmbed ? "min-h-0 py-6" : "min-h-screen py-8"
     )}>
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
 
       <div className="w-full max-w-2xl animate-fade-in relative z-10">
         {/* Progress */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-violet-500 text-xs font-medium uppercase tracking-wider">
+            <span className="text-kosmos-orange text-xs font-medium uppercase tracking-wider">
               {section.name}
             </span>
             <span className="text-kosmos-gray text-sm">
@@ -88,7 +88,7 @@ export function SectionStep({
           </div>
           <div className="h-2 bg-kosmos-black-light rounded-full overflow-hidden">
             <div
-              className="h-full bg-violet-500 transition-all duration-300"
+              className="h-full bg-kosmos-orange transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -110,7 +110,7 @@ export function SectionStep({
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowTips(!showTips)}
-                className="text-violet-500"
+                className="text-kosmos-orange"
               >
                 <Lightbulb className="w-4 h-4" />
               </Button>
@@ -128,12 +128,12 @@ export function SectionStep({
 
           {/* Tips */}
           {showTips && (
-            <div className="mb-6 p-4 bg-violet-500/10 border border-violet-500/20 rounded-lg">
-              <p className="text-violet-400 text-sm font-medium mb-2">Dicas:</p>
+            <div className="mb-6 p-4 bg-kosmos-orange/10 border border-kosmos-orange/20 rounded-lg">
+              <p className="text-kosmos-orange text-sm font-medium mb-2">Dicas:</p>
               <ul className="space-y-1">
                 {section.tips.map((tip, i) => (
                   <li key={i} className="text-kosmos-gray text-sm flex items-start gap-2">
-                    <span className="text-violet-500">•</span>
+                    <span className="text-kosmos-orange">•</span>
                     {tip}
                   </li>
                 ))}
@@ -147,7 +147,7 @@ export function SectionStep({
               <div key={field.id}>
                 <Label className="text-kosmos-white mb-2 block">
                   {field.label}
-                  {field.required && <span className="text-violet-500 ml-1">*</span>}
+                  {field.required && <span className="text-kosmos-orange ml-1">*</span>}
                 </Label>
 
                 {field.type === 'text' && (
@@ -155,7 +155,7 @@ export function SectionStep({
                     value={(sectionData[field.id] as string) || ''}
                     onChange={(e) => onUpdate(section.id, field.id, e.target.value)}
                     placeholder={field.placeholder}
-                    className="bg-kosmos-black border-border focus:border-violet-500 text-kosmos-white"
+                    className="bg-kosmos-black border-border focus:border-kosmos-orange text-kosmos-white"
                   />
                 )}
 
@@ -165,7 +165,7 @@ export function SectionStep({
                     onChange={(e) => onUpdate(section.id, field.id, e.target.value)}
                     placeholder={field.placeholder}
                     rows={4}
-                    className="bg-kosmos-black border-border focus:border-violet-500 text-kosmos-white resize-none"
+                    className="bg-kosmos-black border-border focus:border-kosmos-orange text-kosmos-white resize-none"
                   />
                 )}
 
@@ -175,7 +175,7 @@ export function SectionStep({
                     value={(sectionData[field.id] as number) || ''}
                     onChange={(e) => onUpdate(section.id, field.id, parseInt(e.target.value, 10) || 0)}
                     placeholder={field.placeholder}
-                    className="bg-kosmos-black border-border focus:border-violet-500 text-kosmos-white"
+                    className="bg-kosmos-black border-border focus:border-kosmos-orange text-kosmos-white"
                   />
                 )}
 
@@ -205,7 +205,7 @@ export function SectionStep({
                           value={item}
                           onChange={(e) => handleListUpdate(field.id, index, e.target.value)}
                           placeholder={field.placeholder}
-                          className="flex-1 bg-kosmos-black border-border focus:border-violet-500 text-kosmos-white"
+                          className="flex-1 bg-kosmos-black border-border focus:border-kosmos-orange text-kosmos-white"
                         />
                         {((sectionData[field.id] as string[]) || []).length > 1 && (
                           <Button
@@ -257,7 +257,7 @@ export function SectionStep({
             <Button
               type="button"
               onClick={onNext}
-              className="flex-1 h-12 bg-violet-500 hover:bg-violet-600"
+              className="flex-1 h-12 bg-kosmos-orange hover:bg-kosmos-orange-glow glow-orange-subtle hover:glow-orange"
             >
               {sectionIndex === totalSections - 1 ? 'Ver Template' : 'Proximo'}
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -266,7 +266,7 @@ export function SectionStep({
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
     </div>
   );
 }

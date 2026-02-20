@@ -119,7 +119,7 @@ export function InputsScreen({ onCalculate, onBack }: InputsScreenProps) {
       "bg-kosmos-black blueprint-grid flex flex-col items-center justify-center px-4 relative overflow-hidden",
       isEmbed ? "min-h-0 py-6" : "min-h-screen py-12"
     )}>
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
 
       <div className="w-full max-w-xl animate-fade-in relative z-10">
         {/* Progress */}
@@ -128,13 +128,13 @@ export function InputsScreen({ onCalculate, onBack }: InputsScreenProps) {
             <span className="text-kosmos-gray text-sm">
               Passo {step} de {totalSteps}
             </span>
-            <span className="text-emerald-500 text-sm font-medium">
+            <span className="text-kosmos-orange text-sm font-medium">
               {Math.round((step / totalSteps) * 100)}%
             </span>
           </div>
           <div className="h-2 bg-kosmos-black-light rounded-full overflow-hidden">
             <div
-              className="h-full bg-emerald-500 transition-all duration-300"
+              className="h-full bg-kosmos-orange transition-all duration-300"
               style={{ width: `${(step / totalSteps) * 100}%` }}
             />
           </div>
@@ -175,7 +175,7 @@ export function InputsScreen({ onCalculate, onBack }: InputsScreenProps) {
                       onChange={(e) =>
                         updateInput('faturamentoAtual', parseCurrency(e.target.value))
                       }
-                      className="h-12 pl-10 bg-kosmos-black border-border focus:border-emerald-500 text-kosmos-white"
+                      className="h-12 pl-10 bg-kosmos-black border-border focus:border-kosmos-orange text-kosmos-white"
                     />
                   </div>
                   {errors.faturamentoAtual && (
@@ -196,7 +196,7 @@ export function InputsScreen({ onCalculate, onBack }: InputsScreenProps) {
                         className={cn(
                           "p-4 rounded-lg border text-left transition-all",
                           inputs.modeloAtual === modelo.value
-                            ? "border-emerald-500 bg-emerald-500/10"
+                            ? "border-kosmos-orange bg-kosmos-orange/10"
                             : "border-border hover:border-kosmos-gray"
                         )}
                       >
@@ -240,7 +240,7 @@ export function InputsScreen({ onCalculate, onBack }: InputsScreenProps) {
                     onChange={(e) =>
                       updateInput('tamanhoAudiencia', parseCurrency(e.target.value))
                     }
-                    className="h-12 bg-kosmos-black border-border focus:border-emerald-500 text-kosmos-white"
+                    className="h-12 bg-kosmos-black border-border focus:border-kosmos-orange text-kosmos-white"
                   />
                   {errors.tamanhoAudiencia && (
                     <p className="text-destructive text-sm mt-1">{errors.tamanhoAudiencia}</p>
@@ -272,7 +272,7 @@ export function InputsScreen({ onCalculate, onBack }: InputsScreenProps) {
                       onChange={(e) =>
                         updateInput('ticketMedio', parseCurrency(e.target.value))
                       }
-                      className="h-12 pl-10 bg-kosmos-black border-border focus:border-emerald-500 text-kosmos-white"
+                      className="h-12 pl-10 bg-kosmos-black border-border focus:border-kosmos-orange text-kosmos-white"
                     />
                   </div>
                   {errors.ticketMedio && (
@@ -305,11 +305,11 @@ export function InputsScreen({ onCalculate, onBack }: InputsScreenProps) {
                       onChange={(e) =>
                         updateInput('horasTrabalhadas', parseInt(e.target.value, 10))
                       }
-                      className="w-full h-2 bg-kosmos-black-light rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                      className="w-full h-2 bg-kosmos-black-light rounded-lg appearance-none cursor-pointer accent-kosmos-orange"
                     />
                     <div className="flex justify-between text-sm">
                       <span className="text-kosmos-gray">10h</span>
-                      <span className="text-emerald-500 font-medium">
+                      <span className="text-kosmos-orange font-medium">
                         {inputs.horasTrabalhadas}h/semana
                       </span>
                       <span className="text-kosmos-gray">80h</span>
@@ -333,7 +333,7 @@ export function InputsScreen({ onCalculate, onBack }: InputsScreenProps) {
                         className={cn(
                           "p-4 rounded-lg border text-left transition-all",
                           inputs.equipe === equipe.value
-                            ? "border-emerald-500 bg-emerald-500/10"
+                            ? "border-kosmos-orange bg-kosmos-orange/10"
                             : "border-border hover:border-kosmos-gray"
                         )}
                       >
@@ -364,7 +364,7 @@ export function InputsScreen({ onCalculate, onBack }: InputsScreenProps) {
             <Button
               type="button"
               onClick={handleNext}
-              className="flex-1 h-12 bg-emerald-500 hover:bg-emerald-600"
+              className="flex-1 h-12 bg-kosmos-orange hover:bg-kosmos-orange-glow glow-orange-subtle hover:glow-orange"
             >
               {step === totalSteps ? 'Calcular' : 'Próximo'}
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -373,7 +373,7 @@ export function InputsScreen({ onCalculate, onBack }: InputsScreenProps) {
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-kosmos-orange/30 to-transparent" />
     </div>
   );
 }
