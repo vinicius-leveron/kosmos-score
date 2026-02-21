@@ -24,7 +24,7 @@ import { EmbedCodeDialog } from '@/modules/kosmos-score/components/EmbedCodeDial
 import { useLeadMagnetSummary } from '@/modules/kosmos-score/hooks/useLeadMagnetStats';
 
 interface LeadMagnetConfig {
-  id: 'kosmos_score' | 'application' | 'forms' | 'maturity_diagnostic' | 'ecosystem_calculator' | 'ht_readiness' | 'ht_template' | 'transition_calculator';
+  id: 'kosmos_score' | 'application' | 'forms' | 'maturity_diagnostic' | 'ecosystem_calculator' | 'ht_readiness' | 'ht_template' | 'transition_calculator' | 'ecosystem_blueprint' | 'stop_launching';
   name: string;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -113,25 +113,25 @@ const leadMagnetsConfig: LeadMagnetConfig[] = [
   },
   {
     id: 'ht_template',
-    name: 'Template High Ticket',
-    description: 'Wizard interativo para estruturar uma oferta high ticket completa',
-    icon: FileCheck,
+    name: 'Blueprint de Ecossistema',
+    description: 'Mapeie as 5 camadas do ecossistema: Raiz, Estrutura, Cultura, Crescimento e Autonomia',
+    icon: Layers,
     color: 'text-violet-500',
     bgColor: 'bg-violet-500/10',
-    href: '/admin/lead-magnets/ht-template',
-    analyticsHref: '/admin/lead-magnets/ht-template/analytics',
+    href: '/admin/lead-magnets/ecosystem-blueprint',
+    analyticsHref: '/admin/lead-magnets/ecosystem-blueprint/analytics',
     publicUrl: '/quiz/ht-template',
     status: 'active',
   },
   {
     id: 'transition_calculator',
-    name: 'Calculadora de Transição',
-    description: 'Calcula o breakeven da transição de lançamento para recorrência',
+    name: 'Simulador: E Se Parar de Lançar?',
+    description: 'Compare seu modelo atual vs ecossistema: faturamento, horas, estresse e sustentabilidade',
     icon: RefreshCw,
     color: 'text-cyan-500',
     bgColor: 'bg-cyan-500/10',
-    href: '/admin/lead-magnets/transition-calculator',
-    analyticsHref: '/admin/lead-magnets/transition-calculator/analytics',
+    href: '/admin/lead-magnets/stop-launching',
+    analyticsHref: '/admin/lead-magnets/stop-launching/analytics',
     publicUrl: '/quiz/transition-calculator',
     status: 'active',
   },

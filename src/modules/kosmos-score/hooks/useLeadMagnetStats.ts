@@ -338,6 +338,18 @@ export function useLeadMagnetSummary() {
         };
       };
 
+      // Helper to combine stats from two types (for legacy + new type migration)
+      const combineStats = (a: ReturnType<typeof getLeadMagnetStats>, b: ReturnType<typeof getLeadMagnetStats>) => {
+        const total = a.total + b.total;
+        return {
+          total,
+          recent: a.recent + b.recent,
+          avgScore: total > 0
+            ? Math.round((a.avgScore * a.total + b.avgScore * b.total) / total)
+            : 0,
+        };
+      };
+
       return {
         kosmos_score: {
           total: kosmosData.length,
@@ -362,8 +374,16 @@ export function useLeadMagnetSummary() {
         // Legacy lead magnets (deprecated)
         ecosystem_calculator: getLeadMagnetStats('ecosystem-calculator'),
         ht_readiness: getLeadMagnetStats('ht-readiness'),
-        ht_template: getLeadMagnetStats('ht-template'),
-        transition_calculator: getLeadMagnetStats('transition-calculator'),
+        // Blueprint de Ecossistema (combines legacy ht-template + new ecosystem-blueprint)
+        ht_template: combineStats(
+          getLeadMagnetStats('ht-template'),
+          getLeadMagnetStats('ecosystem-blueprint')
+        ),
+        // Simulador E Se Parar de Lancar (combines legacy transition-calculator + new stop-launching-simulator)
+        transition_calculator: combineStats(
+          getLeadMagnetStats('transition-calculator'),
+          getLeadMagnetStats('stop-launching-simulator')
+        ),
       };
     },
     staleTime: 60 * 1000,
