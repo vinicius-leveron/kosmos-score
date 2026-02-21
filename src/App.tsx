@@ -23,6 +23,7 @@ import Index from "./pages/Index"; // KOSMOS Score quiz
 import { EmbedKosmosScore } from "./pages/EmbedKosmosScore";
 
 // Lead Magnet pages - Lazy loaded
+const MaturityDiagnosticPage = lazy(() => import("./modules/maturity-diagnostic").then(m => ({ default: m.MaturityDiagnosticPage })));
 const EcosystemCalculatorPage = lazy(() => import("./modules/ecosystem-calculator").then(m => ({ default: m.EcosystemCalculatorPage })));
 const HTReadinessPage = lazy(() => import("./modules/ht-readiness").then(m => ({ default: m.HTReadinessPage })));
 const HTTemplatePage = lazy(() => import("./modules/ht-template").then(m => ({ default: m.HTTemplatePage })));
@@ -89,12 +90,14 @@ const App = () => (
             <Route path="/login" element={<LoginPage />} />
             <Route path="/quiz/kosmos-score" element={<Index />} />
             <Route path="/embed/kosmos-score" element={<EmbedKosmosScore />} />
-            {/* Ecosystem Calculator Lead Magnet */}
-            <Route path="/quiz/ecosystem-calculator" element={<Suspense fallback={<PageLoader />}><EcosystemCalculatorPage /></Suspense>} />
-            <Route path="/embed/ecosystem-calculator" element={<Suspense fallback={<PageLoader />}><EcosystemCalculatorPage embed /></Suspense>} />
-            {/* HT Readiness Diagnostic Lead Magnet */}
-            <Route path="/quiz/ht-readiness" element={<Suspense fallback={<PageLoader />}><HTReadinessPage /></Suspense>} />
-            <Route path="/embed/ht-readiness" element={<Suspense fallback={<PageLoader />}><HTReadinessPage embed /></Suspense>} />
+            {/* Maturity Diagnostic Lead Magnet (NEW - replaces ecosystem-calculator and ht-readiness) */}
+            <Route path="/quiz/maturity" element={<Suspense fallback={<PageLoader />}><MaturityDiagnosticPage /></Suspense>} />
+            <Route path="/embed/maturity" element={<Suspense fallback={<PageLoader />}><MaturityDiagnosticPage embed /></Suspense>} />
+            {/* Legacy Redirects - Ecosystem Calculator and HT Readiness now redirect to Maturity Diagnostic */}
+            <Route path="/quiz/ecosystem-calculator" element={<Navigate to="/quiz/maturity" replace />} />
+            <Route path="/embed/ecosystem-calculator" element={<Navigate to="/embed/maturity" replace />} />
+            <Route path="/quiz/ht-readiness" element={<Navigate to="/quiz/maturity" replace />} />
+            <Route path="/embed/ht-readiness" element={<Navigate to="/embed/maturity" replace />} />
             {/* HT Template Lead Magnet */}
             <Route path="/quiz/ht-template" element={<Suspense fallback={<PageLoader />}><HTTemplatePage /></Suspense>} />
             <Route path="/embed/ht-template" element={<Suspense fallback={<PageLoader />}><HTTemplatePage embed /></Suspense>} />

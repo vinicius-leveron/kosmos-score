@@ -18,12 +18,13 @@ import {
   Award,
   FileCheck,
   RefreshCw,
+  Layers,
 } from 'lucide-react';
 import { EmbedCodeDialog } from '@/modules/kosmos-score/components/EmbedCodeDialog';
 import { useLeadMagnetSummary } from '@/modules/kosmos-score/hooks/useLeadMagnetStats';
 
 interface LeadMagnetConfig {
-  id: 'kosmos_score' | 'application' | 'forms' | 'ecosystem_calculator' | 'ht_readiness' | 'ht_template' | 'transition_calculator';
+  id: 'kosmos_score' | 'application' | 'forms' | 'maturity_diagnostic' | 'ecosystem_calculator' | 'ht_readiness' | 'ht_template' | 'transition_calculator';
   name: string;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -32,7 +33,8 @@ interface LeadMagnetConfig {
   href: string;
   analyticsHref: string;
   publicUrl?: string;
-  status: 'active' | 'draft' | 'paused';
+  status: 'active' | 'draft' | 'paused' | 'deprecated';
+  deprecationNote?: string;
 }
 
 const leadMagnetsConfig: LeadMagnetConfig[] = [
@@ -72,28 +74,42 @@ const leadMagnetsConfig: LeadMagnetConfig[] = [
     status: 'draft',
   },
   {
+    id: 'maturity_diagnostic',
+    name: 'Diagnóstico de Maturidade',
+    description: 'Avalia o nível de maturidade do ecossistema em 5 níveis (Audiência → Legado)',
+    icon: Layers,
+    color: 'text-emerald-500',
+    bgColor: 'bg-emerald-500/10',
+    href: '/admin/lead-magnets/maturity-diagnostic',
+    analyticsHref: '/admin/lead-magnets/maturity-diagnostic/analytics',
+    publicUrl: '/quiz/maturity',
+    status: 'active',
+  },
+  {
     id: 'ecosystem_calculator',
     name: 'Calculadora de Ecossistema',
     description: 'Mostra o potencial de faturamento com modelo de ecossistema vs. modelo atual',
     icon: Leaf,
-    color: 'text-emerald-500',
-    bgColor: 'bg-emerald-500/10',
+    color: 'text-gray-400',
+    bgColor: 'bg-gray-500/10',
     href: '/admin/lead-magnets/ecosystem-calculator',
     analyticsHref: '/admin/lead-magnets/ecosystem-calculator/analytics',
-    publicUrl: '/quiz/ecosystem-calculator',
-    status: 'active',
+    publicUrl: '/quiz/maturity',
+    status: 'deprecated',
+    deprecationNote: 'Substituído pelo Diagnóstico de Maturidade',
   },
   {
     id: 'ht_readiness',
     name: 'Diagnóstico High Ticket',
     description: 'Avalia se o creator está pronto para ofertas high ticket e onde melhorar',
     icon: Award,
-    color: 'text-amber-500',
-    bgColor: 'bg-amber-500/10',
+    color: 'text-gray-400',
+    bgColor: 'bg-gray-500/10',
     href: '/admin/lead-magnets/ht-readiness',
     analyticsHref: '/admin/lead-magnets/ht-readiness/analytics',
-    publicUrl: '/quiz/ht-readiness',
-    status: 'active',
+    publicUrl: '/quiz/maturity',
+    status: 'deprecated',
+    deprecationNote: 'Substituído pelo Diagnóstico de Maturidade',
   },
   {
     id: 'ht_template',
@@ -125,6 +141,7 @@ const statusConfig = {
   active: { label: 'Ativo', className: 'bg-green-500/10 text-green-500 border-green-500/20' },
   draft: { label: 'Em breve', className: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' },
   paused: { label: 'Pausado', className: 'bg-gray-500/10 text-gray-500 border-gray-500/20' },
+  deprecated: { label: 'Descontinuado', className: 'bg-red-500/10 text-red-400 border-red-500/20' },
 };
 
 function StatsDisplay({ total, recent, avgScore, isLoading }: {

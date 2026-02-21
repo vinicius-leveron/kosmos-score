@@ -1,12 +1,22 @@
-import { PREMISAS, FrequenciaLancamento } from './premisas';
+import { PREMISAS } from './premisas';
+import type { FrequenciaLancamento } from './premisas';
+
+export type StressLevel = 1 | 2 | 3 | 4 | 5;
+export type DependencyLevel = 1 | 2 | 3 | 4 | 5;
 
 export interface TransitionInputs {
+  // Dados financeiros
   faturamentoLancamento: number; // Faturamento médio por lançamento
   frequenciaLancamentos: FrequenciaLancamento;
   custoLancamento: number; // Custo por lançamento
   tamanhoLista: number; // Tamanho da lista de emails
   ticketRecorrencia: number; // Ticket da assinatura mensal
   churnEstimado: number; // % de churn mensal (0-100)
+
+  // Dados não-financeiros
+  horasPorLancamento?: number; // Horas trabalhadas por período de lançamento
+  nivelEstresse?: StressLevel; // 1 = tranquilo, 5 = muito estressado
+  nivelDependencia?: DependencyLevel; // 1 = negócio funciona sem mim, 5 = depende 100%
 }
 
 export interface MonthProjection {
@@ -17,6 +27,47 @@ export interface MonthProjection {
   faturamentoLancamento: number;
   acumuladoLancamento: number;
   diferencaAcumulada: number;
+}
+
+// Métricas não-financeiras para cada cenário
+export interface NonFinancialMetrics {
+  horasAnuais: number;
+  horasMensaisMedia: number;
+  desgasteProjetado: number; // 0-100
+  sustentabilidade: number; // 0-100%
+  dependencia: number; // 0-100%
+  riscoDesgaste: 'baixo' | 'moderado' | 'alto' | 'critico';
+}
+
+// Comparação lado a lado dos dois cenários
+export interface ScenarioComparison {
+  lancamento: {
+    financial: {
+      faturamentoAnual: number;
+      lucroAnual: number;
+      margemLiquida: number;
+    };
+    nonFinancial: NonFinancialMetrics;
+    label: string;
+  };
+  ecossistema: {
+    financial: {
+      faturamentoAnual: number;
+      lucroAnual: number;
+      margemLiquida: number;
+      mrrProjetado: number;
+    };
+    nonFinancial: NonFinancialMetrics;
+    label: string;
+  };
+  diferencas: {
+    lucro: number;
+    lucroPercent: number;
+    horas: number;
+    horasPercent: number;
+    sustentabilidade: number;
+    desgaste: number;
+  };
 }
 
 export interface TransitionOutputs {
@@ -39,11 +90,102 @@ export interface TransitionOutputs {
   // Timeline
   projecao12Meses: MonthProjection[];
 
+  // Comparação de cenários (NOVO)
+  scenarioComparison: ScenarioComparison;
+
   // Narrativa
   narrative: {
     headline: string;
     mensagem: string;
     recomendacao: string;
+  };
+}
+
+/**
+ * Calcula métricas não-financeiras para o cenário de lançamentos
+ */
+function calcularMetricasLancamento(
+  frequencia: FrequenciaLancamento,
+  horasPorLancamento: number,
+  nivelEstresse: StressLevel,
+  nivelDependencia: DependencyLevel
+): NonFinancialMetrics {
+  // Horas anuais = horas por lançamento × frequência
+  const horasAnuais = horasPorLancamento * frequencia;
+  const horasMensaisMedia = horasAnuais / 12;
+
+  // Desgaste projetado baseado no nível de estresse
+  const desgasteBase = PREMISAS.projecaoDesgaste.lancamento[nivelEstresse];
+  const desgasteProjetado = Math.min(100, desgasteBase + (frequencia - 2) * 5); // Mais lançamentos = mais desgaste
+
+  // Sustentabilidade
+  const sustentabilidadeBase = PREMISAS.sustentabilidade.lancamento;
+  const modificadorDependencia = PREMISAS.sustentabilidade.porNivelDependencia[nivelDependencia];
+  const sustentabilidade = Math.max(0, Math.min(100, sustentabilidadeBase + modificadorDependencia));
+
+  // Dependência permanece alta no modelo de lançamento
+  const dependencia = PREMISAS.dependencia.lancamento;
+
+  // Classificação de risco
+  let riscoDesgaste: 'baixo' | 'moderado' | 'alto' | 'critico';
+  if (desgasteProjetado >= 80) riscoDesgaste = 'critico';
+  else if (desgasteProjetado >= 60) riscoDesgaste = 'alto';
+  else if (desgasteProjetado >= 40) riscoDesgaste = 'moderado';
+  else riscoDesgaste = 'baixo';
+
+  return {
+    horasAnuais,
+    horasMensaisMedia: Math.round(horasMensaisMedia),
+    desgasteProjetado: Math.round(desgasteProjetado),
+    sustentabilidade: Math.round(sustentabilidade),
+    dependencia: Math.round(dependencia),
+    riscoDesgaste,
+  };
+}
+
+/**
+ * Calcula métricas não-financeiras para o cenário de ecossistema/recorrência
+ */
+function calcularMetricasEcossistema(
+  nivelEstresse: StressLevel,
+  nivelDependencia: DependencyLevel
+): NonFinancialMetrics {
+  // Horas mensais reduzidas no modelo de ecossistema
+  const horasMensais = PREMISAS.horasPorModelo.recorrenciaMensal.medio;
+  const horasAnuais = horasMensais * 12;
+
+  // Desgaste inicial é 50% do cenário de lançamento, mas reduz com o tempo
+  const desgasteInicialLancamento = PREMISAS.projecaoDesgaste.lancamento[nivelEstresse];
+  const desgasteInicial = desgasteInicialLancamento * 0.5;
+  // Após 12 meses, reduz mais 12 × 5% = 60% do que restou
+  const reducaoAnual = 12 * PREMISAS.projecaoDesgaste.recorrenciaReducaoMensal;
+  const desgasteProjetado = Math.max(10, desgasteInicial * (1 - reducaoAnual));
+
+  // Sustentabilidade alta no ecossistema
+  const sustentabilidadeBase = PREMISAS.sustentabilidade.recorrencia;
+  const modificadorDependencia = PREMISAS.sustentabilidade.porNivelDependencia[nivelDependencia];
+  const sustentabilidade = Math.max(0, Math.min(100, sustentabilidadeBase + modificadorDependencia));
+
+  // Dependência reduz gradualmente no ecossistema
+  const dependenciaInicial = PREMISAS.dependencia.recorrencia.inicial;
+  const reducaoMensalDep = PREMISAS.dependencia.recorrencia.reducaoMensal;
+  const dependenciaMinima = PREMISAS.dependencia.recorrencia.minimo;
+  const dependencia = Math.max(dependenciaMinima, dependenciaInicial - 12 * reducaoMensalDep);
+
+  // Classificação de risco
+  let riscoDesgaste: 'baixo' | 'moderado' | 'alto' | 'critico';
+  if (desgasteProjetado >= 80) riscoDesgaste = 'critico';
+  else if (desgasteProjetado >= 60) riscoDesgaste = 'alto';
+  else if (desgasteProjetado >= 40) riscoDesgaste = 'moderado';
+  else riscoDesgaste = 'baixo';
+
+  return {
+    horasAnuais,
+    horasMensaisMedia: horasMensais,
+    desgasteProjetado: Math.round(desgasteProjetado),
+    sustentabilidade: Math.round(sustentabilidade),
+    dependencia: Math.round(dependencia),
+    riscoDesgaste,
   };
 }
 
@@ -58,6 +200,9 @@ export function calculateTransition(inputs: TransitionInputs): TransitionOutputs
     tamanhoLista,
     ticketRecorrencia,
     churnEstimado,
+    horasPorLancamento = PREMISAS.horasPorModelo.lancamentoIntensivo.medio,
+    nivelEstresse = 3,
+    nivelDependencia = 4,
   } = inputs;
 
   const churnDecimal = churnEstimado / 100;
@@ -66,6 +211,7 @@ export function calculateTransition(inputs: TransitionInputs): TransitionOutputs
   const faturamentoAnualLancamento = faturamentoLancamento * frequenciaLancamentos;
   const custoAnualLancamento = custoLancamento * frequenciaLancamentos;
   const lucroAnualLancamento = (faturamentoAnualLancamento - custoAnualLancamento) * PREMISAS.margem.lancamento;
+  const margemLancamento = faturamentoAnualLancamento > 0 ? (lucroAnualLancamento / faturamentoAnualLancamento) * 100 : 0;
 
   // MRR necessário para igualar
   const mrrNecessario = faturamentoAnualLancamento / 12;
@@ -151,13 +297,58 @@ export function calculateTransition(inputs: TransitionInputs): TransitionOutputs
   const mrrProjetado12Meses = projecao12Meses[11].mrrRecorrencia;
   const faturamentoAnualRecorrencia = projecao12Meses.reduce((sum, p) => sum + p.mrrRecorrencia, 0);
   const lucroAnualRecorrencia = faturamentoAnualRecorrencia * PREMISAS.margem.recorrencia;
+  const margemRecorrencia = faturamentoAnualRecorrencia > 0 ? (lucroAnualRecorrencia / faturamentoAnualRecorrencia) * 100 : 0;
 
-  // Gerar narrativa
+  // Calcular métricas não-financeiras
+  const metricasLancamento = calcularMetricasLancamento(
+    frequenciaLancamentos,
+    horasPorLancamento,
+    nivelEstresse,
+    nivelDependencia
+  );
+
+  const metricasEcossistema = calcularMetricasEcossistema(nivelEstresse, nivelDependencia);
+
+  // Montar comparação de cenários
+  const scenarioComparison: ScenarioComparison = {
+    lancamento: {
+      financial: {
+        faturamentoAnual: faturamentoAnualLancamento,
+        lucroAnual: Math.round(lucroAnualLancamento),
+        margemLiquida: Math.round(margemLancamento),
+      },
+      nonFinancial: metricasLancamento,
+      label: 'Continuar Lancando',
+    },
+    ecossistema: {
+      financial: {
+        faturamentoAnual: Math.round(faturamentoAnualRecorrencia),
+        lucroAnual: Math.round(lucroAnualRecorrencia),
+        margemLiquida: Math.round(margemRecorrencia),
+        mrrProjetado: mrrProjetado12Meses,
+      },
+      nonFinancial: metricasEcossistema,
+      label: 'Construir Ecossistema',
+    },
+    diferencas: {
+      lucro: Math.round(lucroAnualRecorrencia - lucroAnualLancamento),
+      lucroPercent: lucroAnualLancamento > 0
+        ? Math.round(((lucroAnualRecorrencia - lucroAnualLancamento) / lucroAnualLancamento) * 100)
+        : 0,
+      horas: metricasLancamento.horasAnuais - metricasEcossistema.horasAnuais,
+      horasPercent: metricasLancamento.horasAnuais > 0
+        ? Math.round(((metricasLancamento.horasAnuais - metricasEcossistema.horasAnuais) / metricasLancamento.horasAnuais) * 100)
+        : 0,
+      sustentabilidade: metricasEcossistema.sustentabilidade - metricasLancamento.sustentabilidade,
+      desgaste: metricasLancamento.desgasteProjetado - metricasEcossistema.desgasteProjetado,
+    },
+  };
+
+  // Gerar narrativa (atualizada para focar em ecossistema)
   const narrative = gerarNarrativa(
     mesesParaBreakeven,
     conversaoNecessaria,
-    lucroAnualRecorrencia,
-    lucroAnualLancamento
+    scenarioComparison
   );
 
   return {
@@ -172,6 +363,7 @@ export function calculateTransition(inputs: TransitionInputs): TransitionOutputs
     mrrProjetado12Meses,
     ltv: Math.round(ltv),
     projecao12Meses,
+    scenarioComparison,
     narrative,
   };
 }
@@ -209,31 +401,42 @@ function estimarMesesBreakeven(
 function gerarNarrativa(
   mesesParaBreakeven: number,
   conversaoNecessaria: number,
-  lucroAnualRecorrencia: number,
-  lucroAnualLancamento: number
+  comparison: ScenarioComparison
 ): { headline: string; mensagem: string; recomendacao: string } {
-  const diferencaLucro = lucroAnualRecorrencia - lucroAnualLancamento;
-  const percentualMaior = Math.round((diferencaLucro / lucroAnualLancamento) * 100);
+  const { diferencas } = comparison;
+  const lancamento = comparison.lancamento.nonFinancial;
+  const ecossistema = comparison.ecossistema.nonFinancial;
+
+  // Determinar headline baseado no risco de desgaste
+  if (lancamento.riscoDesgaste === 'critico') {
+    return {
+      headline: 'Alerta: risco alto de esgotamento',
+      mensagem: `Seu nivel de estresse atual projeta ${lancamento.desgasteProjetado}% de desgaste em 12 meses no modelo de lancamentos. O ecossistema pode reduzir isso para ${ecossistema.desgasteProjetado}%.`,
+      recomendacao: `Alem de ${diferencas.horasPercent}% menos horas trabalhadas, a transicao traz ${diferencas.sustentabilidade} pontos a mais de sustentabilidade. O breakeven acontece em ${mesesParaBreakeven} meses.`,
+    };
+  }
 
   if (mesesParaBreakeven <= 6) {
     return {
-      headline: 'Transicao rapida e vantajosa',
-      mensagem: `Com sua lista atual, voce pode atingir o breakeven em apenas ${mesesParaBreakeven} meses. A conversao necessaria de ${conversaoNecessaria}% e totalmente viavel.`,
-      recomendacao: 'Recomendamos iniciar a transicao o quanto antes. O modelo de recorrencia pode gerar ate ' + percentualMaior + '% mais lucro no longo prazo.',
-    };
-  } else if (mesesParaBreakeven <= 12) {
-    return {
-      headline: 'Transicao viavel com planejamento',
-      mensagem: `O breakeven acontece em ${mesesParaBreakeven} meses. Voce precisara converter ${conversaoNecessaria}% da sua lista, o que e alcancavel com uma boa estrategia de lancamento.`,
-      recomendacao: 'Considere um modelo hibrido: mantenha 1-2 lancamentos por ano enquanto constroi a base de assinantes.',
-    };
-  } else {
-    return {
-      headline: 'Transicao requer preparacao',
-      mensagem: `O breakeven levaria ${mesesParaBreakeven} meses. A conversao necessaria de ${conversaoNecessaria}% esta acima da media do mercado.`,
-      recomendacao: 'Antes de transicionar, foque em: 1) Crescer a lista, 2) Reduzir ticket ou aumentar valor percebido, 3) Testar com um produto piloto.',
+      headline: 'Cenario favoravel para transicao',
+      mensagem: `Em ${mesesParaBreakeven} meses voce atinge o breakeven com ${conversaoNecessaria}% de conversao. Alem disso, trabalha ${diferencas.horasPercent}% menos horas por ano.`,
+      recomendacao: `O modelo de ecossistema oferece ${ecossistema.sustentabilidade}% de sustentabilidade vs ${lancamento.sustentabilidade}% dos lancamentos. Hora de construir sua estrutura.`,
     };
   }
+
+  if (mesesParaBreakeven <= 12) {
+    return {
+      headline: 'Transicao viavel com planejamento',
+      mensagem: `O breakeven acontece em ${mesesParaBreakeven} meses. Voce economizara ${diferencas.horas} horas por ano e reduzira o desgaste projetado de ${lancamento.desgasteProjetado}% para ${ecossistema.desgasteProjetado}%.`,
+      recomendacao: 'Considere um modelo hibrido: mantenha 1-2 lancamentos por ano enquanto constroi a base de assinantes do ecossistema.',
+    };
+  }
+
+  return {
+    headline: 'Preparacao necessaria antes da transicao',
+    mensagem: `Com os numeros atuais, o breakeven levaria ${mesesParaBreakeven} meses. Mas mesmo assim, o modelo de ecossistema oferece ${diferencas.horasPercent}% menos horas e ${diferencas.sustentabilidade} pontos a mais de sustentabilidade.`,
+    recomendacao: 'Antes de transicionar completamente: 1) Cresça a lista, 2) Construa rituais de comunidade, 3) Teste com um produto piloto recorrente.',
+  };
 }
 
 export function formatarMoeda(valor: number): string {
@@ -245,3 +448,6 @@ export function formatarMoeda(valor: number): string {
   }
   return `R$ ${valor.toFixed(0)}`;
 }
+
+// Re-export FrequenciaLancamento for convenience
+export type { FrequenciaLancamento } from './premisas';

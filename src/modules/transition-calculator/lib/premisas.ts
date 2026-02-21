@@ -1,5 +1,5 @@
 /**
- * Premissas para cálculo de transição de lançamento para recorrência
+ * Premissas para simulador "E Se Voce Parar de Lancar"
  *
  * Baseado em benchmarks de mercado de infoprodutores brasileiros.
  */
@@ -41,6 +41,65 @@ export const PREMISAS = {
 
   // Meses para estabilização
   mesesEstabilizacao: 6,
+
+  // ========================================
+  // PREMISSAS NÃO-FINANCEIRAS (NOVO)
+  // ========================================
+
+  // Horas trabalhadas por modelo
+  horasPorModelo: {
+    // Horas INTENSIVAS por lançamento (período de lançamento)
+    lancamentoIntensivo: {
+      minimo: 80, // 80h em 2 semanas
+      medio: 120, // 120h em 2-3 semanas
+      maximo: 200, // 200h+ para grandes lançamentos
+    },
+    // Horas mensais no modelo recorrente (depois de estabilizado)
+    recorrenciaMensal: {
+      minimo: 20, // Ecossistema bem automatizado
+      medio: 40, // Operação normal
+      maximo: 60, // Ainda em construção
+    },
+  },
+
+  // Projeção de desgaste (0-100)
+  projecaoDesgaste: {
+    // Por nível de estresse atual (1-5) -> desgaste projetado em 12 meses
+    lancamento: {
+      1: 30,
+      2: 45,
+      3: 60,
+      4: 75,
+      5: 90, // Alto risco de burnout
+    },
+    // Recorrência começa em 50% do desgaste atual e reduz 5% ao mês
+    recorrenciaReducaoMensal: 0.05,
+  },
+
+  // Índice de sustentabilidade (0-100%)
+  sustentabilidade: {
+    // Base por modelo
+    lancamento: 35, // Baixa sustentabilidade natural
+    recorrencia: 70, // Alta sustentabilidade base
+    // Modificadores
+    porNivelDependencia: {
+      1: 20, // Muito independente: +20%
+      2: 10, // Independente: +10%
+      3: 0, // Neutro
+      4: -10, // Dependente: -10%
+      5: -20, // Totalmente dependente: -20%
+    },
+  },
+
+  // Distribuição de dependência
+  dependencia: {
+    lancamento: 95, // 95% depende do fundador
+    recorrencia: {
+      inicial: 80, // Começa em 80%
+      reducaoMensal: 5, // Reduz 5% ao mês com estrutura
+      minimo: 40, // Não fica abaixo de 40% sem equipe
+    },
+  },
 };
 
 export type FrequenciaLancamento = 2 | 3 | 4 | 6;

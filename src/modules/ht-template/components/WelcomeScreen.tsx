@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Button } from '@/design-system/primitives/button';
 import { Input } from '@/design-system/primitives/input';
-import { ArrowRight, FileText } from 'lucide-react';
+import { ArrowRight, Layers } from 'lucide-react';
 import { cn } from '@/design-system/lib/utils';
 import { useEmbed } from '../contexts/EmbedContext';
+import { ECOSYSTEM_LAYERS } from '../lib/layers';
 
 interface WelcomeScreenProps {
   onStart: (email: string, name?: string) => void;
@@ -59,7 +60,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
             <div className="w-8 h-px bg-kosmos-orange" />
           </div>
           <p className="text-kosmos-gray text-sm tracking-wide">
-            Template Interativo
+            Blueprint de Ecossistema
           </p>
         </div>
 
@@ -69,29 +70,30 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
 
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 rounded-2xl bg-kosmos-orange/10 border border-kosmos-orange/20 flex items-center justify-center">
-                <FileText className="w-8 h-8 text-kosmos-orange" />
+                <Layers className="w-8 h-8 text-kosmos-orange" />
               </div>
             </div>
 
             <h1 className="font-display text-3xl md:text-4xl font-bold text-kosmos-white text-center mb-4 leading-tight">
-              Estruture sua{' '}
-              <span className="text-kosmos-orange">Oferta High Ticket</span>
+              Mapeie as{' '}
+              <span className="text-kosmos-orange">5 Camadas</span>
+              {' '}do seu Ecossistema
             </h1>
 
             <p className="text-kosmos-gray text-center text-base md:text-lg mb-8 max-w-md mx-auto leading-relaxed">
-              Um guia passo a passo para criar uma oferta irresistivel
-              que justifica precos premium.
+              Descubra o que ja existe, o que esta faltando e como construir
+              um ecossistema que funciona com ou sem voce.
             </p>
 
             <div className="flex items-center justify-center gap-6 mb-8 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-kosmos-orange" />
-                <span className="text-kosmos-gray-light">10-15 minutos</span>
+                <span className="text-kosmos-gray-light">15-20 minutos</span>
               </div>
               <div className="w-px h-4 bg-border" />
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-kosmos-orange" />
-                <span className="text-kosmos-gray-light">6 secoes</span>
+                <span className="text-kosmos-gray-light">{ECOSYSTEM_LAYERS.length} camadas</span>
               </div>
             </div>
 
@@ -125,13 +127,13 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
                 size="lg"
                 className="w-full h-14 text-base font-display font-semibold bg-kosmos-orange hover:bg-kosmos-orange-glow glow-orange-subtle hover:glow-orange text-white transition-all duration-300"
               >
-                Comecar a Estruturar
+                Mapear Meu Ecossistema
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </form>
 
             <p className="text-kosmos-gray/60 text-xs text-center mt-6">
-              Voce podera baixar seu template ao final.
+              Voce recebera seu blueprint completo ao final.
             </p>
           </div>
         </div>

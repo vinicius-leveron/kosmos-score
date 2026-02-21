@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Button } from '@/design-system/primitives/button';
 import { Input } from '@/design-system/primitives/input';
 import { Label } from '@/design-system/primitives/label';
-import { ArrowRight, ArrowLeft, HelpCircle } from 'lucide-react';
+import { ArrowRight, ArrowLeft, HelpCircle, Clock, Brain, Users } from 'lucide-react';
 import { cn } from '@/design-system/lib/utils';
 import { useEmbed } from '../contexts/EmbedContext';
-import { TransitionInputs, FrequenciaLancamento } from '../lib/calculateTransition';
+import { TransitionInputs, StressLevel, DependencyLevel } from '../lib/calculateTransition';
 import { FREQUENCIAS } from '../lib/premisas';
 import {
   Tooltip,
@@ -19,16 +19,35 @@ interface InputsScreenProps {
   onBack: () => void;
 }
 
+const STRESS_LEVELS: { value: StressLevel; label: string; description: string }[] = [
+  { value: 1, label: 'Tranquilo', description: 'Lancamentos sao leves' },
+  { value: 2, label: 'Gerenciavel', description: 'Algum estresse pontual' },
+  { value: 3, label: 'Moderado', description: 'Estresse recorrente' },
+  { value: 4, label: 'Alto', description: 'Afeta outras areas' },
+  { value: 5, label: 'Critico', description: 'Beira o esgotamento' },
+];
+
+const DEPENDENCY_LEVELS: { value: DependencyLevel; label: string; description: string }[] = [
+  { value: 1, label: 'Autonomo', description: 'Funciona sem mim' },
+  { value: 2, label: 'Delegado', description: 'Equipe executa bem' },
+  { value: 3, label: 'Parcial', description: 'Depende em partes' },
+  { value: 4, label: 'Central', description: 'Sou necessario' },
+  { value: 5, label: 'Total', description: 'Depende 100% de mim' },
+];
+
 export function InputsScreen({ onCalculate, onBack }: InputsScreenProps) {
   const { isEmbed } = useEmbed();
   const [step, setStep] = useState(1);
   const [inputs, setInputs] = useState<Partial<TransitionInputs>>({
     frequenciaLancamentos: 4,
     churnEstimado: 5,
+    horasPorLancamento: 120,
+    nivelEstresse: 3,
+    nivelDependencia: 4,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const totalSteps = 2;
+  const totalSteps = 3;
 
   const updateInput = <K extends keyof TransitionInputs>(
     key: K,
@@ -65,6 +84,7 @@ export function InputsScreen({ onCalculate, onBack }: InputsScreenProps) {
         newErrors.ticketRecorrencia = 'Informe o ticket da recorrencia';
       }
     }
+    // Step 3 has no required validation (all have defaults)
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -233,7 +253,7 @@ export function InputsScreen({ onCalculate, onBack }: InputsScreenProps) {
             {step === 2 && (
               <div className="space-y-6">
                 <h2 className="font-display text-2xl font-bold text-kosmos-white text-center mb-6">
-                  Sua recorrencia futura
+                  O ecossistema projetado
                 </h2>
 
                 <div>
@@ -326,6 +346,118 @@ export function InputsScreen({ onCalculate, onBack }: InputsScreenProps) {
                 </div>
               </div>
             )}
+
+            {/* Step 3: Dados Não-Financeiros (NOVO) */}
+            {step === 3 && (
+              <div className="space-y-6">
+                <h2 className="font-display text-2xl font-bold text-kosmos-white text-center mb-2">
+                  Alem do dinheiro
+                </h2>
+                <p className="text-kosmos-gray text-center text-sm mb-6">
+                  Para projetar sustentabilidade e qualidade de vida
+                </p>
+
+                {/* Horas por lançamento */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Clock className="w-4 h-4 text-kosmos-orange" />
+                    <Label className="text-kosmos-white">
+                      Horas trabalhadas por lancamento
+                    </Label>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="w-4 h-4 text-kosmos-gray" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Total de horas nas 2-3 semanas de lancamento</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="space-y-3">
+                    <input
+                      type="range"
+                      min="40"
+                      max="200"
+                      step="10"
+                      value={inputs.horasPorLancamento || 120}
+                      onChange={(e) =>
+                        updateInput('horasPorLancamento', parseInt(e.target.value, 10))
+                      }
+                      className="w-full h-2 bg-kosmos-black-light rounded-lg appearance-none cursor-pointer accent-kosmos-orange"
+                    />
+                    <div className="flex justify-between text-sm">
+                      <span className="text-kosmos-gray">40h</span>
+                      <span className="text-kosmos-orange font-medium">
+                        {inputs.horasPorLancamento}h por lancamento
+                      </span>
+                      <span className="text-kosmos-gray">200h</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Nível de estresse */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Brain className="w-4 h-4 text-kosmos-orange" />
+                    <Label className="text-kosmos-white">
+                      Como voce se sente durante lancamentos?
+                    </Label>
+                  </div>
+                  <div className="grid grid-cols-5 gap-2">
+                    {STRESS_LEVELS.map((level) => (
+                      <button
+                        key={level.value}
+                        type="button"
+                        onClick={() => updateInput('nivelEstresse', level.value)}
+                        className={cn(
+                          "p-2 rounded-lg border text-center transition-all",
+                          inputs.nivelEstresse === level.value
+                            ? "border-kosmos-orange bg-kosmos-orange/10"
+                            : "border-border hover:border-kosmos-gray"
+                        )}
+                      >
+                        <p className="font-medium text-kosmos-white text-xs">{level.value}</p>
+                        <p className="text-[10px] text-kosmos-gray mt-0.5">{level.label}</p>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-kosmos-gray text-xs mt-2 text-center">
+                    {STRESS_LEVELS.find((l) => l.value === inputs.nivelEstresse)?.description}
+                  </p>
+                </div>
+
+                {/* Nível de dependência */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Users className="w-4 h-4 text-kosmos-orange" />
+                    <Label className="text-kosmos-white">
+                      Quanto o negocio depende de voce?
+                    </Label>
+                  </div>
+                  <div className="grid grid-cols-5 gap-2">
+                    {DEPENDENCY_LEVELS.map((level) => (
+                      <button
+                        key={level.value}
+                        type="button"
+                        onClick={() => updateInput('nivelDependencia', level.value)}
+                        className={cn(
+                          "p-2 rounded-lg border text-center transition-all",
+                          inputs.nivelDependencia === level.value
+                            ? "border-kosmos-orange bg-kosmos-orange/10"
+                            : "border-border hover:border-kosmos-gray"
+                        )}
+                      >
+                        <p className="font-medium text-kosmos-white text-xs">{level.value}</p>
+                        <p className="text-[10px] text-kosmos-gray mt-0.5">{level.label}</p>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-kosmos-gray text-xs mt-2 text-center">
+                    {DEPENDENCY_LEVELS.find((l) => l.value === inputs.nivelDependencia)?.description}
+                  </p>
+                </div>
+              </div>
+            )}
           </TooltipProvider>
 
           {/* Navigation */}
@@ -344,7 +476,7 @@ export function InputsScreen({ onCalculate, onBack }: InputsScreenProps) {
               onClick={handleNext}
               className="flex-1 h-12 bg-kosmos-orange hover:bg-kosmos-orange-glow glow-orange-subtle hover:glow-orange"
             >
-              {step === totalSteps ? 'Calcular' : 'Proximo'}
+              {step === totalSteps ? 'Ver Simulacao' : 'Proximo'}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </div>

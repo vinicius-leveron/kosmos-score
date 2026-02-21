@@ -357,6 +357,9 @@ export function useLeadMagnetSummary() {
             : 0,
         },
         forms: { total: 0, recent: 0, avgScore: 0 },
+        // New maturity diagnostic
+        maturity_diagnostic: getLeadMagnetStats('maturity-diagnostic'),
+        // Legacy lead magnets (deprecated)
         ecosystem_calculator: getLeadMagnetStats('ecosystem-calculator'),
         ht_readiness: getLeadMagnetStats('ht-readiness'),
         ht_template: getLeadMagnetStats('ht-template'),
