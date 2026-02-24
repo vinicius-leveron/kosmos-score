@@ -40,6 +40,7 @@ const ContactsPage = lazy(() => import("./modules/crm/pages").then(m => ({ defau
 const PipelinePage = lazy(() => import("./modules/crm/pages").then(m => ({ default: m.PipelinePage })));
 const CompaniesPage = lazy(() => import("./modules/crm/pages").then(m => ({ default: m.CompaniesPage })));
 const DealBoardPage = lazy(() => import("./modules/crm/pages").then(m => ({ default: m.DealBoardPage })));
+const OutboundDashboardPage = lazy(() => import("./modules/crm/pages").then(m => ({ default: m.OutboundDashboardPage })));
 const StakeholdersListPage = lazy(() => import("./modules/stakeholder-analysis/pages/StakeholdersListPage").then(m => ({ default: m.StakeholdersListPage })));
 const StakeholderDetailPage = lazy(() => import("./modules/stakeholder-analysis/pages/StakeholderDetailPage").then(m => ({ default: m.StakeholderDetailPage })));
 const StakeholderDashboardPage = lazy(() => import("./modules/stakeholder-analysis/pages/StakeholderDashboardPage").then(m => ({ default: m.StakeholderDashboardPage })));
@@ -127,6 +128,7 @@ const App = () => (
               <Route path="crm/pipeline" element={<Suspense fallback={<PageLoader />}><PipelinePage /></Suspense>} />
               <Route path="crm/companies" element={<Suspense fallback={<PageLoader />}><CompaniesPage /></Suspense>} />
               <Route path="crm/deals/board" element={<Suspense fallback={<PageLoader />}><DealBoardPage /></Suspense>} />
+              <Route path="crm/outbound" element={<Suspense fallback={<PageLoader />}><OutboundDashboardPage /></Suspense>} />
               <Route path="toolkit/forms" element={<Suspense fallback={<PageLoader />}><FormsListPage /></Suspense>} />
               <Route path="toolkit/forms/:formId/edit" element={<Suspense fallback={<PageLoader />}><FormEditorPage /></Suspense>} />
               <Route path="toolkit/forms/:formId/analytics" element={<Suspense fallback={<PageLoader />}><FormAnalyticsPage /></Suspense>} />

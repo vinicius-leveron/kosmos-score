@@ -3,3 +3,4 @@ export { PipelinePage } from './PipelinePage';
 export { CrmDashboardPage } from './CrmDashboardPage';
 export { CompaniesPage } from './CompaniesPage';
 export { DealBoardPage } from './DealBoardPage';
+export { OutboundDashboardPage } from './OutboundDashboardPage';
