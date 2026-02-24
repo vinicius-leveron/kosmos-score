@@ -1,26 +1,17 @@
 import { useState, useMemo } from 'react';
 import {
   BarChart3,
-  TrendingUp,
-  Target,
-  Users,
+  GitBranch,
   DollarSign,
+  CheckSquare,
+  Users,
+  Target,
+  TrendingUp,
   Activity,
-  Calendar,
-  ChevronRight,
-  Download,
-  Filter,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  ArrowUpRight,
-  ArrowDownRight,
 } from 'lucide-react';
-import { Button } from '@/design-system/primitives/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/design-system/primitives/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/primitives/tabs';
 import { Badge } from '@/design-system/primitives/badge';
-import { Progress } from '@/design-system/primitives/progress';
+import { Skeleton } from '@/design-system/primitives/skeleton';
 import {
   Select,
   SelectContent,
@@ -28,599 +19,397 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/design-system/primitives/select';
-import { useNavigate } from 'react-router-dom';
 import { cn } from '@/design-system/lib/utils';
-import { useDashboardMetrics, useAIOSFunnelMetrics, useTopPerformers, usePipelineByStage } from '../hooks/useDashboardMetricsSimple';
-import { Skeleton } from '@/design-system/primitives/skeleton';
+import { useNavigate } from 'react-router-dom';
+import { useDashboardMetrics, useAIOSFunnelMetrics } from '../hooks/useDashboardMetricsSimple';
+import {
+  CrmKPICard,
+  RevenueTimelineChart,
+  PipelineFunnelChart,
+  TopDealsTable,
+  RecentActivitiesList,
+  TasksSummaryCard,
+  formatCurrency,
+} from '../components/dashboard';
 
-// Tipos para métricas
-interface MetricCard {
-  title: string;
-  value: string | number;
-  change?: number;
-  changeLabel?: string;
-  icon: React.ComponentType<{ className?: string }>;
-  trend?: 'up' | 'down' | 'neutral';
-}
+// Tab configuration
+const DASHBOARD_TABS = [
+  { id: 'overview', label: 'Visao Geral', icon: BarChart3 },
+  { id: 'pipeline', label: 'Pipeline', icon: GitBranch },
+  { id: 'revenue', label: 'Receita', icon: DollarSign },
+  { id: 'tasks', label: 'Tarefas', icon: CheckSquare },
+  { id: 'team', label: 'Equipe', icon: Users },
+] as const;
 
-interface ForecastData {
-  month: string;
-  projected: number;
-  achieved: number;
-  probability: number;
-}
+type TabId = (typeof DASHBOARD_TABS)[number]['id'];
 
-interface GoalData {
-  name: string;
-  target: number;
-  current: number;
-  deadline: string;
-  status: 'on-track' | 'at-risk' | 'behind';
-}
+// Mock data for charts (will be replaced with real data from hooks)
+const MOCK_REVENUE_DATA = [
+  { month: 'Set', revenue: 85000, deals: 8 },
+  { month: 'Out', revenue: 92000, deals: 10 },
+  { month: 'Nov', revenue: 115000, deals: 12 },
+  { month: 'Dez', revenue: 127890, deals: 14 },
+  { month: 'Jan', revenue: 135000, deals: 11 },
+  { month: 'Fev', revenue: 142500, deals: 13 },
+];
 
-interface PipelineHealth {
-  stage: string;
-  count: number;
-  value: number;
-  averageTime: number;
-  conversionRate: number;
-}
+const MOCK_PIPELINE_STAGES = [
+  { name: 'prospection', displayName: 'Prospeccao', count: 127, value: 381000, color: '#64748B' },
+  { name: 'qualification', displayName: 'Qualificacao', count: 53, value: 265000, color: '#3B82F6' },
+  { name: 'proposal', displayName: 'Proposta', count: 34, value: 204000, color: '#8B5CF6' },
+  { name: 'negotiation', displayName: 'Negociacao', count: 18, value: 162000, color: '#F59E0B' },
+  { name: 'closing', displayName: 'Fechamento', count: 8, value: 127890, color: '#22C55E' },
+];
+
+const MOCK_TOP_DEALS = [
+  { id: '1', title: 'Projeto Enterprise', company: 'Tech Solutions', amount: 45000, stage: 'Proposta', stageColor: '#8B5CF6', probability: 75, daysInStage: 5 },
+  { id: '2', title: 'Consultoria Estrategica', company: 'ABC Corp', amount: 38500, stage: 'Negociacao', stageColor: '#F59E0B', probability: 85, daysInStage: 3 },
+  { id: '3', title: 'Implementacao CRM', company: 'StartupXYZ', amount: 32100, stage: 'Qualificacao', stageColor: '#3B82F6', probability: 45, daysInStage: 7 },
+  { id: '4', title: 'Licencas SaaS', company: 'Global Inc', amount: 28900, stage: 'Proposta', stageColor: '#8B5CF6', probability: 60, daysInStage: 4 },
+  { id: '5', title: 'Suporte Anual', company: 'Local Store', amount: 24500, stage: 'Fechamento', stageColor: '#22C55E', probability: 95, daysInStage: 2 },
+];
+
+const MOCK_ACTIVITIES = [
+  { id: '1', type: 'call' as const, title: 'Ligacao com Joao Silva', contactName: 'Tech Solutions', contactEmail: '', created_at: new Date(Date.now() - 1800000).toISOString() },
+  { id: '2', type: 'email_sent' as const, title: 'Proposta enviada', contactName: 'Maria Santos', contactEmail: '', created_at: new Date(Date.now() - 3600000).toISOString() },
+  { id: '3', type: 'meeting' as const, title: 'Reuniao agendada', contactName: 'Pedro Costa', contactEmail: '', created_at: new Date(Date.now() - 7200000).toISOString() },
+  { id: '4', type: 'note' as const, title: 'Follow-up registrado', contactName: 'Ana Oliveira', contactEmail: '', created_at: new Date(Date.now() - 14400000).toISOString() },
+  { id: '5', type: 'stage_changed' as const, title: 'Deal movido para Fechamento', contactName: 'Tech Solutions', contactEmail: '', created_at: new Date(Date.now() - 28800000).toISOString() },
+];
+
+const MOCK_TEAM = [
+  { name: 'Carlos Mendes', deals: 12, revenue: 45890, winRate: 32 },
+  { name: 'Julia Ferreira', deals: 9, revenue: 38500, winRate: 28 },
+  { name: 'Roberto Lima', deals: 8, revenue: 32100, winRate: 25 },
+  { name: 'Patricia Souza', deals: 7, revenue: 28900, winRate: 22 },
+  { name: 'Lucas Alves', deals: 6, revenue: 24500, winRate: 20 },
+];
 
 export function CrmDashboardPage() {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [selectedPeriod, setSelectedPeriod] = useState('month');
-  
-  // Buscar dados reais do dashboard
+
+  // Fetch real data
   const { data: dashboardMetrics, isLoading: metricsLoading } = useDashboardMetrics();
   const { data: funnelData } = useAIOSFunnelMetrics();
-  const { data: topPerformers } = useTopPerformers();
-  const { data: pipelineStages } = usePipelineByStage();
 
-  // Calcular métricas formatadas
-  const metrics: MetricCard[] = useMemo(() => {
-    if (!dashboardMetrics) return [];
-    
-    const formatCurrency = (value: number) => 
-      new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-    
-    return [
-      {
-        title: 'Receita do Mês',
-        value: formatCurrency(dashboardMetrics.revenue_month),
-        change: dashboardMetrics.revenue_month > 0 ? 12.5 : 0, // TODO: calcular vs mês anterior
-        changeLabel: 'vs mês anterior',
-        icon: DollarSign,
-        trend: dashboardMetrics.revenue_month > 0 ? 'up' : 'neutral',
-      },
-      {
-        title: 'Novos Deals',
-        value: dashboardMetrics.deals_created_month,
-        change: 0, // TODO: calcular vs mês anterior
-        changeLabel: 'vs mês anterior',
-        icon: Target,
-        trend: 'neutral',
-      },
-      {
-        title: 'Taxa de Conversão',
-        value: `${dashboardMetrics.win_rate_month.toFixed(1)}%`,
-        change: 0, // TODO: calcular vs mês anterior
-        changeLabel: 'vs mês anterior',
-        icon: TrendingUp,
-        trend: dashboardMetrics.win_rate_month > 20 ? 'up' : 'down',
-      },
-      {
-        title: 'Pipeline Total',
-        value: formatCurrency(dashboardMetrics.pipeline_value),
-        change: 0, // TODO: calcular vs mês anterior
-        changeLabel: 'deals abertos',
-        icon: Activity,
-        trend: 'neutral',
-      },
-    ];
-  }, [dashboardMetrics]);
-
-  const forecastData: ForecastData[] = [
-    { month: 'Jan', projected: 95000, achieved: 92000, probability: 97 },
-    { month: 'Fev', projected: 110000, achieved: 115000, probability: 104 },
-    { month: 'Mar', projected: 125000, achieved: 127890, probability: 102 },
-    { month: 'Abr', projected: 140000, achieved: 0, probability: 78 },
-    { month: 'Mai', projected: 155000, achieved: 0, probability: 65 },
-    { month: 'Jun', projected: 170000, achieved: 0, probability: 52 },
-  ];
-
-  const goals: GoalData[] = [
-    {
-      name: 'Meta de Vendas Q1',
-      target: 350000,
-      current: 334890,
-      deadline: '31/03/2024',
-      status: 'on-track',
-    },
-    {
-      name: 'Novos Clientes',
-      target: 50,
-      current: 42,
-      deadline: '31/03/2024',
-      status: 'at-risk',
-    },
-    {
-      name: 'Taxa de Conversão',
-      target: 25,
-      current: 23.4,
-      deadline: '30/04/2024',
-      status: 'on-track',
-    },
-    {
-      name: 'Redução de Churn',
-      target: 5,
-      current: 7.2,
-      deadline: '30/06/2024',
-      status: 'behind',
-    },
-  ];
-
-  const pipelineHealth: PipelineHealth[] = [
-    {
-      stage: 'Prospecção',
-      count: 127,
-      value: 381000,
-      averageTime: 3,
-      conversionRate: 42,
-    },
-    {
-      stage: 'Qualificação',
-      count: 53,
-      value: 265000,
-      averageTime: 5,
-      conversionRate: 65,
-    },
-    {
-      stage: 'Proposta',
-      count: 34,
-      value: 204000,
-      averageTime: 7,
-      conversionRate: 78,
-    },
-    {
-      stage: 'Negociação',
-      count: 18,
-      value: 162000,
-      averageTime: 4,
-      conversionRate: 85,
-    },
-    {
-      stage: 'Fechamento',
-      count: 8,
-      value: 127890,
-      averageTime: 2,
-      conversionRate: 95,
-    },
-  ];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'on-track':
-        return 'text-green-500';
-      case 'at-risk':
-        return 'text-yellow-500';
-      case 'behind':
-        return 'text-red-500';
-      default:
-        return 'text-gray-500';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'on-track':
-        return CheckCircle;
-      case 'at-risk':
-        return AlertTriangle;
-      case 'behind':
-        return AlertTriangle;
-      default:
-        return Clock;
-    }
-  };
+  // Calculate totals
+  const totalRevenue = MOCK_REVENUE_DATA.reduce((sum, d) => sum + d.revenue, 0);
+  const totalDeals = MOCK_PIPELINE_STAGES.reduce((sum, s) => sum + s.count, 0);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="border-b">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Dashboard CRM</h1>
-              <p className="text-muted-foreground mt-1">
-                Análise completa de vendas, metas e forecast
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                <SelectTrigger className="w-[180px]">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="week">Esta Semana</SelectItem>
-                  <SelectItem value="month">Este Mês</SelectItem>
-                  <SelectItem value="quarter">Este Trimestre</SelectItem>
-                  <SelectItem value="year">Este Ano</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="outline">
-                <Filter className="h-4 w-4 mr-2" />
-                Filtros
-              </Button>
-              <Button variant="outline">
-                <Download className="h-4 w-4 mr-2" />
-                Exportar
-              </Button>
-            </div>
-          </div>
+      <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+        <div>
+          <h1 className="text-2xl font-display font-bold text-kosmos-white">
+            CRM Dashboard
+          </h1>
+          <p className="text-kosmos-gray text-sm mt-1">
+            Metricas e performance do CRM
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+            <SelectTrigger className="w-[140px] bg-kosmos-black-light border-border text-kosmos-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="week">Esta Semana</SelectItem>
+              <SelectItem value="month">Este Mes</SelectItem>
+              <SelectItem value="quarter">Este Trimestre</SelectItem>
+              <SelectItem value="year">Este Ano</SelectItem>
+            </SelectContent>
+          </Select>
+          <Badge variant="outline" className="text-kosmos-orange border-kosmos-orange">
+            CRM v2.0
+          </Badge>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-6 space-y-6">
-        {/* Metrics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {metrics.map((metric) => (
-            <Card key={metric.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {metric.title}
-                </CardTitle>
-                <metric.icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{metric.value}</div>
-                {metric.change !== undefined && (
-                  <div className="flex items-center text-xs mt-2">
-                    {metric.trend === 'up' ? (
-                      <ArrowUpRight className="h-3 w-3 text-green-500 mr-1" />
-                    ) : (
-                      <ArrowDownRight className="h-3 w-3 text-red-500 mr-1" />
-                    )}
-                    <span
-                      className={cn(
-                        metric.trend === 'up' ? 'text-green-500' : 'text-red-500'
-                      )}
-                    >
-                      {Math.abs(metric.change)}%
-                    </span>
-                    <span className="text-muted-foreground ml-1">
-                      {metric.changeLabel}
-                    </span>
-                  </div>
+      {/* Tabs */}
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as TabId)}
+        className="flex-1 flex flex-col px-6 pt-4"
+      >
+        <TabsList className="w-full justify-start gap-1 bg-kosmos-black-light p-1 rounded-lg overflow-x-auto">
+          {DASHBOARD_TABS.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className={cn(
+                  'flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap',
+                  'data-[state=active]:bg-kosmos-orange data-[state=active]:text-white',
+                  'data-[state=inactive]:text-kosmos-gray hover:data-[state=inactive]:text-kosmos-white'
                 )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              >
+                <Icon className="w-4 h-4" />
+                {tab.label}
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
 
-        {/* Tabs for different views */}
-        <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-            <TabsTrigger value="forecast">Forecast</TabsTrigger>
-            <TabsTrigger value="goals">Metas</TabsTrigger>
-            <TabsTrigger value="reports">Relatórios</TabsTrigger>
-            <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
-          </TabsList>
-
+        {/* Tab Contents */}
+        <div className="flex-1 py-6 overflow-y-auto">
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              {/* Atividades Recentes */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Atividades Recentes</CardTitle>
-                  <CardDescription>
-                    Últimas interações com clientes
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {['Ligação com João Silva - Empresa ABC', 
-                      'Proposta enviada para Maria Santos',
-                      'Reunião agendada com Pedro Costa',
-                      'Follow-up com Ana Oliveira',
-                      'Negociação finalizada com Tech Solutions'].map((activity, i) => (
-                      <div key={i} className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="h-2 w-2 bg-primary rounded-full" />
-                          <span className="text-sm">{activity}</span>
-                        </div>
-                        <Button variant="ghost" size="sm">
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Top Vendedores */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Top Vendedores</CardTitle>
-                  <CardDescription>
-                    Desempenho da equipe este mês
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {[
-                      { name: 'Carlos Mendes', value: 45890, deals: 12 },
-                      { name: 'Julia Ferreira', value: 38500, deals: 9 },
-                      { name: 'Roberto Lima', value: 32100, deals: 8 },
-                      { name: 'Patricia Souza', value: 28900, deals: 7 },
-                      { name: 'Lucas Alves', value: 24500, deals: 6 },
-                    ].map((seller) => (
-                      <div key={seller.name} className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">{seller.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {seller.deals} deals fechados
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold">
-                            R$ {seller.value.toLocaleString('pt-BR')}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+          <TabsContent value="overview" className="m-0 space-y-6">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-4 gap-4">
+              <CrmKPICard
+                title="Receita do Mes"
+                value={dashboardMetrics ? formatCurrency(dashboardMetrics.revenue_month) : null}
+                icon={DollarSign}
+                color="text-green-400"
+                subtitle="deals fechados"
+                isLoading={metricsLoading}
+              />
+              <CrmKPICard
+                title="Pipeline Aberto"
+                value={dashboardMetrics ? formatCurrency(dashboardMetrics.pipeline_value) : null}
+                icon={Target}
+                color="text-blue-400"
+                subtitle={`${dashboardMetrics?.deals_open || 0} deals`}
+                isLoading={metricsLoading}
+              />
+              <CrmKPICard
+                title="Win Rate"
+                value={dashboardMetrics ? `${dashboardMetrics.win_rate_month.toFixed(1)}%` : null}
+                icon={TrendingUp}
+                color="text-kosmos-orange"
+                subtitle="taxa de conversao"
+                isLoading={metricsLoading}
+              />
+              <CrmKPICard
+                title="Contatos do Mes"
+                value={dashboardMetrics?.contacts_month}
+                icon={Users}
+                color="text-purple-400"
+                subtitle="novos leads"
+                isLoading={metricsLoading}
+              />
             </div>
-          </TabsContent>
 
-          {/* Forecast Tab */}
-          <TabsContent value="forecast" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Forecast de Vendas</CardTitle>
-                <CardDescription>
-                  Projeção vs Realizado para os próximos 6 meses
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {forecastData.map((data) => (
-                    <div key={data.month} className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium">{data.month}</span>
-                        <div className="flex items-center gap-4">
-                          <span className="text-muted-foreground">
-                            Projetado: R$ {data.projected.toLocaleString('pt-BR')}
-                          </span>
-                          {data.achieved > 0 && (
-                            <span className="text-green-600 font-medium">
-                              Realizado: R$ {data.achieved.toLocaleString('pt-BR')}
-                            </span>
-                          )}
-                          <Badge
-                            variant={data.probability >= 80 ? 'default' : data.probability >= 50 ? 'secondary' : 'destructive'}
-                          >
-                            {data.probability}% probabilidade
-                          </Badge>
-                        </div>
-                      </div>
-                      <Progress value={data.achieved ? (data.achieved / data.projected) * 100 : data.probability} />
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6 pt-6 border-t">
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <p className="text-2xl font-bold">R$ 850k</p>
-                      <p className="text-sm text-muted-foreground">Total Projetado</p>
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">R$ 335k</p>
-                      <p className="text-sm text-muted-foreground">Total Realizado</p>
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">68%</p>
-                      <p className="text-sm text-muted-foreground">Probabilidade Média</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Goals Tab */}
-          <TabsContent value="goals" className="space-y-4">
-            <div className="grid gap-4">
-              {goals.map((goal) => {
-                const StatusIcon = getStatusIcon(goal.status);
-                const progress = (goal.current / goal.target) * 100;
-                
-                return (
-                  <Card key={goal.name}>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <StatusIcon className={cn('h-5 w-5', getStatusColor(goal.status))} />
-                          <div>
-                            <CardTitle className="text-base">{goal.name}</CardTitle>
-                            <CardDescription>Prazo: {goal.deadline}</CardDescription>
-                          </div>
-                        </div>
-                        <Badge
-                          variant={
-                            goal.status === 'on-track'
-                              ? 'default'
-                              : goal.status === 'at-risk'
-                              ? 'secondary'
-                              : 'destructive'
-                          }
-                        >
-                          {goal.status === 'on-track'
-                            ? 'No prazo'
-                            : goal.status === 'at-risk'
-                            ? 'Em risco'
-                            : 'Atrasado'}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Progresso</span>
-                          <span className="font-medium">
-                            {typeof goal.current === 'number' && typeof goal.target === 'number'
-                              ? `${goal.current.toLocaleString('pt-BR')} / ${goal.target.toLocaleString('pt-BR')}`
-                              : `${goal.current}% / ${goal.target}%`}
-                          </span>
-                        </div>
-                        <Progress value={progress} className="h-2" />
-                        <p className="text-xs text-muted-foreground text-right">
-                          {progress.toFixed(1)}% completo
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+            {/* Charts Row */}
+            <div className="grid grid-cols-2 gap-6">
+              {metricsLoading ? (
+                <>
+                  <Skeleton className="h-80 w-full" />
+                  <Skeleton className="h-80 w-full" />
+                </>
+              ) : (
+                <>
+                  <RevenueTimelineChart data={MOCK_REVENUE_DATA} totalRevenue={totalRevenue} />
+                  <PipelineFunnelChart stages={MOCK_PIPELINE_STAGES} totalDeals={totalDeals} />
+                </>
+              )}
             </div>
-          </TabsContent>
 
-          {/* Reports Tab */}
-          <TabsContent value="reports" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {[
-                {
-                  title: 'Relatório de Vendas',
-                  description: 'Análise detalhada das vendas do período',
-                  icon: DollarSign,
-                  action: 'Gerar',
-                },
-                {
-                  title: 'Performance da Equipe',
-                  description: 'Desempenho individual dos vendedores',
-                  icon: Users,
-                  action: 'Visualizar',
-                },
-                {
-                  title: 'Análise de Pipeline',
-                  description: 'Status e saúde do funil de vendas',
-                  icon: Activity,
-                  action: 'Analisar',
-                },
-                {
-                  title: 'Relatório de Conversão',
-                  description: 'Taxas de conversão por etapa',
-                  icon: TrendingUp,
-                  action: 'Explorar',
-                },
-                {
-                  title: 'Análise de Churn',
-                  description: 'Clientes perdidos e motivos',
-                  icon: AlertTriangle,
-                  action: 'Investigar',
-                },
-                {
-                  title: 'ROI de Campanhas',
-                  description: 'Retorno sobre investimento em marketing',
-                  icon: Target,
-                  action: 'Calcular',
-                },
-              ].map((report) => (
-                <Card key={report.title} className="cursor-pointer hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <report.icon className="h-8 w-8 text-primary" />
-                      <Button size="sm" variant="outline">
-                        {report.action}
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <h3 className="font-semibold">{report.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {report.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
+            {/* Bottom Row */}
+            <div className="grid grid-cols-2 gap-6">
+              {metricsLoading ? (
+                <>
+                  <Skeleton className="h-64 w-full" />
+                  <Skeleton className="h-64 w-full" />
+                </>
+              ) : (
+                <>
+                  <TopDealsTable deals={MOCK_TOP_DEALS} />
+                  <RecentActivitiesList activities={MOCK_ACTIVITIES} limit={5} />
+                </>
+              )}
             </div>
           </TabsContent>
 
           {/* Pipeline Tab */}
-          <TabsContent value="pipeline" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Saúde do Pipeline</CardTitle>
-                <CardDescription>
-                  Análise detalhada de cada etapa do funil
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {pipelineHealth.map((stage, index) => (
-                    <div key={stage.stage} className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-semibold flex items-center gap-2">
-                          <div className="h-3 w-3 bg-primary rounded-full" />
-                          {stage.stage}
-                        </h4>
-                        <div className="flex items-center gap-4 text-sm">
-                          <Badge variant="outline">
-                            {stage.count} deals
-                          </Badge>
-                          <span className="font-medium">
-                            R$ {(stage.value / 1000).toFixed(0)}k
-                          </span>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <p className="text-muted-foreground">Tempo médio</p>
-                          <p className="font-medium">{stage.averageTime} dias</p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground">Taxa de conversão</p>
-                          <p className="font-medium">{stage.conversionRate}%</p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground">Valor médio</p>
-                          <p className="font-medium">
-                            R$ {(stage.value / stage.count / 1000).toFixed(1)}k
-                          </p>
-                        </div>
-                      </div>
-                      {index < pipelineHealth.length - 1 && (
-                        <div className="border-b" />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+          <TabsContent value="pipeline" className="m-0 space-y-6">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-4 gap-4">
+              <CrmKPICard
+                title="Total em Pipeline"
+                value={formatCurrency(MOCK_PIPELINE_STAGES.reduce((s, d) => s + d.value, 0))}
+                icon={Target}
+                color="text-blue-400"
+                isLoading={metricsLoading}
+              />
+              <CrmKPICard
+                title="Deals Abertos"
+                value={totalDeals}
+                icon={Activity}
+                color="text-purple-400"
+                isLoading={metricsLoading}
+              />
+              <CrmKPICard
+                title="Em Negociacao"
+                value={MOCK_PIPELINE_STAGES.find(s => s.name === 'negotiation')?.count || 0}
+                icon={GitBranch}
+                color="text-yellow-400"
+                isLoading={metricsLoading}
+              />
+              <CrmKPICard
+                title="Prontos p/ Fechar"
+                value={MOCK_PIPELINE_STAGES.find(s => s.name === 'closing')?.count || 0}
+                icon={CheckSquare}
+                color="text-green-400"
+                isLoading={metricsLoading}
+              />
+            </div>
 
-        {/* Quick Actions */}
-        <div className="flex gap-3">
-          <Button onClick={() => navigate('/admin/crm/contacts')}>
-            <Users className="h-4 w-4 mr-2" />
-            Ver Contatos
-          </Button>
-          <Button variant="outline" onClick={() => navigate('/admin/crm/deals')}>
-            <Target className="h-4 w-4 mr-2" />
-            Gerenciar Deals
-          </Button>
-          <Button variant="outline" onClick={() => navigate('/admin/crm/pipeline')}>
-            <Activity className="h-4 w-4 mr-2" />
-            Configurar Pipeline
-          </Button>
+            {/* Pipeline Funnel */}
+            <PipelineFunnelChart stages={MOCK_PIPELINE_STAGES} totalDeals={totalDeals} />
+
+            {/* Top Deals */}
+            <TopDealsTable deals={MOCK_TOP_DEALS} />
+          </TabsContent>
+
+          {/* Revenue Tab */}
+          <TabsContent value="revenue" className="m-0 space-y-6">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-4 gap-4">
+              <CrmKPICard
+                title="Receita Total"
+                value={formatCurrency(totalRevenue)}
+                icon={DollarSign}
+                color="text-green-400"
+                subtitle="ultimos 6 meses"
+                isLoading={metricsLoading}
+              />
+              <CrmKPICard
+                title="Receita Media/Mes"
+                value={formatCurrency(totalRevenue / 6)}
+                icon={TrendingUp}
+                color="text-blue-400"
+                isLoading={metricsLoading}
+              />
+              <CrmKPICard
+                title="Deals Fechados"
+                value={MOCK_REVENUE_DATA.reduce((s, d) => s + d.deals, 0)}
+                icon={Target}
+                color="text-purple-400"
+                subtitle="no periodo"
+                isLoading={metricsLoading}
+              />
+              <CrmKPICard
+                title="Ticket Medio"
+                value={formatCurrency(totalRevenue / MOCK_REVENUE_DATA.reduce((s, d) => s + d.deals, 0))}
+                icon={Activity}
+                color="text-kosmos-orange"
+                isLoading={metricsLoading}
+              />
+            </div>
+
+            {/* Revenue Chart */}
+            <RevenueTimelineChart data={MOCK_REVENUE_DATA} totalRevenue={totalRevenue} />
+
+            {/* Top Deals */}
+            <TopDealsTable deals={MOCK_TOP_DEALS} />
+          </TabsContent>
+
+          {/* Tasks Tab */}
+          <TabsContent value="tasks" className="m-0 space-y-6">
+            {/* Tasks Summary */}
+            <div className="grid grid-cols-3 gap-6">
+              <div className="col-span-1">
+                <TasksSummaryCard
+                  pending={dashboardMetrics?.tasks_pending || 0}
+                  overdue={dashboardMetrics?.tasks_overdue || 0}
+                  completedToday={dashboardMetrics?.tasks_completed_today || 0}
+                  isLoading={metricsLoading}
+                />
+              </div>
+              <div className="col-span-2">
+                <RecentActivitiesList activities={MOCK_ACTIVITIES} limit={8} />
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Team Tab */}
+          <TabsContent value="team" className="m-0 space-y-6">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-4 gap-4">
+              <CrmKPICard
+                title="Total Vendedores"
+                value={MOCK_TEAM.length}
+                icon={Users}
+                color="text-purple-400"
+                isLoading={metricsLoading}
+              />
+              <CrmKPICard
+                title="Deals Fechados"
+                value={MOCK_TEAM.reduce((s, t) => s + t.deals, 0)}
+                icon={Target}
+                color="text-green-400"
+                subtitle="pela equipe"
+                isLoading={metricsLoading}
+              />
+              <CrmKPICard
+                title="Receita Total"
+                value={formatCurrency(MOCK_TEAM.reduce((s, t) => s + t.revenue, 0))}
+                icon={DollarSign}
+                color="text-blue-400"
+                isLoading={metricsLoading}
+              />
+              <CrmKPICard
+                title="Win Rate Medio"
+                value={`${(MOCK_TEAM.reduce((s, t) => s + t.winRate, 0) / MOCK_TEAM.length).toFixed(1)}%`}
+                icon={TrendingUp}
+                color="text-kosmos-orange"
+                isLoading={metricsLoading}
+              />
+            </div>
+
+            {/* Team Table */}
+            <div className="card-structural p-6">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-1 h-5 bg-purple-500 rounded-r" />
+                <Users className="h-5 w-5 text-purple-400" />
+                <h3 className="font-display text-sm font-semibold text-kosmos-white tracking-wider uppercase">
+                  Top Vendedores
+                </h3>
+              </div>
+
+              <div className="space-y-4">
+                {MOCK_TEAM.map((member, index) => (
+                  <div
+                    key={member.name}
+                    className="flex items-center justify-between p-4 rounded-lg bg-kosmos-black/50 hover:bg-kosmos-black transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={cn(
+                        'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold',
+                        index === 0 ? 'bg-yellow-500/20 text-yellow-400' :
+                        index === 1 ? 'bg-gray-400/20 text-gray-400' :
+                        index === 2 ? 'bg-orange-500/20 text-orange-400' :
+                        'bg-kosmos-black-light text-kosmos-gray'
+                      )}>
+                        {index + 1}
+                      </div>
+                      <div>
+                        <p className="text-kosmos-white font-medium">{member.name}</p>
+                        <p className="text-xs text-kosmos-gray">{member.deals} deals fechados</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-6">
+                      <div className="text-right">
+                        <p className="text-green-400 font-medium">{formatCurrency(member.revenue)}</p>
+                        <p className="text-xs text-kosmos-gray">receita</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-kosmos-orange font-medium">{member.winRate}%</p>
+                        <p className="text-xs text-kosmos-gray">win rate</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
         </div>
-      </div>
+      </Tabs>
     </div>
   );
 }

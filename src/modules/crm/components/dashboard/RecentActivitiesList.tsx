@@ -32,22 +32,22 @@ const ACTIVITY_ICONS: Record<ActivityType, LucideIcon> = {
 };
 
 const ACTIVITY_COLORS: Record<ActivityType, string> = {
-  note: 'bg-blue-500/10 text-blue-500',
-  email_sent: 'bg-green-500/10 text-green-500',
-  email_opened: 'bg-green-500/10 text-green-500',
-  email_clicked: 'bg-green-500/10 text-green-500',
-  email_bounced: 'bg-red-500/10 text-red-500',
-  call: 'bg-purple-500/10 text-purple-500',
-  meeting: 'bg-orange-500/10 text-orange-500',
-  form_submitted: 'bg-cyan-500/10 text-cyan-500',
-  stage_changed: 'bg-yellow-500/10 text-yellow-500',
-  score_changed: 'bg-pink-500/10 text-pink-500',
-  tag_added: 'bg-indigo-500/10 text-indigo-500',
-  tag_removed: 'bg-gray-500/10 text-gray-500',
-  owner_assigned: 'bg-teal-500/10 text-teal-500',
-  whatsapp_sent: 'bg-green-500/10 text-green-500',
-  whatsapp_read: 'bg-green-500/10 text-green-500',
-  custom: 'bg-gray-500/10 text-gray-500',
+  note: 'text-blue-400',
+  email_sent: 'text-green-400',
+  email_opened: 'text-green-400',
+  email_clicked: 'text-green-400',
+  email_bounced: 'text-red-400',
+  call: 'text-purple-400',
+  meeting: 'text-kosmos-orange',
+  form_submitted: 'text-cyan-400',
+  stage_changed: 'text-yellow-400',
+  score_changed: 'text-pink-400',
+  tag_added: 'text-indigo-400',
+  tag_removed: 'text-gray-400',
+  owner_assigned: 'text-teal-400',
+  whatsapp_sent: 'text-green-400',
+  whatsapp_read: 'text-green-400',
+  custom: 'text-gray-400',
 };
 
 export function RecentActivitiesList({
@@ -59,14 +59,15 @@ export function RecentActivitiesList({
 
   if (activities.length === 0) {
     return (
-      <div className="rounded-lg border bg-card p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-primary/10">
-            <Activity className="h-5 w-5 text-primary" />
-          </div>
-          <h3 className="font-semibold">Atividades Recentes</h3>
+      <div className="card-structural p-6">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="w-1 h-5 bg-purple-500 rounded-r" />
+          <Activity className="h-5 w-5 text-purple-400" />
+          <h3 className="font-display text-sm font-semibold text-kosmos-white tracking-wider uppercase">
+            Atividades Recentes
+          </h3>
         </div>
-        <p className="text-sm text-muted-foreground text-center py-8">
+        <p className="text-sm text-kosmos-gray text-center py-8">
           Nenhuma atividade registrada ainda
         </p>
       </div>
@@ -74,45 +75,47 @@ export function RecentActivitiesList({
   }
 
   return (
-    <div className="rounded-lg border bg-card p-6">
-      <div className="flex items-center justify-between mb-4">
+    <div className="card-structural p-6">
+      <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-primary/10">
-            <Activity className="h-5 w-5 text-primary" />
-          </div>
-          <h3 className="font-semibold">Atividades Recentes</h3>
+          <div className="w-1 h-5 bg-purple-500 rounded-r" />
+          <Activity className="h-5 w-5 text-purple-400" />
+          <h3 className="font-display text-sm font-semibold text-kosmos-white tracking-wider uppercase">
+            Atividades Recentes
+          </h3>
         </div>
         {activities.length > limit && onViewAll && (
-          <Button variant="ghost" size="sm" onClick={onViewAll}>
+          <Button variant="ghost" size="sm" onClick={onViewAll} className="text-kosmos-gray hover:text-kosmos-white">
             Ver todas
             <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         )}
       </div>
-      <div className="space-y-4">
+      <div className="space-y-3">
         {displayedActivities.map((activity) => {
           const Icon = ACTIVITY_ICONS[activity.type] || Activity;
-          const colorClass = ACTIVITY_COLORS[activity.type] || 'bg-gray-500/10 text-gray-500';
+          const colorClass = ACTIVITY_COLORS[activity.type] || 'text-gray-400';
 
           return (
-            <div key={activity.id} className="flex items-start gap-3">
-              <div className={`p-2 rounded-lg ${colorClass}`}>
+            <div
+              key={activity.id}
+              className="flex items-start gap-3 p-3 rounded-lg bg-kosmos-black/50 hover:bg-kosmos-black transition-colors"
+            >
+              <div className={`mt-0.5 ${colorClass}`}>
                 <Icon className="h-4 w-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">{activity.title}</p>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xs text-muted-foreground truncate">
-                    {activity.contactName || activity.contactEmail}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(activity.created_at), {
-                      addSuffix: true,
-                      locale: ptBR,
-                    })}
-                  </span>
-                </div>
+                <p className="text-sm text-kosmos-white truncate">{activity.title}</p>
+                <p className="text-xs text-kosmos-gray">
+                  {activity.contactName || activity.contactEmail}
+                </p>
               </div>
+              <span className="text-xs text-kosmos-gray whitespace-nowrap">
+                {formatDistanceToNow(new Date(activity.created_at), {
+                  addSuffix: true,
+                  locale: ptBR,
+                })}
+              </span>
             </div>
           );
         })}
