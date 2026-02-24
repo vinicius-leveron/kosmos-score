@@ -5,6 +5,8 @@
  * POST /v1/contacts - Create/upsert contact
  * GET /v1/contacts/:id - Get contact details
  * PATCH /v1/contacts/:id - Update contact
+ * PATCH /v1/contacts/:id/cadence - Update cadence status
+ * PATCH /v1/contacts/:id/score-icp - Update ICP score
  * POST /v1/contacts/:id/activities - Add activity
  * POST /v1/contacts/:id/tags - Add tag
  * DELETE /v1/contacts/:id/tags/:tagId - Remove tag
@@ -59,6 +61,22 @@ export async function handleContacts(
     return updateContact(req, contactId, auth, corsHeaders);
   }
 
+  // PATCH /v1/contacts/:id/cadence - Update cadence status
+  if (method === 'PATCH' && contactId && subResource === 'cadence') {
+    if (!hasPermission(auth.permissions, 'contacts', 'write')) {
+      return errorResponse(errors.forbidden('No permission to update contacts'), corsHeaders);
+    }
+    return updateCadence(req, contactId, auth, corsHeaders);
+  }
+
+  // PATCH /v1/contacts/:id/score-icp - Update ICP score
+  if (method === 'PATCH' && contactId && subResource === 'score-icp') {
+    if (!hasPermission(auth.permissions, 'contacts', 'write')) {
+      return errorResponse(errors.forbidden('No permission to update contacts'), corsHeaders);
+    }
+    return updateScoreIcp(req, contactId, auth, corsHeaders);
+  }
+
   // POST /v1/contacts/:id/activities - Add activity
   if (method === 'POST' && contactId && subResource === 'activities') {
     if (!hasPermission(auth.permissions, 'activities', 'write')) {
@@ -108,14 +126,32 @@ async function listContacts(
   const status = url.searchParams.get('status');
   const stageId = url.searchParams.get('stage_id');
   const tagId = url.searchParams.get('tag_id');
+  // Outbound filters
+  const cadenceStatus = url.searchParams.get('cadence_status');
+  const classificacao = url.searchParams.get('classificacao');
+  const tenant = url.searchParams.get('tenant');
+  const channelIn = url.searchParams.get('channel_in');
+  const doNotContact = url.searchParams.get('do_not_contact');
 
-  // Build query
+  // Build query with outbound fields
   let query = supabase
     .from('contact_orgs')
     .select(`
       id,
       contact_id,
       score,
+      score_icp,
+      score_engagement,
+      classificacao,
+      cadence_status,
+      cadence_step,
+      channel_in,
+      tenant,
+      do_not_contact,
+      axiom_status,
+      ig_handler,
+      last_contacted,
+      next_action_date,
       status,
       notes,
       custom_fields,
@@ -126,7 +162,11 @@ async function listContacts(
         email,
         full_name,
         phone,
-        source
+        source,
+        instagram,
+        linkedin_url,
+        website,
+        fontes
       ),
       journey_stages (
         id,
@@ -153,6 +193,24 @@ async function listContacts(
   }
   if (stageId) {
     query = query.eq('journey_stage_id', stageId);
+  }
+  // Outbound filters
+  if (cadenceStatus) {
+    query = query.eq('cadence_status', cadenceStatus);
+  }
+  if (classificacao) {
+    query = query.eq('classificacao', classificacao);
+  }
+  if (tenant) {
+    query = query.eq('tenant', tenant);
+  }
+  if (channelIn) {
+    query = query.eq('channel_in', channelIn);
+  }
+  if (doNotContact === 'true') {
+    query = query.eq('do_not_contact', true);
+  } else if (doNotContact === 'false') {
+    query = query.eq('do_not_contact', false);
   }
 
   // Pagination
@@ -199,6 +257,24 @@ async function listContacts(
       })),
     created_at: contact.created_at,
     updated_at: contact.updated_at,
+    // Social handles
+    instagram: contact.contacts.instagram,
+    linkedin_url: contact.contacts.linkedin_url,
+    website: contact.contacts.website,
+    fontes: contact.contacts.fontes,
+    // Outbound fields
+    score_icp: contact.score_icp,
+    score_engagement: contact.score_engagement,
+    classificacao: contact.classificacao,
+    cadence_status: contact.cadence_status,
+    cadence_step: contact.cadence_step,
+    channel_in: contact.channel_in,
+    tenant: contact.tenant,
+    do_not_contact: contact.do_not_contact,
+    axiom_status: contact.axiom_status,
+    ig_handler: contact.ig_handler,
+    last_contacted: contact.last_contacted,
+    next_action_date: contact.next_action_date,
   }));
 
   const response: PaginatedResponse<ContactResponse> = {
@@ -257,13 +333,18 @@ async function createContact(
     // Update existing contact
     contactId = existingContact.id;
 
-    if (body.full_name || body.phone) {
+    const contactUpdateData: Record<string, unknown> = {};
+    if (body.full_name) contactUpdateData.full_name = body.full_name;
+    if (body.phone) contactUpdateData.phone = body.phone;
+    if (body.instagram !== undefined) contactUpdateData.instagram = body.instagram;
+    if (body.linkedin_url !== undefined) contactUpdateData.linkedin_url = body.linkedin_url;
+    if (body.website !== undefined) contactUpdateData.website = body.website;
+    if (body.fontes !== undefined) contactUpdateData.fontes = body.fontes;
+
+    if (Object.keys(contactUpdateData).length > 0) {
       await supabase
         .from('contacts')
-        .update({
-          ...(body.full_name && { full_name: body.full_name }),
-          ...(body.phone && { phone: body.phone }),
-        })
+        .update(contactUpdateData)
         .eq('id', contactId);
     }
   } else {
@@ -276,6 +357,10 @@ async function createContact(
         phone: body.phone,
         source: body.source || 'api',
         source_detail: body.source_detail || { api_version: 'v1' },
+        instagram: body.instagram,
+        linkedin_url: body.linkedin_url,
+        website: body.website,
+        fontes: body.fontes || [],
       })
       .select('id')
       .single();
@@ -302,18 +387,33 @@ async function createContact(
   if (existingContactOrg) {
     contactOrgId = existingContactOrg.id;
 
-    // Update contact_org
-    await supabase
-      .from('contact_orgs')
-      .update({
-        ...(body.stage_id && { journey_stage_id: body.stage_id }),
-        ...(body.score !== undefined && { score: body.score }),
-        ...(body.notes && { notes: body.notes }),
-        ...(body.custom_fields && { custom_fields: body.custom_fields }),
-      })
-      .eq('id', contactOrgId);
+    // Update contact_org with outbound fields
+    const contactOrgUpdateData: Record<string, unknown> = {};
+    if (body.stage_id) contactOrgUpdateData.journey_stage_id = body.stage_id;
+    if (body.score !== undefined) contactOrgUpdateData.score = body.score;
+    if (body.notes) contactOrgUpdateData.notes = body.notes;
+    if (body.custom_fields) contactOrgUpdateData.custom_fields = body.custom_fields;
+    // Outbound fields
+    if (body.score_icp !== undefined) contactOrgUpdateData.score_icp = body.score_icp;
+    if (body.score_engagement !== undefined) contactOrgUpdateData.score_engagement = body.score_engagement;
+    if (body.classificacao !== undefined) contactOrgUpdateData.classificacao = body.classificacao;
+    if (body.cadence_status !== undefined) contactOrgUpdateData.cadence_status = body.cadence_status;
+    if (body.cadence_step !== undefined) contactOrgUpdateData.cadence_step = body.cadence_step;
+    if (body.cadence_id !== undefined) contactOrgUpdateData.cadence_id = body.cadence_id;
+    if (body.channel_in !== undefined) contactOrgUpdateData.channel_in = body.channel_in;
+    if (body.tenant !== undefined) contactOrgUpdateData.tenant = body.tenant;
+    if (body.do_not_contact !== undefined) contactOrgUpdateData.do_not_contact = body.do_not_contact;
+    if (body.axiom_status !== undefined) contactOrgUpdateData.axiom_status = body.axiom_status;
+    if (body.ig_handler !== undefined) contactOrgUpdateData.ig_handler = body.ig_handler;
+
+    if (Object.keys(contactOrgUpdateData).length > 0) {
+      await supabase
+        .from('contact_orgs')
+        .update(contactOrgUpdateData)
+        .eq('id', contactOrgId);
+    }
   } else {
-    // Create contact_org
+    // Create contact_org with outbound fields
     const { data: newContactOrg, error: orgError } = await supabase
       .from('contact_orgs')
       .insert({
@@ -324,6 +424,18 @@ async function createContact(
         notes: body.notes,
         custom_fields: body.custom_fields,
         status: 'active',
+        // Outbound fields
+        score_icp: body.score_icp,
+        score_engagement: body.score_engagement,
+        classificacao: body.classificacao,
+        cadence_status: body.cadence_status || 'new',
+        cadence_step: body.cadence_step || 0,
+        cadence_id: body.cadence_id,
+        channel_in: body.channel_in,
+        tenant: body.tenant || 'kosmos',
+        do_not_contact: body.do_not_contact || false,
+        axiom_status: body.axiom_status,
+        ig_handler: body.ig_handler || 'manual',
       })
       .select('id')
       .single();
@@ -377,6 +489,18 @@ async function getContact(
       contact_id,
       score,
       score_breakdown,
+      score_icp,
+      score_engagement,
+      classificacao,
+      cadence_status,
+      cadence_step,
+      channel_in,
+      tenant,
+      do_not_contact,
+      axiom_status,
+      ig_handler,
+      last_contacted,
+      next_action_date,
       status,
       notes,
       custom_fields,
@@ -388,7 +512,11 @@ async function getContact(
         full_name,
         phone,
         source,
-        source_detail
+        source_detail,
+        instagram,
+        linkedin_url,
+        website,
+        fontes
       ),
       journey_stages (
         id,
@@ -436,6 +564,24 @@ async function getContact(
       })),
     created_at: contact.created_at,
     updated_at: contact.updated_at,
+    // Social handles
+    instagram: contact.contacts.instagram,
+    linkedin_url: contact.contacts.linkedin_url,
+    website: contact.contacts.website,
+    fontes: contact.contacts.fontes,
+    // Outbound fields
+    score_icp: contact.score_icp,
+    score_engagement: contact.score_engagement,
+    classificacao: contact.classificacao,
+    cadence_status: contact.cadence_status,
+    cadence_step: contact.cadence_step,
+    channel_in: contact.channel_in,
+    tenant: contact.tenant,
+    do_not_contact: contact.do_not_contact,
+    axiom_status: contact.axiom_status,
+    ig_handler: contact.ig_handler,
+    last_contacted: contact.last_contacted,
+    next_action_date: contact.next_action_date,
   };
 
   return new Response(JSON.stringify({ data: response }), {
@@ -472,23 +618,40 @@ async function updateContact(
     return errorResponse(errors.notFound('Contact'), corsHeaders);
   }
 
-  // Update contact table if name/phone provided
-  if (body.full_name || body.phone) {
+  // Update contact table if name/phone/social handles provided
+  const contactUpdateData: Record<string, unknown> = {};
+  if (body.full_name !== undefined) contactUpdateData.full_name = body.full_name;
+  if (body.phone !== undefined) contactUpdateData.phone = body.phone;
+  if (body.instagram !== undefined) contactUpdateData.instagram = body.instagram;
+  if (body.linkedin_url !== undefined) contactUpdateData.linkedin_url = body.linkedin_url;
+  if (body.website !== undefined) contactUpdateData.website = body.website;
+  if (body.fontes !== undefined) contactUpdateData.fontes = body.fontes;
+
+  if (Object.keys(contactUpdateData).length > 0) {
     await supabase
       .from('contacts')
-      .update({
-        ...(body.full_name && { full_name: body.full_name }),
-        ...(body.phone && { phone: body.phone }),
-      })
+      .update(contactUpdateData)
       .eq('id', contactOrg.contact_id);
   }
 
-  // Update contact_org
+  // Update contact_org with outbound fields
   const updateData: Record<string, unknown> = {};
   if (body.stage_id !== undefined) updateData.journey_stage_id = body.stage_id;
   if (body.score !== undefined) updateData.score = body.score;
   if (body.notes !== undefined) updateData.notes = body.notes;
   if (body.custom_fields !== undefined) updateData.custom_fields = body.custom_fields;
+  // Outbound fields
+  if (body.score_icp !== undefined) updateData.score_icp = body.score_icp;
+  if (body.score_engagement !== undefined) updateData.score_engagement = body.score_engagement;
+  if (body.classificacao !== undefined) updateData.classificacao = body.classificacao;
+  if (body.cadence_status !== undefined) updateData.cadence_status = body.cadence_status;
+  if (body.cadence_step !== undefined) updateData.cadence_step = body.cadence_step;
+  if (body.cadence_id !== undefined) updateData.cadence_id = body.cadence_id;
+  if (body.channel_in !== undefined) updateData.channel_in = body.channel_in;
+  if (body.tenant !== undefined) updateData.tenant = body.tenant;
+  if (body.do_not_contact !== undefined) updateData.do_not_contact = body.do_not_contact;
+  if (body.axiom_status !== undefined) updateData.axiom_status = body.axiom_status;
+  if (body.ig_handler !== undefined) updateData.ig_handler = body.ig_handler;
 
   if (Object.keys(updateData).length > 0) {
     const { error: updateError } = await supabase
@@ -664,6 +827,181 @@ async function removeTag(
   }
 
   return new Response(JSON.stringify({ data: { removed: true } }), {
+    status: 200,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
+// Update cadence status
+async function updateCadence(
+  req: Request,
+  contactOrgId: string,
+  auth: AuthResult,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  const supabase = getSupabaseAdmin();
+
+  let body: {
+    cadence_status?: string;
+    cadence_step?: number;
+    cadence_id?: string | null;
+    next_action_date?: string | null;
+  };
+  try {
+    body = await req.json();
+  } catch {
+    return errorResponse(errors.badRequest('Invalid JSON body'), corsHeaders);
+  }
+
+  // Verify contact belongs to organization
+  const { data: contactOrg, error: verifyError } = await supabase
+    .from('contact_orgs')
+    .select('id, contact_id, cadence_status, cadence_step')
+    .eq('id', contactOrgId)
+    .eq('organization_id', auth.organizationId!)
+    .single();
+
+  if (verifyError || !contactOrg) {
+    return errorResponse(errors.notFound('Contact'), corsHeaders);
+  }
+
+  const updateData: Record<string, unknown> = {};
+  if (body.cadence_status !== undefined) updateData.cadence_status = body.cadence_status;
+  if (body.cadence_step !== undefined) updateData.cadence_step = body.cadence_step;
+  if (body.cadence_id !== undefined) updateData.cadence_id = body.cadence_id;
+  if (body.next_action_date !== undefined) updateData.next_action_date = body.next_action_date;
+
+  if (Object.keys(updateData).length === 0) {
+    return errorResponse(errors.badRequest('No fields to update'), corsHeaders);
+  }
+
+  const { error: updateError } = await supabase
+    .from('contact_orgs')
+    .update(updateData)
+    .eq('id', contactOrgId);
+
+  if (updateError) {
+    console.error('Update cadence error:', updateError);
+    return errorResponse(errors.internalError('Failed to update cadence'), corsHeaders);
+  }
+
+  // Log activity for cadence change
+  if (body.cadence_status && body.cadence_status !== contactOrg.cadence_status) {
+    await supabase
+      .from('activities')
+      .insert({
+        contact_org_id: contactOrgId,
+        type: 'stage_changed',
+        title: `Cadence status changed to ${body.cadence_status}`,
+        metadata: {
+          source: 'api',
+          old_status: contactOrg.cadence_status,
+          new_status: body.cadence_status,
+        },
+        actor_name: 'API Integration',
+      });
+  }
+
+  return new Response(JSON.stringify({
+    data: {
+      id: contactOrg.contact_id,
+      contact_org_id: contactOrgId,
+      cadence_status: body.cadence_status || contactOrg.cadence_status,
+      cadence_step: body.cadence_step ?? contactOrg.cadence_step,
+      updated: true,
+    },
+  }), {
+    status: 200,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
+// Update ICP score
+async function updateScoreIcp(
+  req: Request,
+  contactOrgId: string,
+  auth: AuthResult,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  const supabase = getSupabaseAdmin();
+
+  let body: {
+    score_icp?: number;
+    score_engagement?: number;
+    classificacao?: 'A' | 'B' | 'C';
+  };
+  try {
+    body = await req.json();
+  } catch {
+    return errorResponse(errors.badRequest('Invalid JSON body'), corsHeaders);
+  }
+
+  // Verify contact belongs to organization
+  const { data: contactOrg, error: verifyError } = await supabase
+    .from('contact_orgs')
+    .select('id, contact_id, score_icp, classificacao')
+    .eq('id', contactOrgId)
+    .eq('organization_id', auth.organizationId!)
+    .single();
+
+  if (verifyError || !contactOrg) {
+    return errorResponse(errors.notFound('Contact'), corsHeaders);
+  }
+
+  const updateData: Record<string, unknown> = {};
+  if (body.score_icp !== undefined) updateData.score_icp = body.score_icp;
+  if (body.score_engagement !== undefined) updateData.score_engagement = body.score_engagement;
+  if (body.classificacao !== undefined) updateData.classificacao = body.classificacao;
+
+  if (Object.keys(updateData).length === 0) {
+    return errorResponse(errors.badRequest('No fields to update'), corsHeaders);
+  }
+
+  // Validate score ranges
+  if (body.score_icp !== undefined && (body.score_icp < 0 || body.score_icp > 100)) {
+    return errorResponse(errors.badRequest('score_icp must be between 0 and 100'), corsHeaders);
+  }
+  if (body.score_engagement !== undefined && (body.score_engagement < 0 || body.score_engagement > 100)) {
+    return errorResponse(errors.badRequest('score_engagement must be between 0 and 100'), corsHeaders);
+  }
+
+  const { error: updateError } = await supabase
+    .from('contact_orgs')
+    .update(updateData)
+    .eq('id', contactOrgId);
+
+  if (updateError) {
+    console.error('Update score ICP error:', updateError);
+    return errorResponse(errors.internalError('Failed to update score'), corsHeaders);
+  }
+
+  // Log activity for score change
+  if (body.score_icp !== undefined && body.score_icp !== contactOrg.score_icp) {
+    await supabase
+      .from('activities')
+      .insert({
+        contact_org_id: contactOrgId,
+        type: 'score_changed',
+        title: `ICP score updated to ${body.score_icp}`,
+        metadata: {
+          source: 'api',
+          old_score: contactOrg.score_icp,
+          new_score: body.score_icp,
+          classificacao: body.classificacao,
+        },
+        actor_name: 'API Integration',
+      });
+  }
+
+  return new Response(JSON.stringify({
+    data: {
+      id: contactOrg.contact_id,
+      contact_org_id: contactOrgId,
+      score_icp: body.score_icp ?? contactOrg.score_icp,
+      classificacao: body.classificacao || contactOrg.classificacao,
+      updated: true,
+    },
+  }), {
     status: 200,
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });

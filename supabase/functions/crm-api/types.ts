@@ -67,6 +67,23 @@ export interface ContactInput {
   score?: number | null;
   notes?: string | null;
   custom_fields?: Record<string, unknown>;
+  // Social handles (contacts table)
+  instagram?: string | null;
+  linkedin_url?: string | null;
+  website?: string | null;
+  fontes?: string[];
+  // Outbound fields (contact_orgs table)
+  score_icp?: number | null;
+  score_engagement?: number | null;
+  classificacao?: 'A' | 'B' | 'C' | null;
+  cadence_status?: string | null;
+  cadence_step?: number | null;
+  cadence_id?: string | null;
+  channel_in?: string | null;
+  tenant?: 'kosmos' | 'oliveira-dev';
+  do_not_contact?: boolean;
+  axiom_status?: string | null;
+  ig_handler?: 'manual' | 'manychat' | 'axiom' | null;
 }
 
 // Contact response
@@ -91,6 +108,24 @@ export interface ContactResponse {
   }>;
   created_at: string;
   updated_at: string;
+  // Social handles
+  instagram?: string | null;
+  linkedin_url?: string | null;
+  website?: string | null;
+  fontes?: string[];
+  // Outbound fields
+  score_icp?: number | null;
+  score_engagement?: number | null;
+  classificacao?: string | null;
+  cadence_status?: string | null;
+  cadence_step?: number | null;
+  channel_in?: string | null;
+  tenant?: string | null;
+  do_not_contact?: boolean;
+  axiom_status?: string | null;
+  ig_handler?: string | null;
+  last_contacted?: string | null;
+  next_action_date?: string | null;
 }
 
 // Company input
