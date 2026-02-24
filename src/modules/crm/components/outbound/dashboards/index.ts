@@ -14,4 +14,4 @@ export { D9NurtureDashboard } from './D9NurtureDashboard';
 
 // P3: Strategic dashboards
 export { D5EngagementDashboard } from './D5EngagementDashboard';
-// export { D10RevenueDashboard } from './D10RevenueDashboard'; // Not implemented yet
+export { D10RevenueDashboard } from './D10RevenueDashboard';

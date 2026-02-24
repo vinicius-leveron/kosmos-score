@@ -25,6 +25,7 @@ import {
   D6AxiomDashboard,
   D8EmailDashboard,
   D9NurtureDashboard,
+  D10RevenueDashboard,
 } from '../components/outbound';
 import { useOutboundFilters } from '../hooks/outbound';
 
@@ -149,7 +150,7 @@ export function OutboundDashboardPage() {
           </TabsContent>
 
           <TabsContent value="revenue" className="m-0 space-y-6">
-            <D10RevenuePlaceholder />
+            <D10RevenueDashboard filters={filters} />
           </TabsContent>
         </div>
       </Tabs>
@@ -216,12 +217,3 @@ function D7ManyChatPlaceholder() {
   );
 }
 
-function D10RevenuePlaceholder() {
-  return (
-    <PlaceholderCard
-      title="D10: Revenue & ROI"
-      description="Conectar outbound a receita: pipeline, CAC, LTV, ROI por fonte/canal"
-      priority="P3"
-    />
-  );
-}

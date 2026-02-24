@@ -277,6 +277,7 @@ export interface RevenueSourceMetric {
   pipelineValue: number;
   revenue: number;
   avgDealSize: number;
+  winRate: number;
 }
 
 export interface RevenueMetrics {

@@ -34,6 +34,8 @@ export { useAxiomMetrics, aggregateByWeek, AXIOM_COLORS } from './useAxiomMetric
 // P2: Nurture & Re-entry
 export { useNurtureMetrics, REACTIVATION_TRIGGER_LABELS } from './useNurtureMetrics';
 
+// P3: Revenue & ROI
+export { useRevenueMetrics, formatCurrency, getRevenueSourceColor } from './useRevenueMetrics';
+
 // Metric hooks (to be implemented)
 // export { useManyChatMetrics } from './useManyChatMetrics';
-// export { useRevenueMetrics } from './useRevenueMetrics';
