@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import {
-  BarChart3,
   GitBranch,
   Mail,
   MessageSquare,
   Target,
   Clock,
   Instagram,
-  Zap,
   RefreshCw,
   DollarSign,
   Activity,
@@ -17,7 +15,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/des
 import { Badge } from '@/design-system/primitives/badge';
 import { Skeleton } from '@/design-system/primitives/skeleton';
 import { cn } from '@/design-system/lib/utils';
-import { OutboundFilterBar, D1FunnelDashboard, D8EmailDashboard } from '../components/outbound';
+import {
+  OutboundFilterBar,
+  D1FunnelDashboard,
+  D2SourceDashboard,
+  D3ChannelDashboard,
+  D4ScoringDashboard,
+  D5EngagementDashboard,
+  D6AxiomDashboard,
+  D8EmailDashboard,
+  D9NurtureDashboard,
+} from '../components/outbound';
 import { useOutboundFilters } from '../hooks/outbound';
 
 // Tab configuration
@@ -112,23 +120,24 @@ export function OutboundDashboardPage() {
           </TabsContent>
 
           <TabsContent value="sources" className="m-0 space-y-6">
-            <D2SourcesPlaceholder />
+            <D2SourceDashboard filters={filters} />
           </TabsContent>
 
           <TabsContent value="channels" className="m-0 space-y-6">
-            <D3ChannelsPlaceholder />
+            <D3ChannelDashboard filters={filters} />
           </TabsContent>
 
           <TabsContent value="scoring" className="m-0 space-y-6">
-            <D4ScoringPlaceholder />
+            <D4ScoringDashboard filters={filters} />
           </TabsContent>
 
           <TabsContent value="engagement" className="m-0 space-y-6">
-            <D5EngagementPlaceholder />
+            <D5EngagementDashboard filters={filters} />
           </TabsContent>
 
           <TabsContent value="operations" className="m-0 space-y-6">
-            <D6OperationsPlaceholder />
+            <D6AxiomDashboard filters={filters} />
+            <D7ManyChatPlaceholder />
           </TabsContent>
 
           <TabsContent value="email" className="m-0 space-y-6">
@@ -136,7 +145,7 @@ export function OutboundDashboardPage() {
           </TabsContent>
 
           <TabsContent value="nurture" className="m-0 space-y-6">
-            <D9NurturePlaceholder />
+            <D9NurtureDashboard filters={filters} />
           </TabsContent>
 
           <TabsContent value="revenue" className="m-0 space-y-6">
@@ -149,8 +158,7 @@ export function OutboundDashboardPage() {
 }
 
 // ============================================
-// PLACEHOLDER COMPONENTS
-// (To be replaced with actual dashboard implementations)
+// PLACEHOLDER COMPONENTS (for unimplemented dashboards)
 // ============================================
 
 function PlaceholderCard({
@@ -198,72 +206,11 @@ function PlaceholderCard({
   );
 }
 
-// D1FunnelPlaceholder removed - using real D1FunnelDashboard component
-
-function D2SourcesPlaceholder() {
+function D7ManyChatPlaceholder() {
   return (
     <PlaceholderCard
-      title="D2: Performance por Fonte"
-      description="De onde vêm os melhores leads: score médio, classificação, taxa de resposta por fonte"
-      priority="P1"
-    />
-  );
-}
-
-function D3ChannelsPlaceholder() {
-  return (
-    <PlaceholderCard
-      title="D3: Performance por Canal"
-      description="Email vs DM vs WhatsApp: taxas de envio, entrega, resposta por canal e step"
-      priority="P1"
-    />
-  );
-}
-
-function D4ScoringPlaceholder() {
-  return (
-    <PlaceholderCard
-      title="D4: ICP Scoring Health"
-      description="Validação do modelo de scoring: distribuição, falsos positivos/negativos"
-      priority="P1"
-    />
-  );
-}
-
-function D5EngagementPlaceholder() {
-  return (
-    <PlaceholderCard
-      title="D5: Engagement Heatmap"
-      description="Melhores horários e dias para envio: matriz hora x dia com taxas de resposta"
-      priority="P3"
-    />
-  );
-}
-
-function D6OperationsPlaceholder() {
-  return (
-    <>
-      <PlaceholderCard
-        title="D6: Axiom Operations"
-        description="Monitorar ações do Axiom: follows, likes, DMs, erros, warmup"
-        priority="P2"
-      />
-      <PlaceholderCard
-        title="D7: ManyChat Inbound"
-        description="Performance das automações ManyChat: triggers, conversões, keywords"
-        priority="P2"
-      />
-    </>
-  );
-}
-
-// D8EmailPlaceholder removed - using real D8EmailDashboard component
-
-function D9NurturePlaceholder() {
-  return (
-    <PlaceholderCard
-      title="D9: Nurture & Re-entry"
-      description="Pool de nurture: tamanho, reativações, triggers de re-entry"
+      title="D7: ManyChat Inbound"
+      description="Performance das automações ManyChat: triggers, conversões, keywords"
       priority="P2"
     />
   );
