@@ -3,8 +3,16 @@
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import * as bcrypt from 'https://deno.land/x/bcrypt@v0.4.1/mod.ts';
 import type { AuthResult, ApiKeyRecord } from './types.ts';
+
+// SHA-256 hash function (matches the UI implementation)
+async function hashKey(key: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(key);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 // Get Supabase admin client (service role)
 export function getSupabaseAdmin() {
@@ -59,9 +67,9 @@ export async function authenticateRequest(req: Request): Promise<AuthResult> {
       return { success: false, error: 'API key has expired', status: 401 };
     }
 
-    // Verify hash
-    const isValid = await bcrypt.compare(apiKey, record.key_hash);
-    if (!isValid) {
+    // Verify hash (using SHA-256 to match UI implementation)
+    const computedHash = await hashKey(apiKey);
+    if (computedHash !== record.key_hash) {
       return { success: false, error: 'Invalid API key', status: 401 };
     }
 
