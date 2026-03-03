@@ -163,6 +163,7 @@ async function listContacts(
         full_name,
         phone,
         source,
+        source_detail,
         instagram,
         linkedin_url,
         website,
@@ -240,6 +241,7 @@ async function listContacts(
     email: contact.contacts.email,
     full_name: contact.contacts.full_name,
     phone: contact.contacts.phone,
+    source_detail: contact.contacts.source_detail,
     score: contact.score,
     status: contact.status,
     stage: contact.journey_stages ? {
@@ -340,6 +342,7 @@ async function createContact(
     if (body.linkedin_url !== undefined) contactUpdateData.linkedin_url = body.linkedin_url;
     if (body.website !== undefined) contactUpdateData.website = body.website;
     if (body.fontes !== undefined) contactUpdateData.fontes = body.fontes;
+    if (body.source_detail !== undefined) contactUpdateData.source_detail = body.source_detail;
 
     if (Object.keys(contactUpdateData).length > 0) {
       await supabase
@@ -547,6 +550,7 @@ async function getContact(
     email: contact.contacts.email,
     full_name: contact.contacts.full_name,
     phone: contact.contacts.phone,
+    source_detail: contact.contacts.source_detail,
     score: contact.score,
     status: contact.status,
     stage: contact.journey_stages ? {
@@ -626,6 +630,7 @@ async function updateContact(
   if (body.linkedin_url !== undefined) contactUpdateData.linkedin_url = body.linkedin_url;
   if (body.website !== undefined) contactUpdateData.website = body.website;
   if (body.fontes !== undefined) contactUpdateData.fontes = body.fontes;
+  if (body.source_detail !== undefined) contactUpdateData.source_detail = body.source_detail;
 
   if (Object.keys(contactUpdateData).length > 0) {
     await supabase
@@ -846,6 +851,7 @@ async function updateCadence(
     cadence_step?: number;
     cadence_id?: string | null;
     next_action_date?: string | null;
+    last_contacted?: string | null;
   };
   try {
     body = await req.json();
@@ -856,7 +862,7 @@ async function updateCadence(
   // Verify contact belongs to organization
   const { data: contactOrg, error: verifyError } = await supabase
     .from('contact_orgs')
-    .select('id, contact_id, cadence_status, cadence_step')
+    .select('id, contact_id, cadence_status, cadence_step, last_contacted')
     .eq('id', contactOrgId)
     .eq('organization_id', auth.organizationId!)
     .single();
@@ -870,6 +876,7 @@ async function updateCadence(
   if (body.cadence_step !== undefined) updateData.cadence_step = body.cadence_step;
   if (body.cadence_id !== undefined) updateData.cadence_id = body.cadence_id;
   if (body.next_action_date !== undefined) updateData.next_action_date = body.next_action_date;
+  if (body.last_contacted !== undefined) updateData.last_contacted = body.last_contacted;
 
   if (Object.keys(updateData).length === 0) {
     return errorResponse(errors.badRequest('No fields to update'), corsHeaders);
@@ -908,6 +915,7 @@ async function updateCadence(
       contact_org_id: contactOrgId,
       cadence_status: body.cadence_status || contactOrg.cadence_status,
       cadence_step: body.cadence_step ?? contactOrg.cadence_step,
+      last_contacted: body.last_contacted ?? contactOrg.last_contacted,
       updated: true,
     },
   }), {

@@ -93,6 +93,7 @@ export interface ContactResponse {
   email: string;
   full_name: string | null;
   phone: string | null;
+  source_detail?: Record<string, unknown>;
   score: number | null;
   status: string;
   stage: {

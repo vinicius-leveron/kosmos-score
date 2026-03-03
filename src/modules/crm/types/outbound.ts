@@ -10,6 +10,7 @@ export type CadenceStatus =
   | 'new'
   | 'scoring'       // Aguardando score ICP
   | 'enriching'     // Aguardando enriquecimento
+  | 'deep_enriching' // Enriquecimento profundo em andamento
   | 'ready'
   | 'queued'        // Na fila para próximo batch
   | 'in_sequence'
@@ -303,6 +304,7 @@ export const OUTBOUND_COLORS = {
   new: '#64748B',
   scoring: '#94A3B8',
   enriching: '#A78BFA',
+  deep_enriching: '#7C3AED',
   ready: '#3B82F6',
   queued: '#60A5FA',
   in_sequence: '#8B5CF6',
@@ -335,6 +337,7 @@ export const CADENCE_STATUS_LABELS: Record<CadenceStatus, string> = {
   new: 'Novo',
   scoring: 'Scoring',
   enriching: 'Enriquecendo',
+  deep_enriching: 'Enriquecimento Profundo',
   ready: 'Pronto',
   queued: 'Na Fila',
   in_sequence: 'Em Sequência',
