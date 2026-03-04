@@ -4,7 +4,7 @@ import { useAuth } from '@/core/auth/AuthContextOptimized';
 import type { OutboundFilters, Classificacao, ScoreBucketMetric, ScoringMetrics } from '../../types/outbound';
 
 // Flag para habilitar dados mockados durante desenvolvimento
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 // Score buckets
 export type ScoreBucket = '0-20' | '21-40' | '41-60' | '61-80' | '81-100';

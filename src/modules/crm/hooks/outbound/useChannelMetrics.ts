@@ -4,7 +4,7 @@ import { useAuth } from '@/core/auth/AuthContextOptimized';
 import type { OutboundFilters, Channel, Classificacao, ChannelDayMetric, ChannelMetrics } from '../../types/outbound';
 
 // Flag para habilitar dados mockados durante desenvolvimento
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 // Gerar datas dos ultimos 14 dias
 function generateLast14Days(): string[] {

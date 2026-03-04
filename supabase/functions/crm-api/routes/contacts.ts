@@ -163,6 +163,7 @@ async function listContacts(
         full_name,
         phone,
         source,
+        source_detail,
         instagram,
         linkedin_url,
         website,
@@ -262,6 +263,7 @@ async function listContacts(
     linkedin_url: contact.contacts.linkedin_url,
     website: contact.contacts.website,
     fontes: contact.contacts.fontes,
+    source_detail: contact.contacts.source_detail,
     // Outbound fields
     score_icp: contact.score_icp,
     score_engagement: contact.score_engagement,
@@ -569,6 +571,7 @@ async function getContact(
     linkedin_url: contact.contacts.linkedin_url,
     website: contact.contacts.website,
     fontes: contact.contacts.fontes,
+    source_detail: contact.contacts.source_detail,
     // Outbound fields
     score_icp: contact.score_icp,
     score_engagement: contact.score_engagement,
@@ -606,10 +609,10 @@ async function updateContact(
     return errorResponse(errors.badRequest('Invalid JSON body'), corsHeaders);
   }
 
-  // Verify contact belongs to organization
+  // Verify contact belongs to organization and get existing source_detail for merge
   const { data: contactOrg, error: verifyError } = await supabase
     .from('contact_orgs')
-    .select('id, contact_id')
+    .select('id, contact_id, contacts!inner(source_detail)')
     .eq('id', contactOrgId)
     .eq('organization_id', auth.organizationId!)
     .single();
@@ -626,6 +629,14 @@ async function updateContact(
   if (body.linkedin_url !== undefined) contactUpdateData.linkedin_url = body.linkedin_url;
   if (body.website !== undefined) contactUpdateData.website = body.website;
   if (body.fontes !== undefined) contactUpdateData.fontes = body.fontes;
+  // JSONB merge: combine existing source_detail with new data
+  if (body.source_detail !== undefined) {
+    const existingSourceDetail = (contactOrg as any).contacts?.source_detail || {};
+    contactUpdateData.source_detail = {
+      ...existingSourceDetail,
+      ...body.source_detail
+    };
+  }
 
   if (Object.keys(contactUpdateData).length > 0) {
     await supabase
@@ -713,8 +724,7 @@ async function addActivity(
       type: body.type,
       title: body.title,
       description: body.description,
-      metadata: { ...body.metadata, source: 'api' },
-      actor_name: 'API Integration',
+      metadata: { ...body.metadata, source: 'api', actor_name: 'API Integration' },
     })
     .select('id, type, title, created_at')
     .single();
@@ -846,6 +856,7 @@ async function updateCadence(
     cadence_step?: number;
     cadence_id?: string | null;
     next_action_date?: string | null;
+    last_contacted?: string | null;
   };
   try {
     body = await req.json();
@@ -870,6 +881,7 @@ async function updateCadence(
   if (body.cadence_step !== undefined) updateData.cadence_step = body.cadence_step;
   if (body.cadence_id !== undefined) updateData.cadence_id = body.cadence_id;
   if (body.next_action_date !== undefined) updateData.next_action_date = body.next_action_date;
+  if (body.last_contacted !== undefined) updateData.last_contacted = body.last_contacted;
 
   if (Object.keys(updateData).length === 0) {
     return errorResponse(errors.badRequest('No fields to update'), corsHeaders);
@@ -895,10 +907,10 @@ async function updateCadence(
         title: `Cadence status changed to ${body.cadence_status}`,
         metadata: {
           source: 'api',
+          actor_name: 'API Integration',
           old_status: contactOrg.cadence_status,
           new_status: body.cadence_status,
         },
-        actor_name: 'API Integration',
       });
   }
 
@@ -985,11 +997,11 @@ async function updateScoreIcp(
         title: `ICP score updated to ${body.score_icp}`,
         metadata: {
           source: 'api',
+          actor_name: 'API Integration',
           old_score: contactOrg.score_icp,
           new_score: body.score_icp,
           classificacao: body.classificacao,
         },
-        actor_name: 'API Integration',
       });
   }
 

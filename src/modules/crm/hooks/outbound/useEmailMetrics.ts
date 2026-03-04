@@ -4,7 +4,7 @@ import { useAuth } from '@/core/auth/AuthContextOptimized';
 import type { OutboundFilters } from '../../types/outbound';
 
 // Flag para habilitar dados mockados durante desenvolvimento
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 // Types que correspondem às views SQL
 interface EmailDailyRow {

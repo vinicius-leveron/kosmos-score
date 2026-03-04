@@ -113,6 +113,7 @@ export interface ContactResponse {
   linkedin_url?: string | null;
   website?: string | null;
   fontes?: string[];
+  source_detail?: Record<string, unknown>;
   // Outbound fields
   score_icp?: number | null;
   score_engagement?: number | null;
