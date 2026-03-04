@@ -130,7 +130,8 @@ async function listContacts(
   const cadenceStatus = url.searchParams.get('cadence_status');
   const classificacao = url.searchParams.get('classificacao');
   const tenant = url.searchParams.get('tenant');
-  const channelIn = url.searchParams.get('channel_in');
+  const channel = url.searchParams.get('channel');
+  const method = url.searchParams.get('method');
   const doNotContact = url.searchParams.get('do_not_contact');
 
   // Build query with outbound fields
@@ -145,7 +146,8 @@ async function listContacts(
       classificacao,
       cadence_status,
       cadence_step,
-      channel_in,
+      channel,
+      method,
       tenant,
       do_not_contact,
       axiom_status,
@@ -205,8 +207,11 @@ async function listContacts(
   if (tenant) {
     query = query.eq('tenant', tenant);
   }
-  if (channelIn) {
-    query = query.eq('channel_in', channelIn);
+  if (channel) {
+    query = query.eq('channel', channel);
+  }
+  if (method) {
+    query = query.eq('method', method);
   }
   if (doNotContact === 'true') {
     query = query.eq('do_not_contact', true);
@@ -270,7 +275,8 @@ async function listContacts(
     classificacao: contact.classificacao,
     cadence_status: contact.cadence_status,
     cadence_step: contact.cadence_step,
-    channel_in: contact.channel_in,
+    channel: contact.channel,
+    method: contact.method,
     tenant: contact.tenant,
     do_not_contact: contact.do_not_contact,
     axiom_status: contact.axiom_status,
@@ -402,7 +408,8 @@ async function createContact(
     if (body.cadence_status !== undefined) contactOrgUpdateData.cadence_status = body.cadence_status;
     if (body.cadence_step !== undefined) contactOrgUpdateData.cadence_step = body.cadence_step;
     if (body.cadence_id !== undefined) contactOrgUpdateData.cadence_id = body.cadence_id;
-    if (body.channel_in !== undefined) contactOrgUpdateData.channel_in = body.channel_in;
+    if (body.channel !== undefined) contactOrgUpdateData.channel = body.channel;
+    if (body.method !== undefined) contactOrgUpdateData.method = body.method;
     if (body.tenant !== undefined) contactOrgUpdateData.tenant = body.tenant;
     if (body.do_not_contact !== undefined) contactOrgUpdateData.do_not_contact = body.do_not_contact;
     if (body.axiom_status !== undefined) contactOrgUpdateData.axiom_status = body.axiom_status;
@@ -433,7 +440,8 @@ async function createContact(
         cadence_status: body.cadence_status || 'new',
         cadence_step: body.cadence_step || 0,
         cadence_id: body.cadence_id,
-        channel_in: body.channel_in,
+        channel: body.channel,
+        method: body.method,
         tenant: body.tenant || 'kosmos',
         do_not_contact: body.do_not_contact || false,
         axiom_status: body.axiom_status,
@@ -496,7 +504,8 @@ async function getContact(
       classificacao,
       cadence_status,
       cadence_step,
-      channel_in,
+      channel,
+      method,
       tenant,
       do_not_contact,
       axiom_status,
@@ -578,7 +587,8 @@ async function getContact(
     classificacao: contact.classificacao,
     cadence_status: contact.cadence_status,
     cadence_step: contact.cadence_step,
-    channel_in: contact.channel_in,
+    channel: contact.channel,
+    method: contact.method,
     tenant: contact.tenant,
     do_not_contact: contact.do_not_contact,
     axiom_status: contact.axiom_status,
@@ -658,7 +668,8 @@ async function updateContact(
   if (body.cadence_status !== undefined) updateData.cadence_status = body.cadence_status;
   if (body.cadence_step !== undefined) updateData.cadence_step = body.cadence_step;
   if (body.cadence_id !== undefined) updateData.cadence_id = body.cadence_id;
-  if (body.channel_in !== undefined) updateData.channel_in = body.channel_in;
+  if (body.channel !== undefined) updateData.channel = body.channel;
+  if (body.method !== undefined) updateData.method = body.method;
   if (body.tenant !== undefined) updateData.tenant = body.tenant;
   if (body.do_not_contact !== undefined) updateData.do_not_contact = body.do_not_contact;
   if (body.axiom_status !== undefined) updateData.axiom_status = body.axiom_status;

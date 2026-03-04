@@ -79,7 +79,8 @@ export interface ContactInput {
   cadence_status?: string | null;
   cadence_step?: number | null;
   cadence_id?: string | null;
-  channel_in?: string | null;
+  channel?: string | null;
+  method?: string | null;
   tenant?: 'kosmos' | 'oliveira-dev';
   do_not_contact?: boolean;
   axiom_status?: string | null;
@@ -120,7 +121,8 @@ export interface ContactResponse {
   classificacao?: string | null;
   cadence_status?: string | null;
   cadence_step?: number | null;
-  channel_in?: string | null;
+  channel?: string | null;
+  method?: string | null;
   tenant?: string | null;
   do_not_contact?: boolean;
   axiom_status?: string | null;
