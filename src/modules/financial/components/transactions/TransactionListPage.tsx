@@ -8,6 +8,7 @@ import {
   ChevronRight,
   CheckCircle2,
   XCircle,
+  Pencil,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { toast } from 'sonner';
@@ -52,6 +53,7 @@ import {
 import {
   useTransactions,
   useCreateTransaction,
+  useUpdateTransaction,
   useRegisterPayment,
   useCancelTransaction,
   useCategories,
@@ -95,6 +97,7 @@ interface TransactionFormProps {
   accounts: { id: string; name: string }[];
   onSubmit: (data: TransactionFormData) => void;
   isPending: boolean;
+  initialData?: TransactionListItem | null;
 }
 
 function TransactionForm({
@@ -103,7 +106,10 @@ function TransactionForm({
   accounts,
   onSubmit,
   isPending,
+  initialData,
 }: TransactionFormProps) {
+  const isEditing = !!initialData;
+
   const {
     register,
     handleSubmit,
@@ -114,14 +120,14 @@ function TransactionForm({
     resolver: zodResolver(transactionFormSchema),
     defaultValues: {
       type,
-      description: '',
-      amount: 0,
-      due_date: '',
-      competence_date: '',
-      category_id: '',
-      account_id: '',
-      counterparty_name: '',
-      notes: '',
+      description: initialData?.description || '',
+      amount: initialData?.amount || 0,
+      due_date: initialData?.due_date || '',
+      competence_date: initialData?.competence_date || '',
+      category_id: initialData?.category_id || '',
+      account_id: initialData?.account_id || '',
+      counterparty_name: initialData?.counterparty_name || '',
+      notes: initialData?.notes || '',
     },
   });
 
@@ -230,7 +236,7 @@ function TransactionForm({
       </div>
 
       <Button type="submit" className="w-full" disabled={isPending}>
-        {isPending ? 'Salvando...' : 'Criar'}
+        {isPending ? 'Salvando...' : isEditing ? 'Salvar' : 'Criar'}
       </Button>
     </form>
   );
@@ -394,6 +400,7 @@ export function TransactionListPage({ config }: { config: TransactionPageConfig 
   // UI state
   const [sheetOpen, setSheetOpen] = useState(false);
   const [payingTransaction, setPayingTransaction] = useState<TransactionListItem | null>(null);
+  const [editingTransaction, setEditingTransaction] = useState<TransactionListItem | null>(null);
 
   // Build filters
   const filters: TransactionFilters = {
@@ -420,6 +427,7 @@ export function TransactionListPage({ config }: { config: TransactionPageConfig 
 
   // Mutations
   const createTransaction = useCreateTransaction();
+  const updateTransaction = useUpdateTransaction();
   const registerPayment = useRegisterPayment();
   const cancelTransaction = useCancelTransaction();
 
@@ -427,17 +435,36 @@ export function TransactionListPage({ config }: { config: TransactionPageConfig 
   const totalPages = result?.total_pages ?? 1;
 
   // Handlers
-  async function handleCreate(data: TransactionFormData) {
+  async function handleSubmitTransaction(data: TransactionFormData) {
     try {
-      await createTransaction.mutateAsync({
-        data,
-        organizationId: organizationId || undefined,
-      });
-      toast.success('Lancamento criado com sucesso');
+      if (editingTransaction) {
+        await updateTransaction.mutateAsync({
+          transactionId: editingTransaction.id,
+          data,
+        });
+        toast.success('Lancamento atualizado com sucesso');
+      } else {
+        await createTransaction.mutateAsync({
+          data,
+          organizationId: organizationId || undefined,
+        });
+        toast.success('Lancamento criado com sucesso');
+      }
       setSheetOpen(false);
+      setEditingTransaction(null);
     } catch {
-      toast.error('Erro ao criar lancamento. Tente novamente.');
+      toast.error(editingTransaction ? 'Erro ao atualizar lancamento.' : 'Erro ao criar lancamento.');
     }
+  }
+
+  function handleEdit(transaction: TransactionListItem) {
+    setEditingTransaction(transaction);
+    setSheetOpen(true);
+  }
+
+  function handleOpenCreate() {
+    setEditingTransaction(null);
+    setSheetOpen(true);
   }
 
   async function handlePayment(transactionId: string, data: PaymentFormValues) {
@@ -478,7 +505,7 @@ export function TransactionListPage({ config }: { config: TransactionPageConfig 
               <p className="text-sm text-muted-foreground">{config.description}</p>
             </div>
           </div>
-          <Button onClick={() => setSheetOpen(true)}>
+          <Button onClick={handleOpenCreate}>
             <Plus className="h-4 w-4 mr-2" />
             {config.createButtonLabel}
           </Button>
@@ -559,7 +586,7 @@ export function TransactionListPage({ config }: { config: TransactionPageConfig 
             title={config.emptyTitle}
             description={config.emptyDescription}
             actionLabel={config.createButtonLabel}
-            onAction={() => setSheetOpen(true)}
+            onAction={handleOpenCreate}
           />
         ) : (
           <>
@@ -603,6 +630,17 @@ export function TransactionListPage({ config }: { config: TransactionPageConfig 
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1">
+                            {item.status !== 'canceled' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEdit(item)}
+                                aria-label={`Editar ${item.description}`}
+                              >
+                                <Pencil className="h-4 w-4 mr-1" />
+                                Editar
+                              </Button>
+                            )}
                             {item.status !== 'paid' && item.status !== 'canceled' && (
                               <>
                                 <Button
@@ -668,20 +706,30 @@ export function TransactionListPage({ config }: { config: TransactionPageConfig 
         )}
       </div>
 
-      {/* Create Sheet */}
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+      {/* Create/Edit Sheet */}
+      <Sheet open={sheetOpen} onOpenChange={(open) => {
+        setSheetOpen(open);
+        if (!open) setEditingTransaction(null);
+      }}>
         <SheetContent className="overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>{config.sheetTitle}</SheetTitle>
-            <SheetDescription>{config.sheetDescription}</SheetDescription>
+            <SheetTitle>
+              {editingTransaction ? 'Editar Lancamento' : config.sheetTitle}
+            </SheetTitle>
+            <SheetDescription>
+              {editingTransaction
+                ? `Editando: ${editingTransaction.description}`
+                : config.sheetDescription}
+            </SheetDescription>
           </SheetHeader>
           <TransactionForm
-            key={sheetOpen ? 'open' : 'closed'}
+            key={editingTransaction?.id || 'new'}
             type={config.type}
             categories={categories.map((c) => ({ id: c.id, name: c.name }))}
             accounts={accounts.map((a) => ({ id: a.id, name: a.name }))}
-            onSubmit={handleCreate}
-            isPending={createTransaction.isPending}
+            onSubmit={handleSubmitTransaction}
+            isPending={createTransaction.isPending || updateTransaction.isPending}
+            initialData={editingTransaction}
           />
         </SheetContent>
       </Sheet>
