@@ -37,13 +37,12 @@ export interface CreateTaskInput {
 
 // Hook para listar tarefas por contato
 export function useTasksByContact(contactOrgId?: string) {
-  const { organizationId } = useAuth();
-
   return useQuery({
     queryKey: ['tasks', 'contact', contactOrgId],
     queryFn: async () => {
-      if (!contactOrgId || !organizationId) return [];
+      if (!contactOrgId) return [];
 
+      // RLS handles organization filtering
       const { data, error } = await supabase
         .from('crm_tasks')
         .select(`
@@ -59,29 +58,27 @@ export function useTasksByContact(contactOrgId?: string) {
           )
         `)
         .eq('contact_org_id', contactOrgId)
-        .eq('organization_id', organizationId)
         .order('due_at', { ascending: true });
 
       if (error) throw error;
       return data as Task[];
     },
-    enabled: !!contactOrgId && !!organizationId,
+    enabled: !!contactOrgId,
   });
 }
 
 // Hook para listar tarefas por deal
 export function useTasksByDeal(dealId?: string) {
-  const { organizationId } = useAuth();
-
   return useQuery({
     queryKey: ['tasks', 'deal', dealId],
     queryFn: async () => {
-      console.log('useTasksByDeal - fetching for deal:', dealId, 'org:', organizationId);
-      if (!dealId || !organizationId) {
-        console.log('useTasksByDeal - missing dealId or orgId, returning empty');
+      console.log('useTasksByDeal - fetching for deal:', dealId);
+      if (!dealId) {
+        console.log('useTasksByDeal - missing dealId, returning empty');
         return [];
       }
 
+      // RLS handles organization filtering - no need to filter by org here
       const { data, error } = await supabase
         .from('crm_tasks')
         .select(`
@@ -97,17 +94,16 @@ export function useTasksByDeal(dealId?: string) {
           )
         `)
         .eq('deal_id', dealId)
-        .eq('organization_id', organizationId)
         .order('due_at', { ascending: true });
 
       if (error) {
         console.error('useTasksByDeal - error:', error);
         throw error;
       }
-      console.log('useTasksByDeal - found', data?.length, 'tasks');
+      console.log('useTasksByDeal - found', data?.length, 'tasks:', data);
       return data as Task[];
     },
-    enabled: !!dealId && !!organizationId,
+    enabled: !!dealId,
     staleTime: 0,
   });
 }
