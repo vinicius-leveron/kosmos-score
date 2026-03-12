@@ -24,11 +24,12 @@ import { Badge } from '@/design-system/primitives/badge';
 import { Skeleton } from '@/design-system/primitives/skeleton';
 import { ScrollArea } from '@/design-system/primitives/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/primitives/tabs';
-import { 
-  useTasksByContact, 
-  useCompleteTask, 
+import {
+  useTasksByContact,
+  useTasksByDeal,
+  useCompleteTask,
   useCancelTask,
-  Task 
+  Task
 } from '../../hooks/useTasks';
 import { TaskModal } from './TaskModal';
 import { cn } from '@/design-system/lib/utils';
@@ -70,12 +71,31 @@ export function TaskPanel({
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [activeTab, setActiveTab] = useState<'pending' | 'completed'>('pending');
 
-  const { data: tasks, isLoading } = useTasksByContact(contactOrgId);
+  // Load tasks by contact OR by deal
+  const { data: contactTasks, isLoading: isLoadingContact } = useTasksByContact(contactOrgId);
+  const { data: dealTasks, isLoading: isLoadingDeal } = useTasksByDeal(dealId);
+
+  console.log('TaskPanel - dealId:', dealId);
+  console.log('TaskPanel - contactTasks:', contactTasks?.length);
+  console.log('TaskPanel - dealTasks:', dealTasks?.length, dealTasks);
+
+  // Combine and dedupe tasks (a task could appear in both if linked to both)
+  const tasks = (() => {
+    const taskMap = new Map<string, Task>();
+    (contactTasks || []).forEach(t => taskMap.set(t.id, t));
+    (dealTasks || []).forEach(t => taskMap.set(t.id, t));
+    return Array.from(taskMap.values());
+  })();
+  const isLoading = isLoadingContact || isLoadingDeal;
+
   const completeTask = useCompleteTask();
   const cancelTask = useCancelTask();
 
   const pendingTasks = tasks?.filter(t => t.status === 'pending' || t.status === 'overdue') || [];
   const completedTasks = tasks?.filter(t => t.status === 'completed') || [];
+
+  console.log('TaskPanel - total tasks:', tasks.length);
+  console.log('TaskPanel - pending:', pendingTasks.length, 'completed:', completedTasks.length);
 
   const handleComplete = async (task: Task) => {
     await completeTask.mutateAsync({
