@@ -7,7 +7,6 @@ import {
   ChevronDown,
   LogOut,
   Megaphone,
-  Kanban,
   Wrench,
   Building2,
   UserPlus,
@@ -24,6 +23,7 @@ import {
   Search,
   Key,
   Webhook,
+  Radio,
 } from 'lucide-react';
 import { useAuth, useOrganization } from '@/core/auth';
 import {
@@ -88,7 +88,7 @@ const navigationGroups: NavGroup[] = [
       { title: 'Contatos', href: '/admin/crm/contacts', icon: Users },
       { title: 'Empresas', href: '/admin/crm/companies', icon: Building2 },
       { title: 'Deals', href: '/admin/crm/deals/board', icon: Target },
-      { title: 'Pipeline', href: '/admin/crm/pipeline', icon: Kanban },
+      { title: 'Outbound', href: '/admin/crm/outbound', icon: Radio },
     ],
   },
   {
