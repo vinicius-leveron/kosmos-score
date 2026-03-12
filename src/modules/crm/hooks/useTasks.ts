@@ -282,9 +282,16 @@ export function useCreateTask() {
 
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       // Invalidar queries relacionadas
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+
+      // Invalidar query específica do deal se houver
+      if (variables.deal_id) {
+        queryClient.invalidateQueries({ queryKey: ['tasks', 'deal', variables.deal_id] });
+        queryClient.invalidateQueries({ queryKey: ['deals'] });
+      }
+
       if (data.contact_org_id) {
         queryClient.invalidateQueries({ queryKey: ['contacts'] });
       }
