@@ -76,7 +76,11 @@ export function useTasksByDeal(dealId?: string) {
   return useQuery({
     queryKey: ['tasks', 'deal', dealId],
     queryFn: async () => {
-      if (!dealId || !organizationId) return [];
+      console.log('useTasksByDeal - fetching for deal:', dealId, 'org:', organizationId);
+      if (!dealId || !organizationId) {
+        console.log('useTasksByDeal - missing dealId or orgId, returning empty');
+        return [];
+      }
 
       const { data, error } = await supabase
         .from('crm_tasks')
@@ -96,10 +100,15 @@ export function useTasksByDeal(dealId?: string) {
         .eq('organization_id', organizationId)
         .order('due_at', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('useTasksByDeal - error:', error);
+        throw error;
+      }
+      console.log('useTasksByDeal - found', data?.length, 'tasks');
       return data as Task[];
     },
     enabled: !!dealId && !!organizationId,
+    staleTime: 0,
   });
 }
 
