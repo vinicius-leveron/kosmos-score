@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import {
   BarChart3,
   GitBranch,
@@ -8,6 +8,7 @@ import {
   Target,
   TrendingUp,
   Activity,
+  Radio,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/primitives/tabs';
 import { Badge } from '@/design-system/primitives/badge';
@@ -20,8 +21,15 @@ import {
   SelectValue,
 } from '@/design-system/primitives/select';
 import { cn } from '@/design-system/lib/utils';
-import { useNavigate } from 'react-router-dom';
-import { useDashboardMetrics, useAIOSFunnelMetrics } from '../hooks/useDashboardMetricsSimple';
+import {
+  useDashboardMetrics,
+  useAIOSFunnelMetrics,
+  useRevenueTimeline,
+  usePipelineStats,
+  useTopDeals,
+  useTeamPerformance,
+  useRecentActivities,
+} from '../hooks/useDashboardMetricsSimple';
 import {
   CrmKPICard,
   RevenueTimelineChart,
@@ -29,6 +37,7 @@ import {
   TopDealsTable,
   RecentActivitiesList,
   TasksSummaryCard,
+  OutboundSummaryWidget,
   formatCurrency,
 } from '../components/dashboard';
 
@@ -39,64 +48,28 @@ const DASHBOARD_TABS = [
   { id: 'revenue', label: 'Receita', icon: DollarSign },
   { id: 'tasks', label: 'Tarefas', icon: CheckSquare },
   { id: 'team', label: 'Equipe', icon: Users },
+  { id: 'outbound', label: 'Outbound', icon: Radio },
 ] as const;
 
 type TabId = (typeof DASHBOARD_TABS)[number]['id'];
 
-// Mock data for charts (will be replaced with real data from hooks)
-const MOCK_REVENUE_DATA = [
-  { month: 'Set', revenue: 85000, deals: 8 },
-  { month: 'Out', revenue: 92000, deals: 10 },
-  { month: 'Nov', revenue: 115000, deals: 12 },
-  { month: 'Dez', revenue: 127890, deals: 14 },
-  { month: 'Jan', revenue: 135000, deals: 11 },
-  { month: 'Fev', revenue: 142500, deals: 13 },
-];
-
-const MOCK_PIPELINE_STAGES = [
-  { name: 'prospection', displayName: 'Prospeccao', count: 127, value: 381000, color: '#64748B' },
-  { name: 'qualification', displayName: 'Qualificacao', count: 53, value: 265000, color: '#3B82F6' },
-  { name: 'proposal', displayName: 'Proposta', count: 34, value: 204000, color: '#8B5CF6' },
-  { name: 'negotiation', displayName: 'Negociacao', count: 18, value: 162000, color: '#F59E0B' },
-  { name: 'closing', displayName: 'Fechamento', count: 8, value: 127890, color: '#22C55E' },
-];
-
-const MOCK_TOP_DEALS = [
-  { id: '1', title: 'Projeto Enterprise', company: 'Tech Solutions', amount: 45000, stage: 'Proposta', stageColor: '#8B5CF6', probability: 75, daysInStage: 5 },
-  { id: '2', title: 'Consultoria Estrategica', company: 'ABC Corp', amount: 38500, stage: 'Negociacao', stageColor: '#F59E0B', probability: 85, daysInStage: 3 },
-  { id: '3', title: 'Implementacao CRM', company: 'StartupXYZ', amount: 32100, stage: 'Qualificacao', stageColor: '#3B82F6', probability: 45, daysInStage: 7 },
-  { id: '4', title: 'Licencas SaaS', company: 'Global Inc', amount: 28900, stage: 'Proposta', stageColor: '#8B5CF6', probability: 60, daysInStage: 4 },
-  { id: '5', title: 'Suporte Anual', company: 'Local Store', amount: 24500, stage: 'Fechamento', stageColor: '#22C55E', probability: 95, daysInStage: 2 },
-];
-
-const MOCK_ACTIVITIES = [
-  { id: '1', type: 'call' as const, title: 'Ligacao com Joao Silva', contactName: 'Tech Solutions', contactEmail: '', created_at: new Date(Date.now() - 1800000).toISOString() },
-  { id: '2', type: 'email_sent' as const, title: 'Proposta enviada', contactName: 'Maria Santos', contactEmail: '', created_at: new Date(Date.now() - 3600000).toISOString() },
-  { id: '3', type: 'meeting' as const, title: 'Reuniao agendada', contactName: 'Pedro Costa', contactEmail: '', created_at: new Date(Date.now() - 7200000).toISOString() },
-  { id: '4', type: 'note' as const, title: 'Follow-up registrado', contactName: 'Ana Oliveira', contactEmail: '', created_at: new Date(Date.now() - 14400000).toISOString() },
-  { id: '5', type: 'stage_changed' as const, title: 'Deal movido para Fechamento', contactName: 'Tech Solutions', contactEmail: '', created_at: new Date(Date.now() - 28800000).toISOString() },
-];
-
-const MOCK_TEAM = [
-  { name: 'Carlos Mendes', deals: 12, revenue: 45890, winRate: 32 },
-  { name: 'Julia Ferreira', deals: 9, revenue: 38500, winRate: 28 },
-  { name: 'Roberto Lima', deals: 8, revenue: 32100, winRate: 25 },
-  { name: 'Patricia Souza', deals: 7, revenue: 28900, winRate: 22 },
-  { name: 'Lucas Alves', deals: 6, revenue: 24500, winRate: 20 },
-];
-
 export function CrmDashboardPage() {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [selectedPeriod, setSelectedPeriod] = useState('month');
 
-  // Fetch real data
+  // Fetch real data from hooks
   const { data: dashboardMetrics, isLoading: metricsLoading } = useDashboardMetrics();
   const { data: funnelData } = useAIOSFunnelMetrics();
+  const { data: revenueData = [], isLoading: revenueLoading } = useRevenueTimeline();
+  const { data: pipelineStages = [], isLoading: pipelineLoading } = usePipelineStats();
+  const { data: topDeals = [], isLoading: dealsLoading } = useTopDeals();
+  const { data: teamData = [], isLoading: teamLoading } = useTeamPerformance();
+  const { data: activities = [], isLoading: activitiesLoading } = useRecentActivities();
 
-  // Calculate totals
-  const totalRevenue = MOCK_REVENUE_DATA.reduce((sum, d) => sum + d.revenue, 0);
-  const totalDeals = MOCK_PIPELINE_STAGES.reduce((sum, s) => sum + s.count, 0);
+  // Calculate totals from real data
+  const totalRevenue = revenueData.reduce((sum, d) => sum + d.revenue, 0);
+  const totalDeals = pipelineStages.reduce((sum, s) => sum + s.count, 0);
+  const isLoading = metricsLoading || revenueLoading || pipelineLoading || dealsLoading || teamLoading;
 
   return (
     <div className="flex flex-col h-full">
@@ -196,30 +169,30 @@ export function CrmDashboardPage() {
 
             {/* Charts Row */}
             <div className="grid grid-cols-2 gap-6">
-              {metricsLoading ? (
+              {isLoading ? (
                 <>
                   <Skeleton className="h-80 w-full" />
                   <Skeleton className="h-80 w-full" />
                 </>
               ) : (
                 <>
-                  <RevenueTimelineChart data={MOCK_REVENUE_DATA} totalRevenue={totalRevenue} />
-                  <PipelineFunnelChart stages={MOCK_PIPELINE_STAGES} totalDeals={totalDeals} />
+                  <RevenueTimelineChart data={revenueData} totalRevenue={totalRevenue} />
+                  <PipelineFunnelChart stages={pipelineStages} totalDeals={totalDeals} />
                 </>
               )}
             </div>
 
             {/* Bottom Row */}
             <div className="grid grid-cols-2 gap-6">
-              {metricsLoading ? (
+              {isLoading ? (
                 <>
                   <Skeleton className="h-64 w-full" />
                   <Skeleton className="h-64 w-full" />
                 </>
               ) : (
                 <>
-                  <TopDealsTable deals={MOCK_TOP_DEALS} />
-                  <RecentActivitiesList activities={MOCK_ACTIVITIES} limit={5} />
+                  <TopDealsTable deals={topDeals} />
+                  <RecentActivitiesList activities={activities} limit={5} />
                 </>
               )}
             </div>
@@ -231,39 +204,39 @@ export function CrmDashboardPage() {
             <div className="grid grid-cols-4 gap-4">
               <CrmKPICard
                 title="Total em Pipeline"
-                value={formatCurrency(MOCK_PIPELINE_STAGES.reduce((s, d) => s + d.value, 0))}
+                value={formatCurrency(pipelineStages.reduce((s, d) => s + d.value, 0))}
                 icon={Target}
                 color="text-blue-400"
-                isLoading={metricsLoading}
+                isLoading={pipelineLoading}
               />
               <CrmKPICard
                 title="Deals Abertos"
                 value={totalDeals}
                 icon={Activity}
                 color="text-purple-400"
-                isLoading={metricsLoading}
+                isLoading={pipelineLoading}
               />
               <CrmKPICard
                 title="Em Negociacao"
-                value={MOCK_PIPELINE_STAGES.find(s => s.name === 'negotiation')?.count || 0}
+                value={pipelineStages.find(s => s.name === 'negotiation')?.count || 0}
                 icon={GitBranch}
                 color="text-yellow-400"
-                isLoading={metricsLoading}
+                isLoading={pipelineLoading}
               />
               <CrmKPICard
                 title="Prontos p/ Fechar"
-                value={MOCK_PIPELINE_STAGES.find(s => s.name === 'closing')?.count || 0}
+                value={pipelineStages.find(s => s.name === 'closing')?.count || 0}
                 icon={CheckSquare}
                 color="text-green-400"
-                isLoading={metricsLoading}
+                isLoading={pipelineLoading}
               />
             </div>
 
             {/* Pipeline Funnel */}
-            <PipelineFunnelChart stages={MOCK_PIPELINE_STAGES} totalDeals={totalDeals} />
+            <PipelineFunnelChart stages={pipelineStages} totalDeals={totalDeals} />
 
             {/* Top Deals */}
-            <TopDealsTable deals={MOCK_TOP_DEALS} />
+            <TopDealsTable deals={topDeals} />
           </TabsContent>
 
           {/* Revenue Tab */}
@@ -276,37 +249,41 @@ export function CrmDashboardPage() {
                 icon={DollarSign}
                 color="text-green-400"
                 subtitle="ultimos 6 meses"
-                isLoading={metricsLoading}
+                isLoading={revenueLoading}
               />
               <CrmKPICard
                 title="Receita Media/Mes"
-                value={formatCurrency(totalRevenue / 6)}
+                value={formatCurrency(revenueData.length > 0 ? totalRevenue / revenueData.length : 0)}
                 icon={TrendingUp}
                 color="text-blue-400"
-                isLoading={metricsLoading}
+                isLoading={revenueLoading}
               />
               <CrmKPICard
                 title="Deals Fechados"
-                value={MOCK_REVENUE_DATA.reduce((s, d) => s + d.deals, 0)}
+                value={revenueData.reduce((s, d) => s + d.deals, 0)}
                 icon={Target}
                 color="text-purple-400"
                 subtitle="no periodo"
-                isLoading={metricsLoading}
+                isLoading={revenueLoading}
               />
               <CrmKPICard
                 title="Ticket Medio"
-                value={formatCurrency(totalRevenue / MOCK_REVENUE_DATA.reduce((s, d) => s + d.deals, 0))}
+                value={formatCurrency(
+                  revenueData.reduce((s, d) => s + d.deals, 0) > 0
+                    ? totalRevenue / revenueData.reduce((s, d) => s + d.deals, 0)
+                    : 0
+                )}
                 icon={Activity}
                 color="text-kosmos-orange"
-                isLoading={metricsLoading}
+                isLoading={revenueLoading}
               />
             </div>
 
             {/* Revenue Chart */}
-            <RevenueTimelineChart data={MOCK_REVENUE_DATA} totalRevenue={totalRevenue} />
+            <RevenueTimelineChart data={revenueData} totalRevenue={totalRevenue} />
 
             {/* Top Deals */}
-            <TopDealsTable deals={MOCK_TOP_DEALS} />
+            <TopDealsTable deals={topDeals} />
           </TabsContent>
 
           {/* Tasks Tab */}
@@ -322,7 +299,7 @@ export function CrmDashboardPage() {
                 />
               </div>
               <div className="col-span-2">
-                <RecentActivitiesList activities={MOCK_ACTIVITIES} limit={8} />
+                <RecentActivitiesList activities={activities} limit={8} />
               </div>
             </div>
           </TabsContent>
@@ -333,32 +310,32 @@ export function CrmDashboardPage() {
             <div className="grid grid-cols-4 gap-4">
               <CrmKPICard
                 title="Total Vendedores"
-                value={MOCK_TEAM.length}
+                value={teamData.length}
                 icon={Users}
                 color="text-purple-400"
-                isLoading={metricsLoading}
+                isLoading={teamLoading}
               />
               <CrmKPICard
                 title="Deals Fechados"
-                value={MOCK_TEAM.reduce((s, t) => s + t.deals, 0)}
+                value={teamData.reduce((s, t) => s + t.deals, 0)}
                 icon={Target}
                 color="text-green-400"
                 subtitle="pela equipe"
-                isLoading={metricsLoading}
+                isLoading={teamLoading}
               />
               <CrmKPICard
                 title="Receita Total"
-                value={formatCurrency(MOCK_TEAM.reduce((s, t) => s + t.revenue, 0))}
+                value={formatCurrency(teamData.reduce((s, t) => s + t.revenue, 0))}
                 icon={DollarSign}
                 color="text-blue-400"
-                isLoading={metricsLoading}
+                isLoading={teamLoading}
               />
               <CrmKPICard
                 title="Win Rate Medio"
-                value={`${(MOCK_TEAM.reduce((s, t) => s + t.winRate, 0) / MOCK_TEAM.length).toFixed(1)}%`}
+                value={teamData.length > 0 ? `${(teamData.reduce((s, t) => s + t.winRate, 0) / teamData.length).toFixed(1)}%` : '0%'}
                 icon={TrendingUp}
                 color="text-kosmos-orange"
-                isLoading={metricsLoading}
+                isLoading={teamLoading}
               />
             </div>
 
@@ -372,41 +349,59 @@ export function CrmDashboardPage() {
                 </h3>
               </div>
 
-              <div className="space-y-4">
-                {MOCK_TEAM.map((member, index) => (
-                  <div
-                    key={member.name}
-                    className="flex items-center justify-between p-4 rounded-lg bg-kosmos-black/50 hover:bg-kosmos-black transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={cn(
-                        'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold',
-                        index === 0 ? 'bg-yellow-500/20 text-yellow-400' :
-                        index === 1 ? 'bg-gray-400/20 text-gray-400' :
-                        index === 2 ? 'bg-orange-500/20 text-orange-400' :
-                        'bg-kosmos-black-light text-kosmos-gray'
-                      )}>
-                        {index + 1}
+              {teamLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <Skeleton key={i} className="h-16 w-full" />
+                  ))}
+                </div>
+              ) : teamData.length === 0 ? (
+                <div className="text-center py-8 text-kosmos-gray">
+                  <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                  <p>Nenhum vendedor com deals fechados</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {teamData.map((member, index) => (
+                    <div
+                      key={member.name}
+                      className="flex items-center justify-between p-4 rounded-lg bg-kosmos-black/50 hover:bg-kosmos-black transition-colors"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold',
+                          index === 0 ? 'bg-yellow-500/20 text-yellow-400' :
+                          index === 1 ? 'bg-gray-400/20 text-gray-400' :
+                          index === 2 ? 'bg-orange-500/20 text-orange-400' :
+                          'bg-kosmos-black-light text-kosmos-gray'
+                        )}>
+                          {index + 1}
+                        </div>
+                        <div>
+                          <p className="text-kosmos-white font-medium">{member.name}</p>
+                          <p className="text-xs text-kosmos-gray">{member.deals} deals fechados</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-kosmos-white font-medium">{member.name}</p>
-                        <p className="text-xs text-kosmos-gray">{member.deals} deals fechados</p>
+                      <div className="flex items-center gap-6">
+                        <div className="text-right">
+                          <p className="text-green-400 font-medium">{formatCurrency(member.revenue)}</p>
+                          <p className="text-xs text-kosmos-gray">receita</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-kosmos-orange font-medium">{member.winRate}%</p>
+                          <p className="text-xs text-kosmos-gray">win rate</p>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-6">
-                      <div className="text-right">
-                        <p className="text-green-400 font-medium">{formatCurrency(member.revenue)}</p>
-                        <p className="text-xs text-kosmos-gray">receita</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-kosmos-orange font-medium">{member.winRate}%</p>
-                        <p className="text-xs text-kosmos-gray">win rate</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
+          </TabsContent>
+
+          {/* Outbound Tab */}
+          <TabsContent value="outbound" className="m-0">
+            <OutboundSummaryWidget />
           </TabsContent>
         </div>
       </Tabs>

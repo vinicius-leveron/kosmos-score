@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { addDays, addHours, format, startOfTomorrow, startOfDay, endOfDay } from 'date-fns';
+import { useState, useEffect } from 'react';
+import { addDays, format, startOfTomorrow, endOfDay } from 'date-fns';
 import {
   Dialog,
   DialogContent,
@@ -23,7 +23,7 @@ import { Calendar } from '@/design-system/primitives/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/design-system/primitives/popover';
 import { CalendarIcon, Clock } from 'lucide-react';
 import { cn } from '@/design-system/lib/utils';
-import { useCreateTask, Task } from '../../hooks/useTasks';
+import { useCreateTask, useUpdateTask, Task } from '../../hooks/useTasks';
 import { useToast } from '@/design-system/primitives/use-toast';
 
 interface TaskModalProps {
@@ -32,31 +32,32 @@ interface TaskModalProps {
   contactOrgId?: string;
   dealId?: string;
   companyId?: string;
+  task?: Task | null; // If provided, modal is in edit mode
 }
 
 const taskTypes: Array<{ value: Task['type']; label: string }> = [
   { value: 'follow_up', label: 'Follow-up' },
-  { value: 'call', label: 'Ligação' },
+  { value: 'call', label: 'Ligacao' },
   { value: 'email', label: 'Email' },
   { value: 'whatsapp', label: 'WhatsApp' },
-  { value: 'meeting', label: 'Reunião' },
+  { value: 'meeting', label: 'Reuniao' },
   { value: 'proposal', label: 'Proposta' },
-  { value: 'demo', label: 'Demonstração' },
+  { value: 'demo', label: 'Demonstracao' },
   { value: 'custom', label: 'Personalizada' },
 ];
 
 const priorities: Array<{ value: Task['priority']; label: string; color: string }> = [
   { value: 'low', label: 'Baixa', color: 'text-gray-600' },
-  { value: 'medium', label: 'Média', color: 'text-blue-600' },
+  { value: 'medium', label: 'Media', color: 'text-blue-600' },
   { value: 'high', label: 'Alta', color: 'text-orange-600' },
   { value: 'urgent', label: 'Urgente', color: 'text-red-600' },
 ];
 
 const quickDates = [
   { label: 'Hoje', getValue: () => endOfDay(new Date()) },
-  { label: 'Amanhã', getValue: () => endOfDay(startOfTomorrow()) },
+  { label: 'Amanha', getValue: () => endOfDay(startOfTomorrow()) },
   { label: 'Em 3 dias', getValue: () => endOfDay(addDays(new Date(), 3)) },
-  { label: 'Próxima semana', getValue: () => endOfDay(addDays(new Date(), 7)) },
+  { label: 'Proxima semana', getValue: () => endOfDay(addDays(new Date(), 7)) },
   { label: 'Em 2 semanas', getValue: () => endOfDay(addDays(new Date(), 14)) },
 ];
 
@@ -66,10 +67,14 @@ export function TaskModal({
   contactOrgId,
   dealId,
   companyId,
+  task,
 }: TaskModalProps) {
   const { toast } = useToast();
   const createTask = useCreateTask();
-  
+  const updateTask = useUpdateTask();
+
+  const isEditMode = !!task;
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [type, setType] = useState<Task['type']>('follow_up');
@@ -79,11 +84,41 @@ export function TaskModal({
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [reminderTime, setReminderTime] = useState('09:00');
 
+  // Populate form when editing
+  useEffect(() => {
+    if (task) {
+      setTitle(task.title);
+      setDescription(task.description || '');
+      setType(task.type);
+      setPriority(task.priority);
+      const taskDate = new Date(task.due_at);
+      setDueDate(taskDate);
+      setDueTime(format(taskDate, 'HH:mm'));
+      if (task.reminder_at) {
+        setReminderEnabled(true);
+        setReminderTime(format(new Date(task.reminder_at), 'HH:mm'));
+      } else {
+        setReminderEnabled(false);
+        setReminderTime('09:00');
+      }
+    } else {
+      // Reset form for create mode
+      setTitle('');
+      setDescription('');
+      setType('follow_up');
+      setPriority('medium');
+      setDueDate(endOfDay(new Date()));
+      setDueTime('18:00');
+      setReminderEnabled(false);
+      setReminderTime('09:00');
+    }
+  }, [task, open]);
+
   const handleSubmit = async () => {
     if (!title.trim()) {
       toast({
         title: 'Erro',
-        description: 'O título da tarefa é obrigatório',
+        description: 'O titulo da tarefa e obrigatorio',
         variant: 'destructive',
       });
       return;
@@ -102,58 +137,73 @@ export function TaskModal({
         reminderAt = reminderDate.toISOString();
       }
 
-      await createTask.mutateAsync({
-        title,
-        description: description.trim() || undefined,
-        type,
-        priority,
-        due_at: dueDateWithTime.toISOString(),
-        reminder_at: reminderAt,
-        contact_org_id: contactOrgId,
-        deal_id: dealId,
-        company_id: companyId,
-      });
+      if (isEditMode && task) {
+        // Update existing task
+        await updateTask.mutateAsync({
+          taskId: task.id,
+          updates: {
+            title,
+            description: description.trim() || undefined,
+            type,
+            priority,
+            due_at: dueDateWithTime.toISOString(),
+            reminder_at: reminderAt,
+          },
+        });
 
-      toast({
-        title: 'Tarefa criada',
-        description: 'A tarefa foi adicionada com sucesso',
-      });
+        toast({
+          title: 'Tarefa atualizada',
+          description: 'A tarefa foi atualizada com sucesso',
+        });
+      } else {
+        // Create new task
+        await createTask.mutateAsync({
+          title,
+          description: description.trim() || undefined,
+          type,
+          priority,
+          due_at: dueDateWithTime.toISOString(),
+          reminder_at: reminderAt,
+          contact_org_id: contactOrgId,
+          deal_id: dealId,
+          company_id: companyId,
+        });
 
-      // Reset form
-      setTitle('');
-      setDescription('');
-      setType('follow_up');
-      setPriority('medium');
-      setDueDate(endOfDay(new Date()));
-      setDueTime('18:00');
-      setReminderEnabled(false);
-      setReminderTime('09:00');
-      
+        toast({
+          title: 'Tarefa criada',
+          description: 'A tarefa foi adicionada com sucesso',
+        });
+      }
+
       onOpenChange(false);
     } catch (error) {
-      console.error('Erro ao criar tarefa:', error);
+      console.error('Erro ao salvar tarefa:', error);
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
       toast({
-        title: 'Erro ao criar tarefa',
+        title: isEditMode ? 'Erro ao atualizar tarefa' : 'Erro ao criar tarefa',
         description: errorMessage,
         variant: 'destructive',
       });
     }
   };
 
+  const isPending = createTask.isPending || updateTask.isPending;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Nova Tarefa</DialogTitle>
+          <DialogTitle>{isEditMode ? 'Editar Tarefa' : 'Nova Tarefa'}</DialogTitle>
           <DialogDescription>
-            Crie uma tarefa para acompanhar suas atividades
+            {isEditMode
+              ? 'Atualize as informacoes da tarefa'
+              : 'Crie uma tarefa para acompanhar suas atividades'}
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="title">Título *</Label>
+            <Label htmlFor="title">Titulo *</Label>
             <Input
               id="title"
               value={title}
@@ -198,7 +248,7 @@ export function TaskModal({
 
           <div className="grid gap-2">
             <Label>Data de Vencimento</Label>
-            
+
             {/* Quick date buttons */}
             <div className="flex flex-wrap gap-2 mb-2">
               {quickDates.map((quick) => (
@@ -210,7 +260,7 @@ export function TaskModal({
                   onClick={() => setDueDate(quick.getValue())}
                   className={cn(
                     format(dueDate, 'yyyy-MM-dd') === format(quick.getValue(), 'yyyy-MM-dd') &&
-                    'bg-primary text-primary-foreground'
+                      'bg-primary text-primary-foreground'
                   )}
                 >
                   {quick.label}
@@ -255,7 +305,7 @@ export function TaskModal({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="description">Descrição</Label>
+            <Label htmlFor="description">Descricao</Label>
             <Textarea
               id="description"
               value={description}
@@ -291,8 +341,14 @@ export function TaskModal({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={createTask.isPending}>
-            {createTask.isPending ? 'Criando...' : 'Criar Tarefa'}
+          <Button onClick={handleSubmit} disabled={isPending}>
+            {isPending
+              ? isEditMode
+                ? 'Salvando...'
+                : 'Criando...'
+              : isEditMode
+                ? 'Salvar'
+                : 'Criar Tarefa'}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -172,6 +172,278 @@ export function useAIOSFunnelMetrics() {
   });
 }
 
+// Hook para receita por mês (últimos 6 meses)
+export function useRevenueTimeline(organizationId?: string) {
+  const { organizationId: authOrgId } = useOrganization();
+  const orgId = organizationId || authOrgId;
+
+  return useQuery({
+    queryKey: ['dashboard', 'revenue-timeline', orgId],
+    queryFn: async () => {
+      if (!orgId) return [];
+
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+      const { data, error } = await supabase
+        .from('deals')
+        .select('amount, closed_at')
+        .eq('organization_id', orgId)
+        .eq('status', 'won')
+        .gte('closed_at', sixMonthsAgo.toISOString())
+        .order('closed_at', { ascending: true });
+
+      if (error) throw error;
+
+      // Agrupar por mês
+      const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+      const monthlyData: Record<string, { revenue: number; deals: number }> = {};
+
+      // Inicializar últimos 6 meses
+      for (let i = 5; i >= 0; i--) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - i);
+        const key = `${date.getFullYear()}-${date.getMonth()}`;
+        monthlyData[key] = { revenue: 0, deals: 0 };
+      }
+
+      // Preencher com dados reais
+      (data || []).forEach((deal) => {
+        if (deal.closed_at) {
+          const date = new Date(deal.closed_at);
+          const key = `${date.getFullYear()}-${date.getMonth()}`;
+          if (monthlyData[key]) {
+            monthlyData[key].revenue += deal.amount || 0;
+            monthlyData[key].deals += 1;
+          }
+        }
+      });
+
+      // Converter para array no formato esperado
+      return Object.entries(monthlyData).map(([key, value]) => {
+        const [, month] = key.split('-').map(Number);
+        return {
+          month: monthNames[month],
+          revenue: value.revenue,
+          deals: value.deals,
+        };
+      });
+    },
+    enabled: !!orgId,
+    staleTime: 60 * 1000,
+  });
+}
+
+// Hook para estatísticas do pipeline por estágio
+export function usePipelineStats(pipelineId?: string) {
+  const { organizationId } = useOrganization();
+
+  return useQuery({
+    queryKey: ['dashboard', 'pipeline-stats', organizationId, pipelineId],
+    queryFn: async () => {
+      if (!organizationId) return [];
+
+      // Buscar deals abertos com info do estágio
+      const { data: deals, error: dealsError } = await supabase
+        .from('deals')
+        .select('stage_id, amount, pipeline_stages!inner(id, name, display_name, color, position)')
+        .eq('organization_id', organizationId)
+        .eq('status', 'open');
+
+      if (dealsError) throw dealsError;
+
+      // Agrupar deals por estágio
+      const stageStats: Record<string, { name: string; displayName: string; count: number; value: number; color: string; position: number }> = {};
+
+      (deals || []).forEach((deal: any) => {
+        const stageId = deal.stage_id;
+        const stage = deal.pipeline_stages;
+        if (stage) {
+          if (!stageStats[stageId]) {
+            stageStats[stageId] = {
+              name: stage.name,
+              displayName: stage.display_name || stage.name,
+              count: 0,
+              value: 0,
+              color: stage.color || '#64748B',
+              position: stage.position,
+            };
+          }
+          stageStats[stageId].count += 1;
+          stageStats[stageId].value += deal.amount || 0;
+        }
+      });
+
+      // Converter para array e ordenar por position
+      return Object.values(stageStats).sort((a, b) => a.position - b.position);
+    },
+    enabled: !!organizationId,
+    staleTime: 60 * 1000,
+  });
+}
+
+// Hook para top deals por valor
+export function useTopDeals(organizationId?: string, limit = 5) {
+  const { organizationId: authOrgId } = useOrganization();
+  const orgId = organizationId || authOrgId;
+
+  return useQuery({
+    queryKey: ['dashboard', 'top-deals', orgId, limit],
+    queryFn: async () => {
+      if (!orgId) return [];
+
+      const { data, error } = await supabase
+        .from('deals')
+        .select(`
+          id,
+          name,
+          amount,
+          probability,
+          entered_stage_at,
+          companies!inner(name),
+          pipeline_stages(name, display_name, color)
+        `)
+        .eq('organization_id', orgId)
+        .eq('status', 'open')
+        .not('amount', 'is', null)
+        .order('amount', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+
+      return (data || []).map((deal: any) => {
+        const daysInStage = Math.floor(
+          (Date.now() - new Date(deal.entered_stage_at).getTime()) / (1000 * 60 * 60 * 24)
+        );
+
+        return {
+          id: deal.id,
+          title: deal.name,
+          company: deal.companies?.name || 'Sem empresa',
+          amount: deal.amount || 0,
+          stage: deal.pipeline_stages?.display_name || deal.pipeline_stages?.name || 'Sem estagio',
+          stageColor: deal.pipeline_stages?.color || '#64748B',
+          probability: deal.probability || 0,
+          daysInStage,
+        };
+      });
+    },
+    enabled: !!orgId,
+    staleTime: 60 * 1000,
+  });
+}
+
+// Hook para performance da equipe
+export function useTeamPerformance(organizationId?: string) {
+  const { organizationId: authOrgId } = useOrganization();
+  const orgId = organizationId || authOrgId;
+
+  return useQuery({
+    queryKey: ['dashboard', 'team-performance', orgId],
+    queryFn: async () => {
+      if (!orgId) return [];
+
+      // Buscar deals fechados (won) com owner
+      const { data: wonDeals, error: wonError } = await supabase
+        .from('deals')
+        .select('owner_id, amount, profiles!inner(full_name)')
+        .eq('organization_id', orgId)
+        .eq('status', 'won')
+        .not('owner_id', 'is', null);
+
+      if (wonError) throw wonError;
+
+      // Buscar total de deals por owner (para calcular win rate)
+      const { data: allDeals, error: allError } = await supabase
+        .from('deals')
+        .select('owner_id, status')
+        .eq('organization_id', orgId)
+        .not('owner_id', 'is', null)
+        .in('status', ['won', 'lost']);
+
+      if (allError) throw allError;
+
+      // Agrupar por vendedor
+      const teamStats: Record<string, { name: string; deals: number; revenue: number; totalDeals: number }> = {};
+
+      (wonDeals || []).forEach((deal: any) => {
+        const ownerId = deal.owner_id;
+        const ownerName = deal.profiles?.full_name || 'Desconhecido';
+
+        if (!teamStats[ownerId]) {
+          teamStats[ownerId] = { name: ownerName, deals: 0, revenue: 0, totalDeals: 0 };
+        }
+        teamStats[ownerId].deals += 1;
+        teamStats[ownerId].revenue += deal.amount || 0;
+      });
+
+      // Contar total de deals para win rate
+      (allDeals || []).forEach((deal: any) => {
+        const ownerId = deal.owner_id;
+        if (teamStats[ownerId]) {
+          teamStats[ownerId].totalDeals += 1;
+        }
+      });
+
+      // Converter e calcular win rate
+      return Object.values(teamStats)
+        .map((member) => ({
+          name: member.name,
+          deals: member.deals,
+          revenue: member.revenue,
+          winRate: member.totalDeals > 0 ? Math.round((member.deals / member.totalDeals) * 100) : 0,
+        }))
+        .sort((a, b) => b.revenue - a.revenue);
+    },
+    enabled: !!orgId,
+    staleTime: 60 * 1000,
+  });
+}
+
+// Hook para atividades recentes
+export function useRecentActivities(organizationId?: string, limit = 10) {
+  const { organizationId: authOrgId } = useOrganization();
+  const orgId = organizationId || authOrgId;
+
+  return useQuery({
+    queryKey: ['dashboard', 'recent-activities', orgId, limit],
+    queryFn: async () => {
+      if (!orgId) return [];
+
+      const { data, error } = await supabase
+        .from('deal_activities')
+        .select(`
+          id,
+          type,
+          title,
+          description,
+          created_at,
+          deals!inner(
+            name,
+            organization_id,
+            companies(name)
+          )
+        `)
+        .eq('deals.organization_id', orgId)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+
+      return (data || []).map((activity: any) => ({
+        id: activity.id,
+        type: activity.type,
+        title: activity.title,
+        contactName: activity.deals?.companies?.name || activity.deals?.name || '',
+        contactEmail: '',
+        created_at: activity.created_at,
+      }));
+    },
+    enabled: !!orgId,
+    staleTime: 30 * 1000,
+  });
+}
+
 // Export stubs para compatibilidade
 export function useTopPerformers() {
   return { data: null, isLoading: false };

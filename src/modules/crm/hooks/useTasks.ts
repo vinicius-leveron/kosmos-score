@@ -72,11 +72,7 @@ export function useTasksByDeal(dealId?: string) {
   return useQuery({
     queryKey: ['tasks', 'deal', dealId],
     queryFn: async () => {
-      console.log('useTasksByDeal - fetching for deal:', dealId);
-      if (!dealId) {
-        console.log('useTasksByDeal - missing dealId, returning empty');
-        return [];
-      }
+      if (!dealId) return [];
 
       // RLS handles organization filtering - no need to filter by org here
       const { data, error } = await supabase
@@ -96,11 +92,7 @@ export function useTasksByDeal(dealId?: string) {
         .eq('deal_id', dealId)
         .order('due_at', { ascending: true });
 
-      if (error) {
-        console.error('useTasksByDeal - error:', error);
-        throw error;
-      }
-      console.log('useTasksByDeal - found', data?.length, 'tasks:', data);
+      if (error) throw error;
       return data as Task[];
     },
     enabled: !!dealId,
@@ -246,12 +238,8 @@ export function useCreateTask() {
 
   return useMutation({
     mutationFn: async (input: CreateTaskInput) => {
-      console.log('useCreateTask - organizationId:', organizationId);
-      console.log('useCreateTask - user:', user?.id);
-      console.log('useCreateTask - input:', input);
-
       if (!organizationId || !user?.id) {
-        throw new Error('User not authenticated - orgId: ' + organizationId + ', userId: ' + user?.id);
+        throw new Error('User not authenticated');
       }
 
       const insertData = {
@@ -261,7 +249,6 @@ export function useCreateTask() {
         assigned_to: input.assigned_to || user.id,
         priority: input.priority || 'medium',
       };
-      console.log('useCreateTask - insertData:', insertData);
 
       const { data, error } = await supabase
         .from('crm_tasks')
@@ -270,7 +257,6 @@ export function useCreateTask() {
         .single();
 
       if (error) {
-        console.error('useCreateTask - Supabase error:', error);
         throw new Error(error.message || 'Database error');
       }
 

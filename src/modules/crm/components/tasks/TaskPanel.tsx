@@ -75,10 +75,6 @@ export function TaskPanel({
   const { data: contactTasks, isLoading: isLoadingContact } = useTasksByContact(contactOrgId);
   const { data: dealTasks, isLoading: isLoadingDeal } = useTasksByDeal(dealId);
 
-  console.log('TaskPanel - dealId:', dealId);
-  console.log('TaskPanel - contactTasks:', contactTasks?.length);
-  console.log('TaskPanel - dealTasks:', dealTasks?.length, dealTasks);
-
   // Combine and dedupe tasks (a task could appear in both if linked to both)
   const tasks = (() => {
     const taskMap = new Map<string, Task>();
@@ -94,14 +90,28 @@ export function TaskPanel({
   const pendingTasks = tasks?.filter(t => t.status === 'pending' || t.status === 'overdue') || [];
   const completedTasks = tasks?.filter(t => t.status === 'completed') || [];
 
-  console.log('TaskPanel - total tasks:', tasks.length);
-  console.log('TaskPanel - pending:', pendingTasks.length, 'completed:', completedTasks.length);
-
   const handleComplete = async (task: Task) => {
     await completeTask.mutateAsync({
       taskId: task.id,
       outcome: 'Concluído com sucesso',
     });
+  };
+
+  const handleEditTask = (task: Task) => {
+    setSelectedTask(task);
+    setIsModalOpen(true);
+  };
+
+  const handleCreateTask = () => {
+    setSelectedTask(null);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = (open: boolean) => {
+    setIsModalOpen(open);
+    if (!open) {
+      setSelectedTask(null);
+    }
   };
 
   const handleCancel = async (taskId: string) => {
@@ -131,7 +141,7 @@ export function TaskPanel({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleCreateTask}
           >
             <Plus className="h-4 w-4 mr-1" />
             Nova Tarefa
@@ -185,7 +195,7 @@ export function TaskPanel({
                     variant="outline"
                     size="sm"
                     className="mt-4"
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={handleCreateTask}
                   >
                     Criar primeira tarefa
                   </Button>
@@ -205,7 +215,7 @@ export function TaskPanel({
                           'hover:bg-accent/50 cursor-pointer',
                           isOverdue && 'border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950'
                         )}
-                        onClick={() => setSelectedTask(task)}
+                        onClick={() => handleEditTask(task)}
                       >
                         <div className="flex-shrink-0 mt-1">
                           {getTaskIcon(task.type)}
@@ -324,10 +334,11 @@ export function TaskPanel({
 
         <TaskModal
           open={isModalOpen}
-          onOpenChange={setIsModalOpen}
+          onOpenChange={handleModalClose}
           contactOrgId={contactOrgId}
           dealId={dealId}
           companyId={companyId}
+          task={selectedTask}
         />
       </CardContent>
     </Card>
