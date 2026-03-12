@@ -131,9 +131,11 @@ export function TaskModal({
       
       onOpenChange(false);
     } catch (error) {
+      console.error('Erro ao criar tarefa:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
       toast({
         title: 'Erro ao criar tarefa',
-        description: 'Ocorreu um erro ao criar a tarefa. Tente novamente.',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
