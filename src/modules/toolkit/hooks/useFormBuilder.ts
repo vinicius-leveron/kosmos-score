@@ -261,6 +261,21 @@ export function useFormBuilder(formId: string) {
     [form, formId, updateForm]
   );
 
+  const handleSchedulingScreenChange = React.useCallback(
+    async (config: Partial<typeof form.scheduling_screen>) => {
+      if (!form) return;
+      try {
+        await updateForm.mutateAsync({
+          id: formId,
+          scheduling_screen: { ...form.scheduling_screen, ...config },
+        });
+      } catch {
+        toast.error('Erro ao salvar configuracoes de agendamento');
+      }
+    },
+    [form, formId, updateForm]
+  );
+
   return {
     // State
     form,
@@ -301,5 +316,6 @@ export function useFormBuilder(formId: string) {
     handleThemeChange,
     handleWelcomeScreenChange,
     handleThankYouScreenChange,
+    handleSchedulingScreenChange,
   };
 }

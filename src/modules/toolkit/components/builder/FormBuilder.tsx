@@ -62,6 +62,7 @@ export function FormBuilder({ formId, className }: FormBuilderProps) {
     handleThemeChange,
     handleWelcomeScreenChange,
     handleThankYouScreenChange,
+    handleSchedulingScreenChange,
   } = useFormBuilder(formId);
 
   if (isLoading) {
@@ -143,10 +144,12 @@ export function FormBuilder({ formId, className }: FormBuilderProps) {
                 theme={form.theme}
                 welcomeScreen={form.welcome_screen}
                 thankYouScreen={form.thank_you_screen}
+                schedulingScreen={form.scheduling_screen}
                 onSettingsChange={handleSettingsChange}
                 onThemeChange={handleThemeChange}
                 onWelcomeScreenChange={handleWelcomeScreenChange}
                 onThankYouScreenChange={handleThankYouScreenChange}
+                onSchedulingScreenChange={handleSchedulingScreenChange}
               />
             </TabsContent>
 

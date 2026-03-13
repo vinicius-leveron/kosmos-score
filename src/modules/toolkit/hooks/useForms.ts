@@ -4,8 +4,22 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import type { Form, FormWithRelations, FormStatus } from '../types/form.types';
+import type { Form, FormWithRelations, FormStatus, SchedulingScreenConfig } from '../types/form.types';
 import { KOSMOS_ORG_ID } from '@/core/auth';
+
+// Default scheduling screen config
+const DEFAULT_SCHEDULING_SCREEN: SchedulingScreenConfig = {
+  enabled: false,
+  calLink: '',
+  eventType: null,
+  title: 'Agende uma conversa',
+  description: 'Escolha o melhor horario para conversarmos sobre seus resultados.',
+  theme: 'dark',
+  brandColor: '#FF6B35',
+  layout: 'month_view',
+  ctaText: 'Agendar conversa',
+  hideEventTypeDetails: false,
+};
 
 // ============================================================================
 // QUERY KEYS
@@ -82,6 +96,7 @@ export function useForm(formId: string) {
 
       return {
         ...form,
+        scheduling_screen: form.scheduling_screen || DEFAULT_SCHEDULING_SCREEN,
         blocks: blocksResult.data,
         fields: fieldsResult.data,
         classifications: classificationsResult.data,
@@ -135,6 +150,7 @@ export function useFormBySlug(organizationId: string, slug: string) {
 
       return {
         ...form,
+        scheduling_screen: form.scheduling_screen || DEFAULT_SCHEDULING_SCREEN,
         blocks: blocksResult.data,
         fields: fieldsResult.data,
         classifications: classificationsResult.data,
@@ -194,6 +210,7 @@ interface UpdateFormInput {
   scoring_config?: Form['scoring_config'];
   welcome_screen?: Form['welcome_screen'];
   thank_you_screen?: Form['thank_you_screen'];
+  scheduling_screen?: Form['scheduling_screen'];
   crm_config?: Form['crm_config'];
 }
 
