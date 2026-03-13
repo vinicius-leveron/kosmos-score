@@ -37,7 +37,6 @@ import {
   TopDealsTable,
   RecentActivitiesList,
   TasksSummaryCard,
-  OutboundSummaryWidget,
   formatCurrency,
 } from '../components/dashboard';
 
@@ -401,7 +400,9 @@ export function CrmDashboardPage() {
 
           {/* Outbound Tab */}
           <TabsContent value="outbound" className="m-0">
-            <OutboundSummaryWidget />
+            <div className="p-8 text-center text-muted-foreground">
+              <p>Outbound dashboard em breve</p>
+            </div>
           </TabsContent>
         </div>
       </Tabs>
