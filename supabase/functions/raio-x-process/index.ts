@@ -30,7 +30,7 @@ const corsHeaders: Record<string, string> = {
 // =============================================================================
 
 const KOSMOS_ORG_ID = 'c0000000-0000-0000-0000-000000000001'
-const CLAUDE_MODEL = 'claude-sonnet-4-20250514'
+const CLAUDE_MODEL = 'claude-3-5-haiku-20241022'
 const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages'
 const MAX_SUBMISSIONS_PER_DAY = 5
 
