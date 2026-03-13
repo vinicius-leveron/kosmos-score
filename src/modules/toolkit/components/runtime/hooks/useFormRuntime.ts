@@ -22,7 +22,7 @@ import { getVisibleFields } from '../../../lib/conditionEvaluator';
 import { getClassification } from '../../../lib/scoringEngine';
 import { validateField } from '../utils/validation';
 
-export type RuntimeStep = 'welcome' | 'questions' | 'thank_you';
+export type RuntimeStep = 'welcome' | 'questions' | 'thank_you' | 'scheduling';
 
 /** A screen can contain one or more fields */
 export interface FormScreen {
@@ -267,6 +267,18 @@ export function useFormRuntime({ form, onComplete }: UseFormRuntimeOptions) {
     }
   }, [canGoBack]);
 
+  // Handle schedule click (navigate to scheduling screen)
+  const handleScheduleClick = useCallback(() => {
+    if (form.scheduling_screen?.enabled) {
+      setStep('scheduling');
+    }
+  }, [form.scheduling_screen?.enabled]);
+
+  // Handle back from scheduling screen
+  const handleSchedulingBack = useCallback(() => {
+    setStep('thank_you');
+  }, []);
+
   return {
     // State
     step,
@@ -299,5 +311,7 @@ export function useFormRuntime({ form, onComplete }: UseFormRuntimeOptions) {
     handleFieldAnswer,
     handleNext,
     handlePrevious,
+    handleScheduleClick,
+    handleSchedulingBack,
   };
 }

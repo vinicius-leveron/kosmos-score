@@ -3,7 +3,7 @@
  */
 
 import { Button } from '@/design-system/primitives/button';
-import { ArrowRight, Download, Share2 } from 'lucide-react';
+import { ArrowRight, Calendar, Download, Share2 } from 'lucide-react';
 import { cn } from '@/design-system/lib/utils';
 import type {
   FormWithRelations,
@@ -21,6 +21,8 @@ interface ThankYouScreenProps {
   classification?: FormClassification | null;
   /** Callback for CTA button click */
   onCtaClick?: () => void;
+  /** Callback for schedule button click */
+  onScheduleClick?: () => void;
   /** Callback for share button click */
   onShare?: () => void;
   /** Callback for download button click */
@@ -35,6 +37,7 @@ export function ThankYouScreen({
   submission,
   classification,
   onCtaClick,
+  onScheduleClick,
   onShare,
   onDownload,
 }: ThankYouScreenProps) {
@@ -89,14 +92,35 @@ export function ThankYouScreen({
 
           {/* Action Buttons */}
           <div className="space-y-3">
-            {thank_you_screen.ctaButton && (
+            {/* Scheduling CTA - Primary action when enabled */}
+            {form.scheduling_screen?.enabled && onScheduleClick && (
               <Button
                 size="lg"
-                onClick={onCtaClick}
+                onClick={onScheduleClick}
                 className={cn(
                   'w-full h-14 text-base font-display font-semibold',
                   'bg-kosmos-orange hover:bg-kosmos-orange-glow text-white',
                   'transition-all duration-300 glow-orange-subtle hover:glow-orange'
+                )}
+              >
+                <Calendar className="w-5 h-5 mr-2" />
+                {form.scheduling_screen.ctaText || 'Agendar conversa'}
+              </Button>
+            )}
+
+            {/* Original CTA Button - Secondary when scheduling enabled */}
+            {thank_you_screen.ctaButton && (
+              <Button
+                size="lg"
+                onClick={onCtaClick}
+                variant={form.scheduling_screen?.enabled ? 'outline' : 'default'}
+                className={cn(
+                  'w-full h-14 text-base font-display font-semibold',
+                  form.scheduling_screen?.enabled
+                    ? 'border-kosmos-orange text-kosmos-orange hover:bg-kosmos-orange hover:text-white'
+                    : 'bg-kosmos-orange hover:bg-kosmos-orange-glow text-white',
+                  'transition-all duration-300',
+                  !form.scheduling_screen?.enabled && 'glow-orange-subtle hover:glow-orange'
                 )}
               >
                 {thank_you_screen.ctaButton.text}

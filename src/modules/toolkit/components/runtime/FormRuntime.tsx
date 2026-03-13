@@ -16,6 +16,7 @@ import { WelcomeScreen } from './WelcomeScreen';
 import { QuestionScreen } from './QuestionScreen';
 import { MultiFieldQuestionScreen } from './MultiFieldQuestionScreen';
 import { ThankYouScreen } from './ThankYouScreen';
+import { SchedulingScreen } from './SchedulingScreen';
 
 interface FormRuntimeProps {
   /** Form configuration with all relations */
@@ -51,6 +52,8 @@ export function FormRuntime({ form, onComplete }: FormRuntimeProps) {
     handleFieldAnswer,
     handleNext,
     handlePrevious,
+    handleScheduleClick,
+    handleSchedulingBack,
   } = useFormRuntime({ form, onComplete });
 
   // Handle CTA click
@@ -142,7 +145,18 @@ export function FormRuntime({ form, onComplete }: FormRuntimeProps) {
         submission={completedSubmission || ({} as FormSubmission)}
         classification={classification}
         onCtaClick={handleCtaClick}
+        onScheduleClick={form.scheduling_screen?.enabled ? handleScheduleClick : undefined}
         onShare={handleShare}
+      />
+    );
+  }
+
+  if (step === 'scheduling') {
+    return (
+      <SchedulingScreen
+        form={form}
+        submission={completedSubmission || ({} as FormSubmission)}
+        onBack={handleSchedulingBack}
       />
     );
   }

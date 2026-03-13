@@ -213,6 +213,33 @@ export interface ScoringConfig {
 }
 
 // ============================================================================
+// SCHEDULING SCREEN CONFIG (Cal.com integration)
+// ============================================================================
+
+export interface SchedulingScreenConfig {
+  /** Whether scheduling is enabled for this form */
+  enabled: boolean;
+  /** Cal.com calendar link (e.g., "vinicius-kosmos") */
+  calLink: string;
+  /** Optional: Specific event type (e.g., "30min") */
+  eventType?: string | null;
+  /** Screen title */
+  title: string;
+  /** Screen description */
+  description?: string | null;
+  /** Calendar theme */
+  theme: 'light' | 'dark' | 'auto';
+  /** Primary brand color (hex) */
+  brandColor: string;
+  /** Layout style */
+  layout: 'month_view' | 'week_view' | 'column_view';
+  /** CTA button text on ThankYouScreen */
+  ctaText: string;
+  /** Whether to hide event type details in embed */
+  hideEventTypeDetails: boolean;
+}
+
+// ============================================================================
 // FORM
 // ============================================================================
 
@@ -231,6 +258,7 @@ export interface Form {
   scoring_config: ScoringConfig;
   welcome_screen: WelcomeScreenConfig;
   thank_you_screen: ThankYouScreenConfig;
+  scheduling_screen: SchedulingScreenConfig;
   crm_config: CrmConfig;
   created_at: string;
   updated_at: string;

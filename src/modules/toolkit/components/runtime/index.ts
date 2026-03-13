@@ -10,6 +10,7 @@ export { FormRuntime } from './FormRuntime';
 export { WelcomeScreen } from './WelcomeScreen';
 export { QuestionScreen } from './QuestionScreen';
 export { ThankYouScreen } from './ThankYouScreen';
+export { SchedulingScreen } from './SchedulingScreen';
 
 // UI components
 export { ProgressBar } from './ProgressBar';

@@ -13,12 +13,14 @@ import type {
   FormTheme,
   WelcomeScreenConfig,
   ThankYouScreenConfig,
+  SchedulingScreenConfig,
 } from '../../types/form.types';
 
 import { BehaviorSettings } from './settings/BehaviorSettings';
 import { WelcomeScreenSettings } from './settings/WelcomeScreenSettings';
 import { ThankYouScreenSettings } from './settings/ThankYouScreenSettings';
 import { ThemeSettings } from './settings/ThemeSettings';
+import { SchedulingSettings } from './settings/SchedulingSettings';
 
 interface SettingsTabProps {
   /** Form behavior settings */
@@ -29,6 +31,8 @@ interface SettingsTabProps {
   welcomeScreen: WelcomeScreenConfig;
   /** Thank you screen configuration */
   thankYouScreen: ThankYouScreenConfig;
+  /** Scheduling screen configuration */
+  schedulingScreen: SchedulingScreenConfig;
   /** Callback when settings change */
   onSettingsChange: (settings: Partial<FormSettings>) => void;
   /** Callback when theme changes */
@@ -37,6 +41,8 @@ interface SettingsTabProps {
   onWelcomeScreenChange: (config: Partial<WelcomeScreenConfig>) => void;
   /** Callback when thank you screen changes */
   onThankYouScreenChange: (config: Partial<ThankYouScreenConfig>) => void;
+  /** Callback when scheduling screen changes */
+  onSchedulingScreenChange: (config: Partial<SchedulingScreenConfig>) => void;
   /** Additional CSS classes */
   className?: string;
 }
@@ -49,17 +55,19 @@ export function SettingsTab({
   theme,
   welcomeScreen,
   thankYouScreen,
+  schedulingScreen,
   onSettingsChange,
   onThemeChange,
   onWelcomeScreenChange,
   onThankYouScreenChange,
+  onSchedulingScreenChange,
   className,
 }: SettingsTabProps) {
   return (
     <ScrollArea className={cn('h-full', className)}>
       <div className="p-4">
         <Tabs defaultValue="behavior">
-          <TabsList className="w-full">
+          <TabsList className="w-full flex-wrap">
             <TabsTrigger value="behavior" className="flex-1">
               Comportamento
             </TabsTrigger>
@@ -68,6 +76,9 @@ export function SettingsTab({
             </TabsTrigger>
             <TabsTrigger value="thankyou" className="flex-1">
               Resultado
+            </TabsTrigger>
+            <TabsTrigger value="scheduling" className="flex-1">
+              Agendamento
             </TabsTrigger>
             <TabsTrigger value="theme" className="flex-1">
               Tema
@@ -89,6 +100,13 @@ export function SettingsTab({
             <ThankYouScreenSettings
               thankYouScreen={thankYouScreen}
               onThankYouScreenChange={onThankYouScreenChange}
+            />
+          </TabsContent>
+
+          <TabsContent value="scheduling" className="mt-4">
+            <SchedulingSettings
+              schedulingScreen={schedulingScreen}
+              onSchedulingScreenChange={onSchedulingScreenChange}
             />
           </TabsContent>
 
