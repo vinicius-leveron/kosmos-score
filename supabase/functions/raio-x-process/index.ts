@@ -412,7 +412,8 @@ Deno.serve(async (req: Request) => {
     // 5. Call Claude API with 4 parallel prompts (or simulate if no API key)
     // -------------------------------------------------------------------------
     const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY')
-    const isSimulation = !anthropicApiKey
+    const forceSimulation = Deno.env.get('RAIO_X_SIMULATION') === 'true'
+    const isSimulation = !anthropicApiKey || forceSimulation
 
     if (isSimulation) {
       console.warn('[raio-x-process] ANTHROPIC_API_KEY not set — running in SIMULATION mode')
@@ -554,8 +555,8 @@ Deno.serve(async (req: Request) => {
       .single()
 
     if (error) {
-      console.error('Supabase insert error:', error)
-      return errorResponse('Failed to save results. Please try again.', 500)
+      console.error('Supabase insert error:', JSON.stringify(error, null, 2))
+      return errorResponse(`Failed to save results: ${error.message || error.code || 'Unknown error'}`, 500)
     }
 
     // -------------------------------------------------------------------------
