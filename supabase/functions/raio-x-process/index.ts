@@ -409,42 +409,120 @@ Deno.serve(async (req: Request) => {
     const scoreBreakdown = calculateScore(answers)
 
     // -------------------------------------------------------------------------
-    // 5. Call Claude API with 4 parallel prompts
+    // 5. Call Claude API with 4 parallel prompts (or simulate if no API key)
     // -------------------------------------------------------------------------
     const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY')
-    if (!anthropicApiKey) {
-      console.error('Missing ANTHROPIC_API_KEY environment variable')
-      return errorResponse('Server configuration error: AI service not configured', 500)
-    }
+    const isSimulation = !anthropicApiKey
 
-    const prompt1 = buildPrompt1(answers)
-    const prompt2 = buildPrompt2(answers)
-    const prompt3 = buildPrompt3(answers)
-    const prompt4 = buildPrompt4(answers)
+    if (isSimulation) {
+      console.warn('[raio-x-process] ANTHROPIC_API_KEY not set — running in SIMULATION mode')
+    }
 
     let prompt1_opportunities: unknown
     let prompt2_transformation: unknown
     let prompt3_narrative: unknown
     let prompt4_model: unknown
 
-    try {
-      const [r1, r2, r3, r4] = await Promise.all([
-        callClaude(prompt1, anthropicApiKey),
-        callClaude(prompt2, anthropicApiKey),
-        callClaude(prompt3, anthropicApiKey),
-        callClaude(prompt4, anthropicApiKey),
-      ])
+    if (isSimulation) {
+      // Generate realistic mock responses based on actual answers
+      const p1 = getAnswerValue(answers, 'p1', 'negocio_digital')
+      const p2 = getAnswerValue(answers, 'p2', 'ate_10k')
+      const p4 = getAnswerValue(answers, 'p4', 'Curso online')
 
-      prompt1_opportunities = r1
-      prompt2_transformation = r2
-      prompt3_narrative = r3
-      prompt4_model = r4
-    } catch (err) {
-      console.error('Claude API call failed:', err)
-      return errorResponse(
-        'AI processing failed. Please try again in a few moments.',
-        502
-      )
+      prompt1_opportunities = {
+        produtos_atuais: [{ nome: p4 || 'Produto principal', preco: 497 }],
+        ltv_atual: 497,
+        oportunidades: [
+          {
+            tipo: 'RECORRENCIA',
+            titulo: 'Comunidade com assinatura mensal',
+            descricao: `Criar uma comunidade paga para alunos e interessados no seu nicho de ${p1}`,
+            itens: ['Grupo exclusivo', 'Conteudo mensal', 'Lives semanais', 'Networking'],
+            valor_estimado: 'R$ 15.000/mes',
+            calculo: '100 membros x R$ 150/mes',
+          },
+          {
+            tipo: 'EVENTO',
+            titulo: 'Imersao presencial trimestral',
+            descricao: 'Evento de 2 dias com experiencia premium e networking avancado',
+            itens: ['Workshops praticos', 'Mentoria em grupo', 'Certificado'],
+            valor_estimado: 'R$ 30.000/trimestre',
+            calculo: '30 participantes x R$ 1.000',
+          },
+          {
+            tipo: 'HIGH_TICKET',
+            titulo: 'Mentoria individual premium',
+            descricao: 'Acompanhamento 1:1 para clientes avancados por 3 meses',
+            itens: ['Calls semanais', 'Suporte via WhatsApp', 'Plano personalizado'],
+            valor_estimado: 'R$ 24.000/mes',
+            calculo: '4 mentorados x R$ 6.000/trimestre',
+          },
+          {
+            tipo: 'ATIVACAO',
+            titulo: 'Desafio de 21 dias para base fria',
+            descricao: 'Reativar leads antigos com desafio gratuito que converte para oferta paga',
+            itens: ['Email sequence', 'Grupo temporario', 'Oferta exclusiva no final'],
+            valor_estimado: 'R$ 8.000/mes',
+            calculo: '5% de conversao da base reativada',
+          },
+        ],
+        fatura_hoje: p2.includes('50k') ? 'R$ 50.000/mes' : p2.includes('30k') ? 'R$ 30.000/mes' : 'R$ 10.000/mes',
+        poderia_faturar: 'R$ 77.000/mes',
+        receita_travada: 'R$ 67.000/mes',
+        total_oportunidades: 'R$ 77.000',
+      }
+
+      prompt2_transformation = {
+        feature: `Ensina tecnicas e estrategias de ${p1}`,
+        transformacao: `Tira pessoas de uma vida no piloto automatico e coloca elas no controle do proprio destino — com resultados reais, nao promessas de guru`,
+      }
+
+      prompt3_narrative = {
+        causa: 'Acabar com o mito de que voce precisa de permissao pra comecar',
+        inimigo: 'A mentalidade de "primeiro eu preciso estar pronto"',
+        narrativa: 'Comecou do zero, sem audiencia, sem equipe, sem capital. Provou que acao imperfeita vence planejamento perfeito.',
+        movimento: 'Comeca imperfeito, mas comeca',
+      }
+
+      prompt4_model = {
+        modelo: scoreBreakdown.total <= 5 ? 'CICLO_FECHADO' : scoreBreakdown.total <= 11 ? 'CICLO_PARCIAL' : 'CICLO_ABERTO',
+        dependencia_score: scoreBreakdown.total <= 5 ? 85 : scoreBreakdown.total <= 11 ? 55 : 25,
+        riscos: [
+          'Receita depende 100% de lancamentos',
+          'Base parada entre lancamentos',
+          'Sem receita recorrente previsivel',
+        ],
+        frase_final: scoreBreakdown.total <= 5
+          ? 'Seu negocio so fatura quando voce trabalha. Se voce parar, tudo para.'
+          : scoreBreakdown.total <= 11
+            ? 'Voce ja tem pistas de um ecossistema, mas ainda depende demais de um unico canal.'
+            : 'Voce tem as pecas — so falta montar o quebra-cabeca de um ecossistema que funciona sem voce.',
+      }
+    } else {
+      const prompt1 = buildPrompt1(answers)
+      const prompt2 = buildPrompt2(answers)
+      const prompt3 = buildPrompt3(answers)
+      const prompt4 = buildPrompt4(answers)
+
+      try {
+        const [r1, r2, r3, r4] = await Promise.all([
+          callClaude(prompt1, anthropicApiKey),
+          callClaude(prompt2, anthropicApiKey),
+          callClaude(prompt3, anthropicApiKey),
+          callClaude(prompt4, anthropicApiKey),
+        ])
+
+        prompt1_opportunities = r1
+        prompt2_transformation = r2
+        prompt3_narrative = r3
+        prompt4_model = r4
+      } catch (err) {
+        console.error('Claude API call failed:', err)
+        return errorResponse(
+          'AI processing failed. Please try again in a few moments.',
+          502
+        )
+      }
     }
 
     // -------------------------------------------------------------------------
@@ -481,27 +559,60 @@ Deno.serve(async (req: Request) => {
     }
 
     // -------------------------------------------------------------------------
-    // 7. Return result
+    // 7. Send result email via Resend (fire-and-forget)
+    // -------------------------------------------------------------------------
+    try {
+      const emailResponse = await fetch(
+        `${supabaseUrl}/functions/v1/send-raio-x-email`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseServiceKey}`,
+          },
+          body: JSON.stringify({
+            name: name.trim(),
+            email: email.toLowerCase().trim(),
+            resultId: data.id,
+            classification: scoreBreakdown.classification,
+          }),
+        }
+      )
+      if (!emailResponse.ok) {
+        console.warn('[raio-x-process] Email send failed:', await emailResponse.text())
+      }
+    } catch (emailErr) {
+      console.warn('[raio-x-process] Email send error (non-blocking):', emailErr)
+    }
+
+    // -------------------------------------------------------------------------
+    // 8. Return result
     // -------------------------------------------------------------------------
     const processingTimeMs = Date.now() - startTime
 
     return jsonResponse({
       id: data.id,
-      score: {
-        total: scoreBreakdown.total,
-        maxPossible: scoreBreakdown.maxPossible,
-        classification: scoreBreakdown.classification,
-        breakdown: scoreBreakdown.breakdown,
+      classification: scoreBreakdown.classification,
+      outputs: {
+        prompt1_opportunities,
+        prompt2_transformation,
+        prompt3_narrative,
+        prompt4_model,
       },
-      analysis: {
-        opportunities: prompt1_opportunities,
-        transformation: prompt2_transformation,
-        narrative: prompt3_narrative,
-        model: prompt4_model,
+      score: {
+        p2_score: scoreBreakdown.breakdown['p2'] ?? 0,
+        p3_score: scoreBreakdown.breakdown['p3'] ?? 0,
+        p5_score: scoreBreakdown.breakdown['p5'] ?? 0,
+        p8_score: scoreBreakdown.breakdown['p8'] ?? 0,
+        p9_score: scoreBreakdown.breakdown['p9'] ?? 0,
+        p13_score: scoreBreakdown.breakdown['p13'] ?? 0,
+        total: scoreBreakdown.total,
+        classification: scoreBreakdown.classification,
       },
       meta: {
         processingTimeMs,
-        model: CLAUDE_MODEL,
+        model: isSimulation ? 'simulation' : CLAUDE_MODEL,
+        simulation: isSimulation,
       },
     })
   } catch (err) {
