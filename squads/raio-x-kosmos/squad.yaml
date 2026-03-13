@@ -1,0 +1,49 @@
+name: "raio-x-kosmos"
+version: 0.1.0
+description: "Squad para construir o Raio-X KOSMOS: isca de captura com IA que analisa modelo de negócio em 5min e gera resultado visual premium integrado ao CRM"
+author: "KOSMOS Team"
+license: MIT
+
+aios:
+  minVersion: "2.1.0"
+  type: squad
+
+components:
+  agents:
+    - agents/*.md
+  tasks:
+    - tasks/*.md
+  templates:
+    - templates/*.md
+  checklists:
+    - checklists/*.md
+  config:
+    - config/*.md
+
+dependencies:
+  - lead-magnet-factory  # Padrões de diagnóstico e lead magnets
+
+keywords:
+  - aios
+  - squad
+  - raio-x
+  - lead-magnet
+  - ai-powered
+  - claude-api
+  - crm-integration
+  - supabase-edge-functions
+  - kosmos
+
+metadata:
+  plan_file: "/root/.claude/plans/starry-crunching-avalanche.md"
+  tech_stack:
+    frontend: "React 18 + TypeScript + Tailwind + shadcn/ui"
+    backend: "Supabase Edge Functions (Deno)"
+    ai: "Claude API (Sonnet)"
+    email: "Resend"
+    database: "Supabase (PostgreSQL + RLS)"
+  integration_points:
+    - "lead_magnet_results table (type: raio-x-kosmos)"
+    - "sync_lead_magnet_to_contact() trigger"
+    - "LeadMagnetsPage dashboard"
+    - "useLeadMagnetSummary stats hook"

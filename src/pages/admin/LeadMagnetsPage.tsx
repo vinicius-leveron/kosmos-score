@@ -24,7 +24,7 @@ import { EmbedCodeDialog } from '@/modules/kosmos-score/components/EmbedCodeDial
 import { useLeadMagnetSummary } from '@/modules/kosmos-score/hooks/useLeadMagnetStats';
 
 interface LeadMagnetConfig {
-  id: 'kosmos_score' | 'application' | 'forms' | 'maturity_diagnostic' | 'ecosystem_calculator' | 'ht_readiness' | 'ht_template' | 'transition_calculator' | 'ecosystem_blueprint' | 'stop_launching';
+  id: 'kosmos_score' | 'application' | 'forms' | 'maturity_diagnostic' | 'ecosystem_calculator' | 'ht_readiness' | 'ht_template' | 'transition_calculator' | 'ecosystem_blueprint' | 'stop_launching' | 'raio_x_kosmos';
   name: string;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -38,6 +38,18 @@ interface LeadMagnetConfig {
 }
 
 const leadMagnetsConfig: LeadMagnetConfig[] = [
+  {
+    id: 'raio_x_kosmos',
+    name: 'Raio-X KOSMOS',
+    description: 'Diagnóstico com IA que analisa modelo de negócio e gera recomendações personalizadas',
+    icon: Zap,
+    color: 'text-amber-500',
+    bgColor: 'bg-amber-500/10',
+    href: '/admin/lead-magnets/raio-x/analytics',
+    analyticsHref: '/admin/lead-magnets/raio-x/analytics',
+    publicUrl: '/quiz/raio-x',
+    status: 'active',
+  },
   {
     id: 'kosmos_score',
     name: 'KOSMOS Score',

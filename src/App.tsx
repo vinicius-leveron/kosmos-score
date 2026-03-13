@@ -28,6 +28,8 @@ const EcosystemCalculatorPage = lazy(() => import("./modules/ecosystem-calculato
 const HTReadinessPage = lazy(() => import("./modules/ht-readiness").then(m => ({ default: m.HTReadinessPage })));
 const HTTemplatePage = lazy(() => import("./modules/ht-template").then(m => ({ default: m.HTTemplatePage })));
 const TransitionCalculatorPage = lazy(() => import("./modules/transition-calculator").then(m => ({ default: m.TransitionCalculatorPage })));
+const RaioXPage = lazy(() => import("./modules/raio-x").then(m => ({ default: m.RaioXPage })));
+const RaioXResultPage = lazy(() => import("./modules/raio-x").then(m => ({ default: m.RaioXResultPage })));
 
 // Admin pages
 import { DashboardPage, LeadMagnetsPage, LeadMagnetAnalyticsPage } from "./pages/admin";
@@ -105,6 +107,10 @@ const App = () => (
             {/* Transition Calculator Lead Magnet */}
             <Route path="/quiz/transition-calculator" element={<Suspense fallback={<PageLoader />}><TransitionCalculatorPage /></Suspense>} />
             <Route path="/embed/transition-calculator" element={<Suspense fallback={<PageLoader />}><TransitionCalculatorPage embed /></Suspense>} />
+            {/* Raio-X KOSMOS Lead Magnet */}
+            <Route path="/quiz/raio-x" element={<Suspense fallback={<PageLoader />}><RaioXPage /></Suspense>} />
+            <Route path="/embed/raio-x" element={<Suspense fallback={<PageLoader />}><RaioXPage embed /></Suspense>} />
+            <Route path="/raio-x/:id" element={<Suspense fallback={<PageLoader />}><RaioXResultPage /></Suspense>} />
             <Route path="/f/:slug" element={<FormPublicPage />} />
             <Route path="/journey/client/:token" element={<Suspense fallback={<PageLoader />}><JourneyClientPage /></Suspense>} />
             <Route path="/invite/:token" element={<AcceptInvitePage />} />

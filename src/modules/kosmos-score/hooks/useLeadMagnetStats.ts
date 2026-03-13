@@ -369,6 +369,8 @@ export function useLeadMagnetSummary() {
             : 0,
         },
         forms: { total: 0, recent: 0, avgScore: 0 },
+        // Raio-X KOSMOS
+        raio_x_kosmos: getLeadMagnetStats('raio-x-kosmos'),
         // New maturity diagnostic
         maturity_diagnostic: getLeadMagnetStats('maturity-diagnostic'),
         // Legacy lead magnets (deprecated)
