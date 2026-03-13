@@ -7,19 +7,15 @@ import {
   SheetTitle,
   SheetDescription,
 } from '@/design-system/primitives/sheet';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/design-system/primitives/select';
 import { Target, Plus, DollarSign, Building2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useOrganization } from '@/core/auth';
 import { usePipelines } from '../hooks/usePipelines';
 import { useDealBoard, useMoveDealStage } from '../hooks/useDeals';
 import { DealBoardColumn, DealForm, DealDetail } from '../components/deals';
+import { PipelineSelector } from '../components/pipeline/PipelineSelector';
+import { PipelineForm } from '../components/pipeline/PipelineForm';
+import { StageManagerSheet } from '../components/deals/StageManagerSheet';
 
 export function DealBoardPage() {
   const { organizationId } = useOrganization();
@@ -36,6 +32,8 @@ export function DealBoardPage() {
   const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCreatePipelineOpen, setIsCreatePipelineOpen] = useState(false);
+  const [isManageStagesOpen, setIsManageStagesOpen] = useState(false);
 
   const handleDrop = useCallback(
     (dealId: string, stageId: string) => {
@@ -116,23 +114,15 @@ export function DealBoardPage() {
         <div className="max-w-full px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Select
-                value={activePipelineId}
-                onValueChange={setSelectedPipelineId}
-              >
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Selecione o pipeline" />
-                </SelectTrigger>
-                <SelectContent>
-                  {pipelines?.map((pipeline) => (
-                    <SelectItem key={pipeline.id} value={pipeline.id}>
-                      {pipeline.display_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <PipelineSelector
+                pipelines={pipelines || []}
+                selectedPipeline={currentPipeline}
+                onSelect={(p) => setSelectedPipelineId(p.id)}
+                onCreateNew={() => setIsCreatePipelineOpen(true)}
+                onManageStages={() => setIsManageStagesOpen(true)}
+              />
 
-              {currentPipeline && (
+              {currentPipeline?.description && (
                 <span className="text-sm text-muted-foreground">
                   {currentPipeline.description}
                 </span>
@@ -227,6 +217,33 @@ export function DealBoardPage() {
           />
         </SheetContent>
       </Sheet>
+
+      {/* Create Pipeline Sheet */}
+      <Sheet open={isCreatePipelineOpen} onOpenChange={setIsCreatePipelineOpen}>
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Novo Pipeline</SheetTitle>
+            <SheetDescription>
+              Crie um novo pipeline para organizar seus deals
+            </SheetDescription>
+          </SheetHeader>
+          {organizationId && (
+            <PipelineForm
+              organizationId={organizationId}
+              onSuccess={() => setIsCreatePipelineOpen(false)}
+              onCancel={() => setIsCreatePipelineOpen(false)}
+            />
+          )}
+        </SheetContent>
+      </Sheet>
+
+      {/* Stage Manager Sheet */}
+      <StageManagerSheet
+        open={isManageStagesOpen}
+        onOpenChange={setIsManageStagesOpen}
+        pipelineId={activePipelineId}
+        pipelineName={currentPipeline?.display_name || currentPipeline?.name}
+      />
     </div>
   );
 }

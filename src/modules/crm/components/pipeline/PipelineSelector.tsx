@@ -1,4 +1,4 @@
-import { ChevronDown, Plus } from 'lucide-react';
+import { ChevronDown, Plus, Settings } from 'lucide-react';
 import { Button } from '@/design-system/primitives/button';
 import {
   DropdownMenu,
@@ -15,6 +15,7 @@ interface PipelineSelectorProps {
   selectedPipeline: Pipeline | null | undefined;
   onSelect: (pipeline: Pipeline) => void;
   onCreateNew?: () => void;
+  onManageStages?: () => void;
   isLoading?: boolean;
 }
 
@@ -23,6 +24,7 @@ export function PipelineSelector({
   selectedPipeline,
   onSelect,
   onCreateNew,
+  onManageStages,
   isLoading,
 }: PipelineSelectorProps) {
   if (isLoading) {
@@ -75,13 +77,21 @@ export function PipelineSelector({
             </div>
           </DropdownMenuItem>
         ))}
-        {onCreateNew && (
+        {(onManageStages || onCreateNew) && (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={onCreateNew} className="cursor-pointer">
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Pipeline
-            </DropdownMenuItem>
+            {onManageStages && selectedPipeline && (
+              <DropdownMenuItem onClick={onManageStages} className="cursor-pointer">
+                <Settings className="h-4 w-4 mr-2" />
+                Gerenciar Estagios
+              </DropdownMenuItem>
+            )}
+            {onCreateNew && (
+              <DropdownMenuItem onClick={onCreateNew} className="cursor-pointer">
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Pipeline
+              </DropdownMenuItem>
+            )}
           </>
         )}
       </DropdownMenuContent>
