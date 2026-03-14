@@ -24,6 +24,7 @@ import {
   Key,
   Webhook,
   Radio,
+  Instagram,
 } from 'lucide-react';
 import { useAuth, useOrganization } from '@/core/auth';
 import {
@@ -103,6 +104,13 @@ const navigationGroups: NavGroup[] = [
       { title: 'Categorias', href: '/admin/financial/categories', icon: FolderTree },
       { title: 'Contas Bancárias', href: '/admin/financial/accounts', icon: Landmark },
       { title: 'Conciliação', href: '/admin/financial/reconciliation', icon: GitCompareArrows },
+    ],
+  },
+  {
+    label: 'Instagram',
+    icon: Instagram,
+    items: [
+      { title: 'Analytics', href: '/admin/instagram', icon: BarChart3 },
     ],
   },
   {
