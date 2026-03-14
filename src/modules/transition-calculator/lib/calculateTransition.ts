@@ -449,5 +449,173 @@ export function formatarMoeda(valor: number): string {
   return `R$ ${valor.toFixed(0)}`;
 }
 
+// ============================================
+// NARRATIVAS PERSONALIZADAS POR PERFIL
+// ============================================
+
+export type ProfileType =
+  | 'burnout_fast'      // Alto estresse + breakeven rapido
+  | 'burnout_slow'      // Alto estresse + breakeven lento
+  | 'calm_fast'         // Baixo estresse + breakeven rapido
+  | 'calm_slow';        // Baixo estresse + breakeven lento
+
+export interface ProfileNarrative {
+  profile: ProfileType;
+  headline: string;
+  story: string;
+  urgency?: string;
+  strategy: string;
+  emotion: string;
+}
+
+/**
+ * Determina o perfil do usuario baseado em estresse e breakeven
+ */
+export function determineProfile(
+  riscoDesgaste: 'baixo' | 'moderado' | 'alto' | 'critico',
+  mesesParaBreakeven: number
+): ProfileType {
+  const isBurnout = riscoDesgaste === 'alto' || riscoDesgaste === 'critico';
+  const isFast = mesesParaBreakeven <= 6;
+
+  if (isBurnout && isFast) return 'burnout_fast';
+  if (isBurnout && !isFast) return 'burnout_slow';
+  if (!isBurnout && isFast) return 'calm_fast';
+  return 'calm_slow';
+}
+
+/**
+ * Narrativas emocionais por perfil
+ */
+export const PROFILE_NARRATIVES: Record<ProfileType, Omit<ProfileNarrative, 'profile'>> = {
+  burnout_fast: {
+    headline: 'Voce esta a poucos meses de parar de se matar',
+    story:
+      'Seu nivel de estresse e alto, mas a matematica esta do seu lado. O breakeven acontece rapido, o que significa que voce pode comecar a respirar em breve.',
+    urgency:
+      'Se continuar no ritmo atual, o esgotamento e questao de tempo. A boa noticia: a transicao pode acontecer antes do colapso.',
+    strategy:
+      'Foque em converter sua lista existente. Com breakeven rapido, voce pode reduzir lancamentos ja no proximo trimestre.',
+    emotion:
+      'Este e o melhor cenario possivel para quem esta no limite. Voce tem a oportunidade de mudar antes que seja tarde.',
+  },
+  burnout_slow: {
+    headline: 'Alerta: voce precisa agir antes do colapso',
+    story:
+      'Seu nivel de estresse e critico, mas o breakeven levara mais tempo. Isso significa que voce precisa de uma estrategia hibrida: nao pode simplesmente parar de lancar amanha.',
+    urgency:
+      'O corpo tem limites. Se voce continuar assim por mais 12 meses, o preco sera muito maior do que qualquer faturamento.',
+    strategy:
+      'Comece a construir o ecossistema AGORA, mesmo mantendo 1-2 lancamentos por ano. Cada assinante e um passo em direcao a liberdade.',
+    emotion:
+      'Voce esta em terreno perigoso, mas ainda da tempo de mudar o rumo. Priorize sua saude enquanto constroi a estrutura.',
+  },
+  calm_fast: {
+    headline: 'Cenario ideal para transicao',
+    story:
+      'Seu estresse esta controlado e o breakeven acontece rapido. Voce tem a rara combinacao de tempo e recursos para fazer uma transicao suave.',
+    strategy:
+      'Use os proximos meses para construir a infraestrutura do ecossistema. Com breakeven rapido, voce pode experimentar sem pressao.',
+    emotion:
+      'Este e o momento de ouro. Poucos criadores tem essa janela de oportunidade com tanto equilibrio.',
+  },
+  calm_slow: {
+    headline: 'Voce tem tempo para construir com calma',
+    story:
+      'Seu estresse e gerenciavel e o breakeven levara mais tempo. Isso nao e um problema - e uma oportunidade de fazer direito, sem pressa.',
+    strategy:
+      'Construa a base nos proximos 12 meses: comunidade, rituais, conteudo evergreen. O breakeven vira naturalmente quando a estrutura estiver solida.',
+    emotion:
+      'Nao ha urgencia de parar de lancar amanha. Use esse tempo para criar algo que realmente funcione sem voce.',
+  },
+};
+
+/**
+ * Gera narrativa personalizada baseada no perfil
+ */
+export function generateProfileNarrative(
+  riscoDesgaste: 'baixo' | 'moderado' | 'alto' | 'critico',
+  mesesParaBreakeven: number,
+  diferencas: {
+    horas: number;
+    sustentabilidade: number;
+    desgaste: number;
+  }
+): ProfileNarrative {
+  const profile = determineProfile(riscoDesgaste, mesesParaBreakeven);
+  const base = PROFILE_NARRATIVES[profile];
+
+  // Adiciona dados especificos
+  const horasRecuperadas = diferencas.horas;
+  const semanasRecuperadas = Math.floor(horasRecuperadas / 40);
+
+  return {
+    profile,
+    ...base,
+    // Enriquece a strategy com dados reais
+    strategy:
+      semanasRecuperadas > 0
+        ? `${base.strategy} Sao ${semanasRecuperadas} semanas de vida que voce recupera por ano.`
+        : base.strategy,
+  };
+}
+
+/**
+ * Gera insights rapidos sobre a transicao
+ */
+export function generateTransitionInsights(
+  comparison: ScenarioComparison,
+  mesesParaBreakeven: number
+): string[] {
+  const insights: string[] = [];
+  const { lancamento, ecossistema, diferencas } = comparison;
+
+  // Insight sobre horas
+  if (diferencas.horas > 200) {
+    const semanasRecuperadas = Math.floor(diferencas.horas / 40);
+    insights.push(
+      `Voce recupera ${semanasRecuperadas} semanas de trabalho por ano - isso e quase ${Math.floor(semanasRecuperadas / 4)} mes de ferias.`
+    );
+  }
+
+  // Insight sobre desgaste
+  if (lancamento.nonFinancial.riscoDesgaste === 'critico') {
+    insights.push(
+      `Seu desgaste projetado de ${lancamento.nonFinancial.desgasteProjetado}% e critico. O ecossistema reduz para ${ecossistema.nonFinancial.desgasteProjetado}%.`
+    );
+  } else if (diferencas.desgaste > 30) {
+    insights.push(
+      `Reducao de ${diferencas.desgaste} pontos no desgaste - isso significa finais de semana de volta.`
+    );
+  }
+
+  // Insight sobre sustentabilidade
+  if (ecossistema.nonFinancial.sustentabilidade >= 70) {
+    insights.push(
+      `Com ${ecossistema.nonFinancial.sustentabilidade}% de sustentabilidade, seu negocio pode funcionar mesmo quando voce nao esta presente.`
+    );
+  }
+
+  // Insight sobre breakeven
+  if (mesesParaBreakeven <= 6) {
+    insights.push(
+      `Breakeven em ${mesesParaBreakeven} meses significa que voce pode reduzir lancamentos ja neste semestre.`
+    );
+  } else if (mesesParaBreakeven <= 12) {
+    insights.push(
+      `Com breakeven em ${mesesParaBreakeven} meses, mantenha 1-2 lancamentos enquanto constroi a base.`
+    );
+  }
+
+  // Insight sobre dependencia
+  if (ecossistema.nonFinancial.dependencia < 50) {
+    insights.push(
+      `Dependencia de ${ecossistema.nonFinancial.dependencia}% significa que seu negocio comeca a ter vida propria.`
+    );
+  }
+
+  return insights.slice(0, 4);
+}
+
 // Re-export FrequenciaLancamento for convenience
 export type { FrequenciaLancamento } from './premisas';

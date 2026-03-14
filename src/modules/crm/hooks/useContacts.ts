@@ -102,6 +102,15 @@ export function useContacts({
         query = query.eq('contacts.source', filters.source);
       }
 
+      // Filter by origin (Outbound vs CRM)
+      if (filters.origin === 'outbound') {
+        // Outbound contacts have cadence_status set
+        query = query.not('cadence_status', 'is', null);
+      } else if (filters.origin === 'crm_only') {
+        // CRM-only contacts don't have cadence_status
+        query = query.is('cadence_status', null);
+      }
+
       // Apply sorting
       const sortField =
         sort.field === 'email' || sort.field === 'full_name'

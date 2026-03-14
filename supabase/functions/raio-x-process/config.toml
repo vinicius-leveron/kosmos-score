@@ -1,0 +1,2 @@
+# Disable JWT verification for public lead magnet
+verify_jwt = false

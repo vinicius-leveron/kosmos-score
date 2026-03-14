@@ -275,3 +275,113 @@ export function getStatusBgColor(
   };
   return colors[status];
 }
+
+// ============================================
+// NARRATIVAS PERSONALIZADAS
+// ============================================
+
+export interface LevelNarrative {
+  headline: string;
+  story: string;
+  emotion: string;
+  gapAnalysis: string;
+  urgency?: string;
+}
+
+/**
+ * Narrativas emocionais por nivel
+ */
+export const LEVEL_NARRATIVES: Record<MaturityLevel, LevelNarrative> = {
+  1: {
+    headline: 'Voce tem uma audiencia, nao um ecossistema',
+    story: 'Seus seguidores consomem seu conteudo, mas nao participam ativamente. Eles assistem, curtem, talvez comentem — mas nao criam vinculos entre si nem com o que voce representa.',
+    emotion: 'Este e o ponto de partida de todo criador. A boa noticia? Voce ja tem a materia-prima. Agora precisa transformar consumidores em participantes.',
+    gapAnalysis: 'O que separa voce de uma Comunidade (Nivel 2) e criar espacos onde as pessoas interajam — nao so com voce, mas entre si.',
+  },
+  2: {
+    headline: 'Voce construiu uma comunidade, mas ela depende de voce',
+    story: 'Parabens — voce criou algo real. Pessoas engajam, participam, se sentem parte. Mas quando voce para, tudo para. Voce e o sol ao redor do qual tudo gira.',
+    emotion: 'Isso e natural neste estagio. O desafio agora e criar estruturas que funcionem sem sua presenca constante.',
+    gapAnalysis: 'Para chegar ao Nivel 3 (Ecossistema), voce precisa de rituais autonomos, lideres emergentes, e processos que rodem sozinhos.',
+  },
+  3: {
+    headline: 'Seu ecossistema esta ganhando vida propria',
+    story: 'Membros se ajudam, existem rituais recorrentes, ha estrutura. As vezes funciona perfeitamente; as vezes ainda precisa do seu empurrao. Voce esta no caminho certo.',
+    emotion: 'Este e um momento de transicao importante. O ecossistema esta testando se consegue andar sozinho.',
+    gapAnalysis: 'Para virar um Movimento (Nivel 4), voce precisa de identidade coletiva mais forte e mecanismos de crescimento organico.',
+  },
+  4: {
+    headline: 'Voce esta construindo um movimento',
+    story: 'Membros trazem novos membros. Ha identidade compartilhada — as pessoas se veem como parte de algo maior. O crescimento acontece organicamente.',
+    emotion: 'Poucos criadores chegam aqui. Voce construiu algo que transcende o conteudo.',
+    gapAnalysis: 'O proximo passo para o Legado (Nivel 5) e garantir que o movimento continue sem voce: governanca clara, sucessao planejada.',
+  },
+  5: {
+    headline: 'Voce criou um legado',
+    story: 'Seu ecossistema funciona, cresce e evolui mesmo sem sua presenca constante. Voce construiu algo que impacta pessoas de forma autonoma.',
+    emotion: 'Isso e raro. Voce fez o que poucos conseguem: criar algo que transcende o criador.',
+    gapAnalysis: 'Seu proximo desafio e expandir o impacto, formar novos lideres, e compartilhar o modelo com outros.',
+  },
+};
+
+/**
+ * Gera narrativa personalizada baseada no perfil do usuario
+ */
+export function generatePersonalizedNarrative(result: DiagnosticResult): LevelNarrative {
+  const baseNarrative = LEVEL_NARRATIVES[result.level];
+
+  // Personaliza baseado em pontos fortes e fracos
+  let personalizedGap = baseNarrative.gapAnalysis;
+
+  if (result.weaknesses.length > 0) {
+    const weakestPillar = result.weaknesses[0];
+    const pillarTips: Record<MaturityPillar, string> = {
+      dependencia: 'Voce precisa urgentemente distribuir responsabilidades.',
+      conexao: 'Membros ainda dependem de voce para se conectar.',
+      estrutura: 'Faltam rituais que funcionem sem voce.',
+      onboarding: 'Novos membros demoram para se sentir em casa.',
+      ascensao: 'Nao ha caminhos claros para quem quer ir mais fundo.',
+      advocacy: 'Membros ainda nao indicam organicamente.',
+      tendencia: 'O engajamento esta caindo — atencao.',
+    };
+    personalizedGap = `${pillarTips[weakestPillar.pillar]} ${baseNarrative.gapAnalysis}`;
+  }
+
+  return {
+    ...baseNarrative,
+    gapAnalysis: personalizedGap,
+  };
+}
+
+/**
+ * Gera insights rapidos baseados no resultado
+ */
+export function generateQuickInsights(result: DiagnosticResult): string[] {
+  const insights: string[] = [];
+
+  // Insight sobre nivel
+  if (result.level <= 2) {
+    insights.push('Seu ecossistema ainda depende muito de voce — isso e normal neste estagio.');
+  } else if (result.level === 3) {
+    insights.push('Voce esta no ponto de virada — momento de acelerar a autonomia.');
+  } else {
+    insights.push('Voce esta entre os poucos que construiram algo com vida propria.');
+  }
+
+  // Insight sobre distribuicao de scores
+  const scoreVariance = Math.max(...result.pillarScores.map(p => p.score)) -
+                        Math.min(...result.pillarScores.map(p => p.score));
+  if (scoreVariance > 2) {
+    insights.push('Ha um desequilibrio entre suas areas — foque nas mais fracas.');
+  } else {
+    insights.push('Seus pilares estao equilibrados — bom sinal de consistencia.');
+  }
+
+  // Insight sobre pontos fortes
+  if (result.strengths.length > 0) {
+    const strongestLabel = result.strengths[0].label;
+    insights.push(`Seu ponto mais forte e ${strongestLabel.toLowerCase()} — use isso a seu favor.`);
+  }
+
+  return insights;
+}

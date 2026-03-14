@@ -10,3 +10,4 @@ export { RevenueTimelineChart, formatCurrency } from './RevenueTimelineChart';
 export { PipelineFunnelChart } from './PipelineFunnelChart';
 export { TopDealsTable } from './TopDealsTable';
 export { TasksSummaryCard } from './TasksSummaryCard';
+export { OutboundSummaryWidget } from './OutboundSummaryWidget';

@@ -1,15 +1,15 @@
 import { Button } from '@/design-system/primitives/button';
-import {
-  Share2,
-  Calendar,
-  ChevronRight,
-  TrendingUp,
-  TrendingDown,
-} from 'lucide-react';
+import { Share2, Calendar, ArrowRight, Sparkles } from 'lucide-react';
 import { cn } from '@/design-system/lib/utils';
 import { useEmbed } from '../contexts/EmbedContext';
-import { DiagnosticResult, getStatusColor, getStatusBgColor } from '../lib/scoring';
+import {
+  DiagnosticResult,
+  generatePersonalizedNarrative,
+  generateQuickInsights,
+  getStatusColor,
+} from '../lib/scoring';
 import { ShareableCard } from './ShareableCard';
+import { MaturityPyramid, MaturityJourney } from './MaturityPyramid';
 import { MATURITY_LEVELS } from '../lib/maturityLevels';
 
 interface ResultScreenProps {
@@ -24,17 +24,18 @@ export function ResultScreen({
   onShare,
 }: ResultScreenProps) {
   const { isEmbed } = useEmbed();
+  const narrative = generatePersonalizedNarrative(result);
+  const insights = generateQuickInsights(result);
 
   const handleShare = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Meu Diagnóstico de Maturidade - KOSMOS',
+          title: 'Meu Diagnostico de Maturidade - KOSMOS',
           text: result.shareText,
           url: window.location.href,
         });
-      } catch (err) {
-        // User cancelled or error
+      } catch {
         onShare();
       }
     } else {
@@ -42,10 +43,12 @@ export function ResultScreen({
     }
   };
 
+  const levelConfig = MATURITY_LEVELS[result.level];
+
   return (
     <div
       className={cn(
-        'bg-kosmos-black blueprint-grid px-4 relative',
+        'bg-kosmos-black blueprint-grid px-4 relative overflow-hidden',
         isEmbed ? 'min-h-0 py-4' : 'min-h-screen py-8 md:py-12'
       )}
     >
@@ -61,225 +64,290 @@ export function ResultScreen({
         </>
       )}
 
-      <div className="w-full max-w-3xl mx-auto space-y-6 relative z-10">
-        {/* Header */}
-        <div className="text-center mb-8 animate-fade-in">
-          <div className="inline-flex items-center gap-3 mb-4">
+      <div className="w-full max-w-3xl mx-auto space-y-8 relative z-10">
+        {/* ============================================ */}
+        {/* HERO SECTION - Nivel + Emoji + Headline */}
+        {/* ============================================ */}
+        <div className="text-center animate-fade-in">
+          {/* KOSMOS Badge */}
+          <div className="inline-flex items-center gap-3 mb-6">
             <div className="w-6 h-px bg-kosmos-orange" />
             <span className="text-kosmos-orange font-display font-semibold tracking-[0.3em] text-xs">
-              KOSMOS
+              SEU RESULTADO
             </span>
             <div className="w-6 h-px bg-kosmos-orange" />
           </div>
-          <p className="text-kosmos-gray text-sm">
-            Resultado do seu Diagnóstico de Maturidade
-          </p>
+
+          {/* Level Badge */}
+          <div
+            className={cn(
+              'inline-flex items-center justify-center w-24 h-24 rounded-3xl mb-6',
+              levelConfig.bgColor,
+              'animate-scale-in'
+            )}
+          >
+            <span className="text-5xl">{levelConfig.emoji}</span>
+          </div>
+
+          {/* Level Name */}
+          <div className="mb-4">
+            <span
+              className={cn(
+                'text-xs font-semibold tracking-[0.2em] uppercase',
+                levelConfig.color
+              )}
+            >
+              NIVEL {result.level}
+            </span>
+            <h1
+              className={cn(
+                'font-display text-3xl md:text-4xl font-bold mt-2',
+                levelConfig.color
+              )}
+            >
+              {levelConfig.name}
+            </h1>
+          </div>
+
+          {/* Emotional Headline */}
+          <h2 className="text-kosmos-white text-xl md:text-2xl font-medium max-w-xl mx-auto leading-relaxed">
+            {narrative.headline}
+          </h2>
         </div>
 
-        {/* Shareable Card */}
-        <div className="animate-scale-in">
+        {/* ============================================ */}
+        {/* PIRAMIDE VISUAL - Onde voce esta */}
+        {/* ============================================ */}
+        <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
+          <div className="card-structural p-6 md:p-8">
+            <h3 className="text-kosmos-white font-display font-semibold text-lg mb-6 text-center">
+              Sua Posicao na Piramide de Maturidade
+            </h3>
+            <MaturityPyramid currentLevel={result.level} size="lg" animated />
+          </div>
+        </div>
+
+        {/* ============================================ */}
+        {/* NARRATIVA - Historia do nivel atual */}
+        {/* ============================================ */}
+        <div
+          className="animate-fade-in"
+          style={{ animationDelay: '400ms' }}
+        >
+          <div className="card-structural p-6 md:p-8 relative overflow-hidden">
+            {/* Accent bar */}
+            <div
+              className={cn(
+                'absolute left-0 top-0 bottom-0 w-1 rounded-r',
+                result.level <= 2 && 'bg-orange-500',
+                result.level === 3 && 'bg-yellow-500',
+                result.level >= 4 && 'bg-emerald-500'
+              )}
+            />
+
+            <div className="pl-4">
+              <h3 className="text-kosmos-white font-display font-semibold text-lg mb-4">
+                O Que Isso Significa
+              </h3>
+
+              {/* Story */}
+              <p className="text-kosmos-gray-light text-base leading-relaxed mb-4">
+                {narrative.story}
+              </p>
+
+              {/* Emotion/Context */}
+              <p className="text-kosmos-gray text-sm leading-relaxed italic">
+                {narrative.emotion}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* ============================================ */}
+        {/* QUICK INSIGHTS - Destaques rapidos */}
+        {/* ============================================ */}
+        <div
+          className="animate-fade-in"
+          style={{ animationDelay: '500ms' }}
+        >
+          <div className="grid gap-3">
+            {insights.map((insight, index) => (
+              <div
+                key={index}
+                className="card-structural p-4 flex items-start gap-3"
+              >
+                <Sparkles className="w-5 h-5 text-kosmos-orange flex-shrink-0 mt-0.5" />
+                <p className="text-kosmos-gray-light text-sm">{insight}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ============================================ */}
+        {/* GAP ANALYSIS - O que falta para evoluir */}
+        {/* ============================================ */}
+        {result.level < 5 && (
+          <div
+            className="animate-fade-in"
+            style={{ animationDelay: '600ms' }}
+          >
+            <div className="card-structural p-6 md:p-8 border-kosmos-orange/30">
+              <h3 className="text-kosmos-orange font-display font-semibold text-lg mb-4 flex items-center gap-2">
+                <ArrowRight className="w-5 h-5" />
+                O Que Falta Para o Proximo Nivel
+              </h3>
+
+              <p className="text-kosmos-gray-light text-base leading-relaxed mb-6">
+                {narrative.gapAnalysis}
+              </p>
+
+              {/* Visual Journey */}
+              <div className="bg-kosmos-black/50 rounded-lg p-4">
+                <MaturityJourney
+                  currentLevel={result.level}
+                  showLabels
+                  animated
+                />
+              </div>
+
+              {/* Next Level Preview */}
+              {result.level < 5 && (
+                <div className="mt-6 pt-6 border-t border-border">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={cn(
+                        'w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0',
+                        MATURITY_LEVELS[(result.level + 1) as 1 | 2 | 3 | 4 | 5]
+                          .bgColor
+                      )}
+                    >
+                      <span className="text-2xl">
+                        {
+                          MATURITY_LEVELS[(result.level + 1) as 1 | 2 | 3 | 4 | 5]
+                            .emoji
+                        }
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-kosmos-gray text-xs mb-1">
+                        Proximo Nivel
+                      </p>
+                      <h4
+                        className={cn(
+                          'font-display font-bold text-lg',
+                          MATURITY_LEVELS[(result.level + 1) as 1 | 2 | 3 | 4 | 5]
+                            .color
+                        )}
+                      >
+                        {
+                          MATURITY_LEVELS[(result.level + 1) as 1 | 2 | 3 | 4 | 5]
+                            .name
+                        }
+                      </h4>
+                      <p className="text-kosmos-gray text-sm">
+                        {
+                          MATURITY_LEVELS[(result.level + 1) as 1 | 2 | 3 | 4 | 5]
+                            .headline
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ============================================ */}
+        {/* DIMENSOES - Breakdown visual compacto */}
+        {/* ============================================ */}
+        <div
+          className="animate-fade-in"
+          style={{ animationDelay: '700ms' }}
+        >
+          <div className="card-structural p-6">
+            <h3 className="text-kosmos-white font-display font-semibold text-base mb-4">
+              Suas Dimensoes
+            </h3>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {result.pillarScores.slice(0, 4).map((pillar) => (
+                <div
+                  key={pillar.pillar}
+                  className="bg-kosmos-black/50 rounded-lg p-3 text-center"
+                >
+                  <div
+                    className={cn(
+                      'text-2xl font-bold mb-1',
+                      getStatusColor(pillar.status)
+                    )}
+                  >
+                    {pillar.score.toFixed(1)}
+                  </div>
+                  <div className="text-kosmos-gray text-xs truncate">
+                    {pillar.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {result.pillarScores.length > 4 && (
+              <div className="grid grid-cols-3 gap-3 mt-3">
+                {result.pillarScores.slice(4).map((pillar) => (
+                  <div
+                    key={pillar.pillar}
+                    className="bg-kosmos-black/50 rounded-lg p-3 text-center"
+                  >
+                    <div
+                      className={cn(
+                        'text-2xl font-bold mb-1',
+                        getStatusColor(pillar.status)
+                      )}
+                    >
+                      {pillar.score.toFixed(1)}
+                    </div>
+                    <div className="text-kosmos-gray text-xs truncate">
+                      {pillar.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ============================================ */}
+        {/* SHAREABLE CARD */}
+        {/* ============================================ */}
+        <div
+          className="animate-fade-in"
+          style={{ animationDelay: '800ms' }}
+        >
+          <p className="text-kosmos-gray text-sm text-center mb-4">
+            Compartilhe seu resultado
+          </p>
           <ShareableCard
             level={result.level}
             levelInfo={result.levelInfo}
             averageScore={result.averageScore}
-            className="max-w-md mx-auto shadow-2xl"
+            className="max-w-sm mx-auto"
           />
         </div>
 
-        {/* Description */}
-        <div className="card-structural p-6 animate-fade-in">
-          <h3 className="text-kosmos-white font-display font-semibold text-lg mb-3">
-            O que isso significa?
-          </h3>
-          <p className="text-kosmos-gray leading-relaxed">
-            {result.levelInfo.description}
-          </p>
-        </div>
-
-        {/* Pillar Breakdown */}
-        <div className="card-structural p-6 animate-fade-in">
-          <h3 className="text-kosmos-white font-display font-semibold text-lg mb-4">
-            Análise por Dimensão
-          </h3>
-          <div className="space-y-3">
-            {result.pillarScores.map((pillar) => (
-              <div
-                key={pillar.pillar}
-                className="flex items-center justify-between p-3 rounded-lg bg-kosmos-black/50"
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={cn(
-                      'w-8 h-8 rounded-lg flex items-center justify-center',
-                      getStatusBgColor(pillar.status)
-                    )}
-                  >
-                    {pillar.status === 'critical' || pillar.status === 'weak' ? (
-                      <TrendingDown
-                        className={cn('w-4 h-4', getStatusColor(pillar.status))}
-                      />
-                    ) : (
-                      <TrendingUp
-                        className={cn('w-4 h-4', getStatusColor(pillar.status))}
-                      />
-                    )}
-                  </div>
-                  <span className="text-kosmos-white text-sm font-medium">
-                    {pillar.label}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-24 h-2 bg-border rounded-full overflow-hidden">
-                    <div
-                      className={cn(
-                        'h-full transition-all duration-500',
-                        pillar.status === 'critical' && 'bg-red-500',
-                        pillar.status === 'weak' && 'bg-orange-500',
-                        pillar.status === 'moderate' && 'bg-yellow-500',
-                        pillar.status === 'strong' && 'bg-emerald-500',
-                        pillar.status === 'excellent' && 'bg-cyan-500'
-                      )}
-                      style={{ width: `${(pillar.score / 5) * 100}%` }}
-                    />
-                  </div>
-                  <span
-                    className={cn('text-sm font-medium w-8', getStatusColor(pillar.status))}
-                  >
-                    {pillar.score.toFixed(1)}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Strengths & Weaknesses */}
-        <div className="grid md:grid-cols-2 gap-4 animate-fade-in">
-          {/* Strengths */}
-          {result.strengths.length > 0 && (
-            <div className="card-structural p-6">
-              <h3 className="text-emerald-400 font-display font-semibold text-base mb-3 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" />
-                Seus Pontos Fortes
-              </h3>
-              <ul className="space-y-2">
-                {result.strengths.map((s) => (
-                  <li
-                    key={s.pillar}
-                    className="text-kosmos-gray text-sm flex items-center gap-2"
-                  >
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    {s.label}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Weaknesses */}
-          {result.weaknesses.length > 0 && (
-            <div className="card-structural p-6">
-              <h3 className="text-orange-400 font-display font-semibold text-base mb-3 flex items-center gap-2">
-                <TrendingDown className="w-4 h-4" />
-                Pontos de Atenção
-              </h3>
-              <ul className="space-y-2">
-                {result.weaknesses.map((w) => (
-                  <li
-                    key={w.pillar}
-                    className="text-kosmos-gray text-sm flex items-center gap-2"
-                  >
-                    <div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-                    {w.label}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-
-        {/* What's Missing */}
-        <div className="card-structural p-6 animate-fade-in">
-          <h3 className="text-kosmos-white font-display font-semibold text-lg mb-3">
-            O que está faltando para o próximo nível?
-          </h3>
-          <ul className="space-y-3">
-            {result.levelInfo.whatsMissing.slice(0, 4).map((item, index) => (
-              <li
-                key={index}
-                className="flex items-start gap-3 text-kosmos-gray"
-              >
-                <ChevronRight className="w-4 h-4 text-kosmos-orange flex-shrink-0 mt-0.5" />
-                <span className="text-sm">{item}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Recommendations */}
-        {result.recommendations.length > 0 && (
-          <div className="card-structural p-6 border-kosmos-orange/30 animate-fade-in">
-            <h3 className="text-kosmos-orange font-display font-semibold text-lg mb-3">
-              Recomendações Personalizadas
-            </h3>
-            <ul className="space-y-3">
-              {result.recommendations.map((rec, index) => (
-                <li
-                  key={index}
-                  className="flex items-start gap-3 text-kosmos-gray"
-                >
-                  <span className="text-kosmos-orange font-bold text-sm">
-                    {index + 1}.
-                  </span>
-                  <span className="text-sm">{rec}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Next Level Preview */}
-        {result.level < 5 && (
-          <div className="card-structural p-6 bg-gradient-to-r from-kosmos-orange/5 to-transparent animate-fade-in">
-            <div className="flex items-start gap-4">
-              <div
-                className={cn(
-                  'w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0',
-                  MATURITY_LEVELS[(result.level + 1) as 1 | 2 | 3 | 4 | 5].bgColor
-                )}
-              >
-                <span className="text-2xl">
-                  {MATURITY_LEVELS[(result.level + 1) as 1 | 2 | 3 | 4 | 5].emoji}
-                </span>
-              </div>
-              <div>
-                <p className="text-kosmos-gray text-xs mb-1">Próximo Nível</p>
-                <h4
-                  className={cn(
-                    'font-display font-bold text-lg mb-1',
-                    MATURITY_LEVELS[(result.level + 1) as 1 | 2 | 3 | 4 | 5].color
-                  )}
-                >
-                  Nível {result.level + 1} ·{' '}
-                  {MATURITY_LEVELS[(result.level + 1) as 1 | 2 | 3 | 4 | 5].name}
-                </h4>
-                <p className="text-kosmos-gray text-sm">
-                  {MATURITY_LEVELS[(result.level + 1) as 1 | 2 | 3 | 4 | 5].headline}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
+        {/* ============================================ */}
         {/* CTAs */}
-        <div className="space-y-3 animate-fade-in">
+        {/* ============================================ */}
+        <div
+          className="space-y-3 animate-fade-in"
+          style={{ animationDelay: '900ms' }}
+        >
           <Button
             onClick={onScheduleCall}
             size="lg"
             className="w-full h-14 text-base font-display font-semibold bg-kosmos-orange hover:bg-kosmos-orange-glow glow-orange-subtle hover:glow-orange text-white transition-all duration-300"
           >
             <Calendar className="w-5 h-5 mr-2" />
-            Agendar Diagnóstico Profundo
+            Quero Evoluir Meu Ecossistema
           </Button>
 
           <Button

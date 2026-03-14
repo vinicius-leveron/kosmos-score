@@ -22,6 +22,7 @@ import { handleDashboard } from './routes/dashboard.ts';
 import { handleAccounts } from './routes/accounts.ts';
 import { handleTransactions } from './routes/transactions.ts';
 import { handleCategories } from './routes/categories.ts';
+import { handleRecurrences } from './routes/recurrences.ts';
 import type { AuthResult } from './types.ts';
 
 type RouteHandler = (
@@ -36,6 +37,7 @@ const routes: Record<string, RouteHandler> = {
   accounts: handleAccounts,
   transactions: handleTransactions,
   categories: handleCategories,
+  recurrences: handleRecurrences,
   cashflow: handleDashboard,
   dre: handleDashboard,
 };
@@ -66,6 +68,7 @@ Deno.serve(async (req: Request) => {
           '/v1/dre',
           '/v1/transactions',
           '/v1/categories',
+          '/v1/recurrences',
         ],
       }), {
         status: 200,

@@ -22,6 +22,7 @@ import { ContactAvatar, ScoreBadge, JourneyStageSelect } from '../shared';
 import { ActivityTimeline } from '../timeline/ActivityTimeline';
 import { ScoreDisplay } from './ScoreDisplay';
 import { ContactPipelinesList } from './ContactPipelinesList';
+import { OutboundInfoSection } from './OutboundInfoSection';
 import { QuickActionsMenu } from '../quick-actions';
 import { TaskPanel } from '../tasks';
 
@@ -157,6 +158,9 @@ export function ContactDetail({ contactOrgId, onClose }: ContactDetailProps) {
           <Separator />
         </>
       )}
+
+      {/* Outbound Info - only shows if contact came from Outbound */}
+      <OutboundInfoSection contactOrgId={contactOrgId} />
 
       {/* Pipelines */}
       <ContactPipelinesList contactOrgId={contactOrgId} />

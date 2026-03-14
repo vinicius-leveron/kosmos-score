@@ -67,6 +67,80 @@ export function useCreateRecurrence() {
   });
 }
 
+export function useUpdateRecurrence() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      recurrenceId,
+      data,
+    }: {
+      recurrenceId: string;
+      data: Partial<RecurrenceFormData>;
+    }) => {
+      const { data: recurrence, error } = await supabase
+        .from('financial_recurrences')
+        .update({
+          description: data.description,
+          amount: data.amount,
+          frequency: data.frequency,
+          start_date: data.start_date,
+          end_date: data.end_date || null,
+          day_of_month: data.day_of_month || null,
+          category_id: data.category_id || null,
+          account_id: data.account_id || null,
+          cost_center_id: data.cost_center_id || null,
+          counterparty_name: data.counterparty_name || null,
+        })
+        .eq('id', recurrenceId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Propagate changes to pending transactions via RPC
+      await supabase.rpc('propagate_recurrence_changes', {
+        p_recurrence_id: recurrenceId,
+      });
+
+      return recurrence;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['financial-recurrences'] });
+      queryClient.invalidateQueries({ queryKey: ['financial-transactions'] });
+    },
+  });
+}
+
+export function useGenerateRecurrence() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      recurrenceId,
+      untilDate,
+    }: {
+      recurrenceId: string;
+      untilDate?: string;
+    }) => {
+      // Default to 3 months from now
+      const until = untilDate || new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      const { data, error } = await supabase.rpc('generate_recurrence_transactions', {
+        p_recurrence_id: recurrenceId,
+        p_until_date: until,
+      });
+
+      if (error) throw error;
+      return { generated_count: data, until_date: until };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['financial-recurrences'] });
+      queryClient.invalidateQueries({ queryKey: ['financial-transactions'] });
+    },
+  });
+}
+
 export function useDeleteRecurrence() {
   const queryClient = useQueryClient();
 

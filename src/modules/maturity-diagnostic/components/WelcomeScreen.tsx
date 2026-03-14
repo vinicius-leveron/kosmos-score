@@ -94,15 +94,10 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
             </p>
 
             {/* Stats */}
-            <div className="flex items-center justify-center gap-6 mb-8 text-sm">
+            <div className="flex items-center justify-center mb-8 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-kosmos-orange" />
-                <span className="text-kosmos-gray-light">3 minutos</span>
-              </div>
-              <div className="w-px h-4 bg-border" />
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-kosmos-orange" />
-                <span className="text-kosmos-gray-light">7 perguntas</span>
+                <span className="text-kosmos-gray-light">7 perguntas rapidas</span>
               </div>
             </div>
 

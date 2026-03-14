@@ -85,15 +85,10 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
               um ecossistema que funciona com ou sem voce.
             </p>
 
-            <div className="flex items-center justify-center gap-6 mb-8 text-sm">
+            <div className="flex items-center justify-center mb-8 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-kosmos-orange" />
-                <span className="text-kosmos-gray-light">15-20 minutos</span>
-              </div>
-              <div className="w-px h-4 bg-border" />
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-kosmos-orange" />
-                <span className="text-kosmos-gray-light">{ECOSYSTEM_LAYERS.length} camadas</span>
+                <span className="text-kosmos-gray-light">{ECOSYSTEM_LAYERS.length} camadas para mapear</span>
               </div>
             </div>
 

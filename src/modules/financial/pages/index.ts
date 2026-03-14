@@ -6,3 +6,4 @@ export { FinancialDashboardPage } from './FinancialDashboardPage';
 export { CashFlowPage } from './CashFlowPage';
 export { DrePage } from './DrePage';
 export { ReconciliationPage } from './ReconciliationPage';
+export { RecurrencesPage } from './RecurrencesPage';

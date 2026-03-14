@@ -154,6 +154,9 @@ export interface ContactListItem {
   updated_at: string;
 }
 
+// Origem do contato (CRM ou Outbound)
+export type ContactOrigin = 'all' | 'outbound' | 'crm_only';
+
 // Filtros para listagem
 export interface ContactFilters {
   search?: string;
@@ -163,6 +166,7 @@ export interface ContactFilters {
   score_min?: number;
   score_max?: number;
   source?: ContactSource;
+  origin?: ContactOrigin;
 }
 
 // Ordenação

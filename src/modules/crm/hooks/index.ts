@@ -16,3 +16,7 @@ export * from './useContactPipelines';
 // B2B CRM hooks
 export * from './useCompanies';
 export * from './useDeals';
+
+// Outbound integration
+export * from './useSendToPipeline';
+export * from './useOutboundInfo';

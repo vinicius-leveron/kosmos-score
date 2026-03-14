@@ -83,15 +83,10 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
               ou construir um ecossistema com receita previsivel.
             </p>
 
-            <div className="flex items-center justify-center gap-6 mb-8 text-sm">
+            <div className="flex items-center justify-center mb-8 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-kosmos-orange" />
-                <span className="text-kosmos-gray-light">4 minutos</span>
-              </div>
-              <div className="w-px h-4 bg-border" />
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-kosmos-orange" />
-                <span className="text-kosmos-gray-light">Comparativo completo</span>
+                <span className="text-kosmos-gray-light">Comparativo completo lado a lado</span>
               </div>
             </div>
 

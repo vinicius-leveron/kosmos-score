@@ -15,6 +15,9 @@ export type FinancialAccountType = 'checking' | 'savings' | 'cash' | 'credit_car
 // Category types
 export type FinancialCategoryType = 'revenue' | 'expense' | 'cost';
 
+// Recurrence frequency
+export type RecurrenceFrequency = 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'bimonthly' | 'quarterly' | 'semiannual' | 'annual';
+
 // Transaction input
 export interface TransactionInput {
   type: FinancialTransactionType;
@@ -141,4 +144,45 @@ export interface PaginatedResponse<T> {
     per_page: number;
     total_pages: number;
   };
+}
+
+// Recurrence input
+export interface RecurrenceInput {
+  description: string;
+  type: FinancialTransactionType;
+  amount: number;
+  frequency: RecurrenceFrequency;
+  start_date: string;
+  end_date?: string | null;
+  day_of_month?: number | null;
+  category_id?: string | null;
+  account_id?: string | null;
+  cost_center_id?: string | null;
+  counterparty_name?: string | null;
+}
+
+// Recurrence response
+export interface RecurrenceResponse {
+  id: string;
+  description: string;
+  type: FinancialTransactionType;
+  amount: number;
+  frequency: RecurrenceFrequency;
+  start_date: string;
+  end_date: string | null;
+  day_of_month: number | null;
+  next_due_date: string | null;
+  last_generated_date: string | null;
+  category_id: string | null;
+  category_name: string | null;
+  account_id: string | null;
+  account_name: string | null;
+  counterparty_name: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+// Generate recurrence input
+export interface GenerateRecurrenceInput {
+  until_date?: string;
 }

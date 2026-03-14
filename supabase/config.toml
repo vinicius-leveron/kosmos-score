@@ -1,1 +1,7 @@
 project_id = "peegicizxybjgvuutegc"
+
+[functions.raio-x-process]
+verify_jwt = false
+
+[functions.send-raio-x-email]
+verify_jwt = true

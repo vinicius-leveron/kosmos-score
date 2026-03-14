@@ -6,6 +6,13 @@ import { Badge } from '@/design-system/primitives/badge';
 import { Skeleton } from '@/design-system/primitives/skeleton';
 import { Avatar, AvatarFallback } from '@/design-system/primitives/avatar';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/design-system/primitives/select';
+import {
   ChevronLeft,
   ChevronRight,
   Search,
@@ -16,13 +23,14 @@ import {
   MapPin,
   Building,
   Tag,
+  Radio,
 } from 'lucide-react';
 import { cn } from '@/design-system/lib/utils';
 import { useContacts } from '../../hooks/useContacts';
 import { ScoreBadge } from '../shared';
 import { QuickActionsMenu } from '../quick-actions';
 import { useOrganization } from '@/core/auth';
-import type { ContactFilters, ContactSort, ContactListItem } from '../../types';
+import type { ContactFilters, ContactSort, ContactListItem, ContactOrigin } from '../../types';
 
 interface ContactsListProps {
   onSelectContact: (contact: ContactListItem) => void;
@@ -51,6 +59,12 @@ export const ContactsList = memo(function ContactsList({
 
   const handleSearch = (value: string) => {
     setFilters((prev) => ({ ...prev, search: value || undefined }));
+    setPage(1);
+  };
+
+  const handleOriginChange = (value: string) => {
+    const origin = value === 'all' ? undefined : value as ContactOrigin;
+    setFilters((prev) => ({ ...prev, origin }));
     setPage(1);
   };
 
@@ -96,6 +110,20 @@ export const ContactsList = memo(function ContactsList({
             onChange={(e) => handleSearch(e.target.value)}
           />
         </div>
+        <Select
+          value={filters.origin || 'all'}
+          onValueChange={handleOriginChange}
+        >
+          <SelectTrigger className="w-[160px]">
+            <Radio className="h-4 w-4 mr-2 text-muted-foreground" />
+            <SelectValue placeholder="Origem" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas origens</SelectItem>
+            <SelectItem value="outbound">Outbound</SelectItem>
+            <SelectItem value="crm_only">CRM Manual</SelectItem>
+          </SelectContent>
+        </Select>
         <div className="text-sm text-muted-foreground">
           {data?.total ?? 0} contatos encontrados
         </div>

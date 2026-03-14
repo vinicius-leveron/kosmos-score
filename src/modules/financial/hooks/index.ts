@@ -5,6 +5,6 @@ export { useTransactions, useTransactionDetail, useCreateTransaction, useUpdateT
 export { useFinancialDashboard } from './useFinancialDashboard';
 export { useCashFlow } from './useCashFlow';
 export { useDre } from './useDre';
-export { useRecurrences, useCreateRecurrence, useDeleteRecurrence } from './useRecurrences';
+export { useRecurrences, useCreateRecurrence, useUpdateRecurrence, useGenerateRecurrence, useDeleteRecurrence } from './useRecurrences';
 export { useCreateReceivableFromDeal } from './useCrmIntegration';
 export { useReconciliationImports, useReconciliationEntries, useMatchEntry, useIgnoreEntry } from './useReconciliation';
