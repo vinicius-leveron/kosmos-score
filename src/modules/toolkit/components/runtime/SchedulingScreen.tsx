@@ -31,18 +31,23 @@ export function SchedulingScreen({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { scheduling_screen, crm_config } = form;
+  const scheduling_screen = form?.scheduling_screen;
+  const crm_config = form?.crm_config;
 
   // Build prefill params from submission
   const prefillParams = useMemo(() => {
     const params = new URLSearchParams();
 
-    if (submission.respondent_email) {
+    if (submission?.respondent_email) {
       params.set('email', submission.respondent_email);
     }
 
-    // Try to extract name from answers
-    if (crm_config.nameFieldKey && submission.answers[crm_config.nameFieldKey]) {
+    // Try to extract name from answers (with defensive checks)
+    if (
+      crm_config?.nameFieldKey &&
+      submission?.answers &&
+      submission.answers[crm_config.nameFieldKey]
+    ) {
       const nameValue = submission.answers[crm_config.nameFieldKey].value;
       if (typeof nameValue === 'string') {
         params.set('name', nameValue);
