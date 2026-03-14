@@ -2,7 +2,7 @@
  * SchedulingScreen - Cal.com inline embed for scheduling
  */
 
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Button } from '@/design-system/primitives/button';
 import { ArrowLeft } from 'lucide-react';
 import type { FormWithRelations, FormSubmission } from '../../types/form.types';
@@ -28,7 +28,6 @@ export function SchedulingScreen({
   onBack,
   onScheduled,
 }: SchedulingScreenProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const scheduling_screen = form?.scheduling_screen;
@@ -57,7 +56,13 @@ export function SchedulingScreen({
     return params.toString();
   }, [submission, crm_config]);
 
-  // Initialize Cal.com embed
+  // Initialize Cal.com embed using iframe approach (more reliable)
+  const calLink = scheduling_screen?.eventType
+    ? `${scheduling_screen.calLink}/${scheduling_screen.eventType}`
+    : scheduling_screen?.calLink || '';
+
+  const calUrl = `https://cal.com/${calLink}?embed=true&theme=${scheduling_screen?.theme || 'dark'}&layout=${scheduling_screen?.layout || 'month_view'}`;
+
   useEffect(() => {
     if (!scheduling_screen?.calLink) {
       setError('Cal.com link not configured');
@@ -65,72 +70,12 @@ export function SchedulingScreen({
       return;
     }
 
-    const calLink = scheduling_screen.eventType
-      ? `${scheduling_screen.calLink}/${scheduling_screen.eventType}`
-      : scheduling_screen.calLink;
-
-    // Cal.com official embed snippet - creates Cal function stub before loading script
-    (function (C: Window & { Cal?: CalFunction }, A: string, L: string) {
-      const p = function (a: CalFunction, ar: IArguments | unknown[]) {
-        a.q.push(ar);
-      };
-      const d = C.document;
-      C.Cal =
-        C.Cal ||
-        function () {
-          const cal = C.Cal as CalFunction;
-          const ar = arguments;
-          if (!cal.loaded) {
-            cal.ns = {};
-            cal.q = cal.q || [];
-            const script = d.createElement('script');
-            script.src = A;
-            d.head.appendChild(script);
-            cal.loaded = true;
-          }
-          if (ar[0] === L) {
-            const api = function () {
-              p(api as CalFunction, arguments);
-            } as CalFunction;
-            const namespace = ar[1] as string;
-            api.hierarchyLevel = 1;
-            api.init = function () {
-              p(api, ['__init', arguments]);
-            };
-            api.q = [];
-            cal.ns[namespace] = api;
-            return;
-          }
-          p(cal, ar);
-        };
-    })(window as Window & { Cal?: CalFunction }, 'https://app.cal.com/embed/embed.js', 'init');
-
-    // Initialize Cal
-    window.Cal('init', { origin: 'https://app.cal.com' });
-
-    // Create inline embed
-    window.Cal('inline', {
-      elementOrSelector: '#kosmos-cal-embed',
-      calLink: calLink,
-      config: {
-        layout: scheduling_screen.layout || 'month_view',
-        theme: scheduling_screen.theme === 'auto' ? 'dark' : scheduling_screen.theme,
-      },
-    });
-
-    // Apply UI customization
-    window.Cal('ui', {
-      theme: scheduling_screen.theme === 'auto' ? 'dark' : scheduling_screen.theme,
-      styles: { branding: { brandColor: scheduling_screen.brandColor || '#FF6B35' } },
-      hideEventTypeDetails: scheduling_screen.hideEventTypeDetails || false,
-      layout: scheduling_screen.layout || 'month_view',
-    });
-
+    // Set loading to false once we have the calLink
     setIsLoading(false);
 
     // Listen for booking completion
     const handleMessage = (e: MessageEvent) => {
-      if (e.origin !== 'https://app.cal.com') return;
+      if (e.origin !== 'https://cal.com' && e.origin !== 'https://app.cal.com') return;
       if (e.data?.type === 'booking-confirmed' || e.data?.type === 'booking_successful') {
         onScheduled?.();
       }
@@ -189,12 +134,14 @@ export function SchedulingScreen({
               )}
             </div>
           )}
-          <div
-            id="kosmos-cal-embed"
-            ref={containerRef}
-            className="w-full min-h-[600px] rounded-lg overflow-hidden"
-            style={{ display: isLoading || error ? 'none' : 'block' }}
-          />
+          {!isLoading && !error && (
+            <iframe
+              src={calUrl}
+              title="Agendar conversa"
+              className="w-full min-h-[700px] rounded-lg border-0"
+              allow="camera; microphone; payment"
+            />
+          )}
         </div>
       </div>
 
