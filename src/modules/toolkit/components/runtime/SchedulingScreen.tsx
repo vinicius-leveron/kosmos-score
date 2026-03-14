@@ -65,55 +65,68 @@ export function SchedulingScreen({
       return;
     }
 
-    const initCal = () => {
-      if (typeof window.Cal === 'undefined') {
-        setError('Failed to load scheduling widget');
-        setIsLoading(false);
-        return;
-      }
+    const calLink = scheduling_screen.eventType
+      ? `${scheduling_screen.calLink}/${scheduling_screen.eventType}`
+      : scheduling_screen.calLink;
 
-      try {
-        const calLink = scheduling_screen.eventType
-          ? `${scheduling_screen.calLink}/${scheduling_screen.eventType}`
-          : scheduling_screen.calLink;
-
-        const fullCalLink = prefillParams ? `${calLink}?${prefillParams}` : calLink;
-
-        window.Cal('init', { origin: 'https://app.cal.com' });
-        window.Cal('inline', {
-          elementOrSelector: '#kosmos-cal-embed',
-          calLink: fullCalLink,
-          layout: scheduling_screen.layout || 'month_view',
-        });
-        window.Cal('ui', {
-          theme: scheduling_screen.theme === 'auto' ? 'dark' : scheduling_screen.theme,
-          styles: { branding: { brandColor: scheduling_screen.brandColor || '#FF6B35' } },
-          hideEventTypeDetails: scheduling_screen.hideEventTypeDetails || false,
-          layout: scheduling_screen.layout || 'month_view',
-        });
-
-        setIsLoading(false);
-      } catch (err) {
-        console.error('Failed to initialize Cal.com:', err);
-        setError('Failed to initialize scheduling widget');
-        setIsLoading(false);
-      }
-    };
-
-    // Load Cal.com script if not already loaded
-    if (typeof window.Cal === 'undefined') {
-      const script = document.createElement('script');
-      script.src = 'https://app.cal.com/embed/embed.js';
-      script.async = true;
-      script.onload = initCal;
-      script.onerror = () => {
-        setError('Failed to load scheduling widget');
-        setIsLoading(false);
+    // Cal.com official embed snippet - creates Cal function stub before loading script
+    (function (C: Window & { Cal?: CalFunction }, A: string, L: string) {
+      const p = function (a: CalFunction, ar: IArguments | unknown[]) {
+        a.q.push(ar);
       };
-      document.head.appendChild(script);
-    } else {
-      initCal();
-    }
+      const d = C.document;
+      C.Cal =
+        C.Cal ||
+        function () {
+          const cal = C.Cal as CalFunction;
+          const ar = arguments;
+          if (!cal.loaded) {
+            cal.ns = {};
+            cal.q = cal.q || [];
+            const script = d.createElement('script');
+            script.src = A;
+            d.head.appendChild(script);
+            cal.loaded = true;
+          }
+          if (ar[0] === L) {
+            const api = function () {
+              p(api as CalFunction, arguments);
+            } as CalFunction;
+            const namespace = ar[1] as string;
+            api.hierarchyLevel = 1;
+            api.init = function () {
+              p(api, ['__init', arguments]);
+            };
+            api.q = [];
+            cal.ns[namespace] = api;
+            return;
+          }
+          p(cal, ar);
+        };
+    })(window as Window & { Cal?: CalFunction }, 'https://app.cal.com/embed/embed.js', 'init');
+
+    // Initialize Cal
+    window.Cal('init', { origin: 'https://app.cal.com' });
+
+    // Create inline embed
+    window.Cal('inline', {
+      elementOrSelector: '#kosmos-cal-embed',
+      calLink: calLink,
+      config: {
+        layout: scheduling_screen.layout || 'month_view',
+        theme: scheduling_screen.theme === 'auto' ? 'dark' : scheduling_screen.theme,
+      },
+    });
+
+    // Apply UI customization
+    window.Cal('ui', {
+      theme: scheduling_screen.theme === 'auto' ? 'dark' : scheduling_screen.theme,
+      styles: { branding: { brandColor: scheduling_screen.brandColor || '#FF6B35' } },
+      hideEventTypeDetails: scheduling_screen.hideEventTypeDetails || false,
+      layout: scheduling_screen.layout || 'month_view',
+    });
+
+    setIsLoading(false);
 
     // Listen for booking completion
     const handleMessage = (e: MessageEvent) => {
@@ -125,7 +138,7 @@ export function SchedulingScreen({
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [scheduling_screen, prefillParams, onScheduled]);
+  }, [scheduling_screen, onScheduled]);
 
   return (
     <div className="min-h-screen bg-kosmos-black blueprint-grid flex flex-col">

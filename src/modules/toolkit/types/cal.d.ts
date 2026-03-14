@@ -38,8 +38,10 @@ interface CalFunction {
   (action: 'ui', options: CalUIOptions): void;
   (action: string, options?: Record<string, unknown>): void;
   loaded?: boolean;
-  ns?: Record<string, CalFunction>;
-  q?: unknown[];
+  ns: Record<string, CalFunction>;
+  q: unknown[];
+  hierarchyLevel?: number;
+  init?: (...args: unknown[]) => void;
 }
 
 declare global {
