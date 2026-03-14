@@ -21,6 +21,7 @@ import NotFound from "./pages/NotFound";
 // Public pages
 import Index from "./pages/Index"; // KOSMOS Score quiz
 import { EmbedKosmosScore } from "./pages/EmbedKosmosScore";
+import { TestSchedulingPage } from "./pages/TestSchedulingPage";
 
 // Lead Magnet pages - Lazy loaded
 const MaturityDiagnosticPage = lazy(() => import("./modules/maturity-diagnostic").then(m => ({ default: m.MaturityDiagnosticPage })));
@@ -74,6 +75,7 @@ const DrePage = lazy(() => import("./modules/financial/pages").then(m => ({ defa
 const FinancialCategoriesPage = lazy(() => import("./modules/financial/pages").then(m => ({ default: m.CategoriesPage })));
 const FinancialAccountsPage = lazy(() => import("./modules/financial/pages").then(m => ({ default: m.AccountsPage })));
 const ReconciliationPage = lazy(() => import("./modules/financial/pages").then(m => ({ default: m.ReconciliationPage })));
+const RecurrencesPage = lazy(() => import("./modules/financial/pages").then(m => ({ default: m.RecurrencesPage })));
 
 // Loading component for lazy loaded pages
 import { PageLoader } from "@/design-system/components/PageLoader";
@@ -114,6 +116,8 @@ const App = () => (
             <Route path="/f/:slug" element={<FormPublicPage />} />
             <Route path="/journey/client/:token" element={<Suspense fallback={<PageLoader />}><JourneyClientPage /></Suspense>} />
             <Route path="/invite/:token" element={<AcceptInvitePage />} />
+            {/* Test Routes */}
+            <Route path="/test/scheduling" element={<TestSchedulingPage />} />
 
             {/* ADMIN PORTAL */}
             <Route
@@ -161,6 +165,7 @@ const App = () => (
               <Route path="financial/categories" element={<Suspense fallback={<PageLoader />}><FinancialCategoriesPage /></Suspense>} />
               <Route path="financial/accounts" element={<Suspense fallback={<PageLoader />}><FinancialAccountsPage /></Suspense>} />
               <Route path="financial/reconciliation" element={<Suspense fallback={<PageLoader />}><ReconciliationPage /></Suspense>} />
+              <Route path="financial/recurrences" element={<Suspense fallback={<PageLoader />}><RecurrencesPage /></Suspense>} />
             </Route>
 
             {/* CLIENT PORTAL */}
